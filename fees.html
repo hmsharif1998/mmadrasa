@@ -1,81 +1,155 @@
+--- START OF FILE fees.html ---
+<style>
+    /* থার্মাল প্রিন্টিং এর জন্য ডেডিকেটেড মিডিয়া কোয়েরি */
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+        #receipt-print-area, #receipt-print-area * {
+            visibility: visible !important;
+        }
+        #receipt-print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            font-size: 11px !important;
+            line-height: 1.4 !important;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     <!-- বেতন আদায় ফর্ম (১ ভাগ জায়গা নেবে) -->
-    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
+    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit relative">
         <h3 id="fee-form-title" class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন
         </h3>
 
         <form id="fees-form" class="space-y-4">
             <input type="hidden" id="editing-receipt-id" value="">
+            <input type="hidden" id="fee-student-id" required>
 
-            <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-1">ছাত্র নির্বাচন করুন *</label>
-                <select id="fee-student-id" required
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
-                    <option value="">ছাত্র নির্বাচন করুন</option>
-                </select>
+            <!-- খোঁজার সুবিধাসহ শিক্ষার্থী সিলেক্টর (Autocomplete Search) -->
+            <div class="relative">
+                <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্র খুঁজুন *</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="student-search-input" oninput="searchStudentsForFee()" placeholder="নাম, রোল বা আইডি লিখে খুঁজুন..." autocomplete="off"
+                           class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold">
+                </div>
+                <!-- কাস্টম ড্রপডাউন রেজাল্ট লিস্ট -->
+                <div id="student-search-results" class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto hidden divide-y divide-gray-50"></div>
+            </div>
+
+            <!-- শিক্ষার্থীর ইনস্ট্যান্ট প্রোফাইল কার্ড (সিলেক্ট করার পর দেখাবে) -->
+            <div id="student-quick-info" class="hidden"></div>
+
+            <!-- বেতন, জরিমানা ও ছাড় এর ঘরসমূহ -->
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">পরিমাণ (৳) *</label>
+                    <input type="number" id="fee-amount" required placeholder="যেমন: ৫০০" min="0" oninput="calculateTotal()"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">জরিমানা (+)</label>
+                    <input type="number" id="fee-fine" placeholder="০" min="0" value="0" oninput="calculateTotal()"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">বিশেষ ছাড় (-)</label>
+                    <input type="number" id="fee-discount" placeholder="০" min="0" value="0" oninput="calculateTotal()"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                </div>
+            </div>
+
+            <!-- স্বয়ংক্রিয়ভাবে হিসাবকৃত মোট টাকার ঘর -->
+            <div class="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-200 flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-500">সর্বমোট আদায়যোগ্য:</span>
+                <span class="text-sm font-extrabold text-emerald-800 font-en">৳ <span id="fee-total">0</span></span>
+            </div>
+
+            <!-- মাস, তারিখ ও পেমেন্ট মাধ্যম -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">বেতনের মাস *</label>
+                    <select id="fee-month" required
+                            class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
+                        <option value="">মাস নির্বাচন করুন</option>
+                        <option value="জানুয়ারি">জানুয়ারি</option>
+                        <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                        <option value="মার্চ">মার্চ</option>
+                        <option value="এপ্রিল">এপ্রিল</option>
+                        <option value="মে">মে</option>
+                        <option value="জুন">জুন</option>
+                        <option value="জুলাই">জুলাই</option>
+                        <option value="আগস্ট">আগস্ট</option>
+                        <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                        <option value="অক্টোবর">অক্টোবর</option>
+                        <option value="নভেম্বর">নভেম্বর</option>
+                        <option value="ডিসেম্বর">ডিসেম্বর</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">পেমেন্ট মাধ্যম *</label>
+                    <select id="fee-method" required
+                            class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
+                        <option value="ক্যাশ">ক্যাশ (নগদ)</option>
+                        <option value="বিকাশ">বিকাশ</option>
+                        <option value="নগদ">নগদ (অ্যাপ)</option>
+                        <option value="রকেট">রকেট</option>
+                        <option value="ব্যাংক">ব্যাংক</option>
+                    </select>
+                </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-1">বেতনের পরিমাণ (টাকা) *</label>
-                <input type="number" id="fee-amount" required placeholder="যেমন: ৫০০" min="1"
-                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-1">কোন মাসের বেতন *</label>
-                <select id="fee-month" required
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
-                    <option value="">মাস নির্বাচন করুন</option>
-                    <option value="জানুয়ারি">জানুয়ারি</option>
-                    <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
-                    <option value="মার্চ">মার্চ</option>
-                    <option value="এপ্রিল">এপ্রিল</option>
-                    <option value="মে">মে</option>
-                    <option value="জুন">জুন</option>
-                    <option value="জুলাই">জুলাই</option>
-                    <option value="আগস্ট">আগস্ট</option>
-                    <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
-                    <option value="অক্টোবর">অক্টোবর</option>
-                    <option value="নভেম্বর">নভেম্বর</option>
-                    <option value="ডিসেম্বর">ডিসেম্বর</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-1">প্রদানের তারিখ *</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">প্রদানের তারিখ *</label>
                 <input type="date" id="fee-date" required
-                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                       class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
             </div>
 
-            <button type="submit" id="fee-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">অতিরিক্ত নোট / মন্তব্য</label>
+                <input type="text" id="fee-note" placeholder="যেমন: ট্রানজেকশন আইডি বা অন্য কিছু..."
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+            </div>
+
+            <button type="submit" id="fee-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10">
                 <i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন
             </button>
 
-            <button type="button" id="cancel-fee-edit-btn" onclick="cancelFeeEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2">
+            <button type="button" id="cancel-fee-edit-btn" onclick="cancelFeeEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2 text-sm">
                 সংশোধন বাতিল করুন
             </button>
         </form>
     </div>
 
-    <!-- বেতন আদায়ের তালিকা (২ ভাগ জায়গা নেবে) -->
+    <!-- সাম্প্রতিক বেতন আদায়ের তালিকা (২ ভাগ জায়গা নেবে) -->
     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
         <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <i class="fa-solid fa-receipt text-emerald-600"></i> সাম্প্রতিক বেতন আদায়ের তালিকা
         </h3>
 
+        <!-- ফিল্টারসমূহ -->
         <div class="mb-5 flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="search-fee" oninput="filterFees()" placeholder="রসিদ নং বা ছাত্রের নাম দিয়ে খুঁজুন..."
-                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
             </div>
-            <div class="w-full sm:w-48">
+            <div class="w-full sm:w-44">
                 <select id="filter-fee-month" onchange="filterFees()"
-                        class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                        class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                     <option value="">সকল মাস</option>
                     <option value="জানুয়ারি">জানুয়ারি</option>
                     <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
@@ -93,17 +167,18 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto flex-1">
+        <!-- রেসপনসিভ টেবিল কন্টেইনার -->
+        <div class="overflow-x-auto flex-1 rounded-xl border border-gray-100">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রসিদ নং</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">নাম</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">মাস</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">পরিমাণ</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">তারিখ</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">রসিদ ও তারিখ</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">নাম ও শ্রেণী</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মাস</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">হিসাব বিবরণী</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোট আদায়</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
                 </tr>
                 </thead>
                 <tbody id="fees-table-body" class="bg-white divide-y divide-gray-100">
@@ -114,7 +189,27 @@
 
 </div>
 
+<!-- থার্মাল স্লিপ প্রিন্ট মডাল পপআপ (প্রিন্ট রসিদ) -->
+<div id="receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative border border-gray-100">
+        <!-- রসিদ প্রিন্ট এরিয়া -->
+        <div id="receipt-print-area" class="bg-white p-4 rounded-lg font-mono text-[11px] text-gray-800 space-y-3 leading-relaxed">
+            <!-- ডাইনামিক রসিদ ডাটা স্ক্রিপ্ট দিয়ে এখানে লোড হবে -->
+        </div>
+        <div class="flex gap-2 mt-5">
+            <button onclick="printReceipt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-print text-[11px]"></i> প্রিন্ট করুন
+            </button>
+            <button onclick="closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+    let allActiveStudents = [];
+
     async function initFees() {
         document.getElementById('editing-receipt-id').value = "";
 
@@ -123,8 +218,27 @@
             dateInput.value = new Date().toISOString().split('T')[0];
         }
 
-        await populateStudentsDropdown();
+        // ছাত্র ডাটাবেজ মেমরিতে লোড করা সার্চ পারফরম্যান্সের জন্য
+        await loadActiveStudents();
         await renderFeesList();
+
+        // যদি ড্যাশবোর্ড বা রিপোর্ট থেকে সরাসরি পেমেন্টের জন্য আসা হয়
+        if (window.preselectedStudentId) {
+            const student = allActiveStudents.find(s => s.id === window.preselectedStudentId);
+            if (student) {
+                selectStudentForFee(student.id, student.name, student.class, student.roll);
+            }
+            window.preselectedStudentId = null;
+        }
+
+        // কাস্টম সার্চ ক্লিক আউটসাইড ক্লোজ
+        document.addEventListener('click', function(e) {
+            const list = document.getElementById('student-search-results');
+            const input = document.getElementById('student-search-input');
+            if (list && e.target !== input && !list.contains(e.target)) {
+                list.classList.add('hidden');
+            }
+        });
 
         const form = document.getElementById('fees-form');
         if (form) {
@@ -132,52 +246,81 @@
                 e.preventDefault();
 
                 const studentId = document.getElementById('fee-student-id').value;
-                const amount = parseFloat(document.getElementById('fee-amount').value);
+                const amount = parseFloat(document.getElementById('fee-amount').value) || 0;
+                const fine = parseFloat(document.getElementById('fee-fine').value) || 0;
+                const discount = parseFloat(document.getElementById('fee-discount').value) || 0;
                 const month = document.getElementById('fee-month').value;
+                const method = document.getElementById('fee-method').value;
                 const paymentDate = document.getElementById('fee-date').value;
+                const note = document.getElementById('fee-note').value.trim();
                 const editReceiptId = document.getElementById('editing-receipt-id').value;
+                const total = amount + fine - discount;
 
-                if (!studentId || !amount || !month || !paymentDate) {
-                    showToast("সব ফিল্ড পূরণ করুন!", "error");
+                if (!studentId || amount < 0 || !month || !paymentDate || !method) {
+                    showToast("সব লাল চিহ্নিত (*) ঘরগুলো সঠিকভাবে পূরণ করুন!", "error");
                     return;
                 }
 
-                const student = await db.students.get(studentId);
+                const student = allActiveStudents.find(s => s.id === studentId);
                 const studentName = student ? student.name : "অজানা ছাত্র";
+                const studentClass = student ? student.class : "";
+                const studentRoll = student ? student.roll : "";
 
                 try {
+                    let receiptIdToPrint = editReceiptId;
+
                     if (editReceiptId) {
                         await db.fees.update(editReceiptId, {
                             student_id: studentId,
                             student_name: studentName,
+                            student_class: studentClass,
+                            student_roll: studentRoll,
                             amount: amount,
+                            fine: fine,
+                            discount: discount,
+                            total: total,
                             month: month,
+                            method: method,
                             payment_date: paymentDate,
+                            note: note,
                             is_synced: 0
                         });
                         showToast("বেতন আদায়ের তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
                         cancelFeeEdit();
                     } else {
                         const receiptId = 'R-' + Date.now();
+                        receiptIdToPrint = receiptId;
 
                         await db.fees.add({
                             receipt_id: receiptId,
                             student_id: studentId,
                             student_name: studentName,
+                            student_class: studentClass,
+                            student_roll: studentRoll,
                             amount: amount,
+                            fine: fine,
+                            discount: discount,
+                            total: total,
                             month: month,
+                            method: method,
                             payment_date: paymentDate,
+                            note: note,
                             is_synced: 0,
                             is_deleted: 0
                         });
                         showToast("বেতন কালেকশন সফলভাবে সম্পন্ন হয়েছে।", "success");
                         form.reset();
+                        document.getElementById('student-quick-info').classList.add('hidden');
+                        document.getElementById('fee-total').textContent = "0";
                         if (dateInput) {
                             dateInput.value = new Date().toISOString().split('T')[0];
                         }
                     }
 
                     await renderFeesList();
+
+                    // সফলভাবে সেভ হলে সরাসরি রসিদ প্রিন্ট পপআপ দেখানো হবে
+                    showReceiptModal(receiptIdToPrint);
 
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
@@ -195,29 +338,107 @@
         }
     }
 
-    async function populateStudentsDropdown() {
-        const studentSelect = document.getElementById('fee-student-id');
-        if (!studentSelect) return;
-
+    async function loadActiveStudents() {
         try {
-            const students = await db.students.orderBy('name').toArray();
-            const activeStudents = students.filter(student => student.is_deleted !== 1);
-
-            let optionsHtml = '<option value="">ছাত্র নির্বাচন করুন</option>';
-            activeStudents.forEach(student => {
-                optionsHtml += `<option value="${student.id}">${student.name} (রোল: ${student.roll} - ${student.class})</option>`;
-            });
-
-            studentSelect.innerHTML = optionsHtml;
-
-            if (window.preselectedStudentId) {
-                studentSelect.value = window.preselectedStudentId;
-                window.preselectedStudentId = null;
-            }
-
+            const students = await db.students.toArray();
+            allActiveStudents = students.filter(student => student.is_deleted !== 1);
         } catch (err) {
-            console.error("ড্রপডাউনে ছাত্র তালিকা লোড করতে ত্রুটি:", err);
+            console.error("ছাত্রদের ডাটা মেমরিতে লোড করতে ত্রুটি:", err);
         }
+    }
+
+    function searchStudentsForFee() {
+        const query = document.getElementById('student-search-input').value.toLowerCase().trim();
+        const resultsContainer = document.getElementById('student-search-results');
+        
+        if (!query) {
+            resultsContainer.classList.add('hidden');
+            return;
+        }
+
+        const filtered = allActiveStudents.filter(s => 
+            s.name.toLowerCase().includes(query) || 
+            s.roll.toString().includes(query) || 
+            s.id.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            resultsContainer.innerHTML = `<div class="p-3 text-xs text-gray-400 text-center">কোনো ছাত্র পাওয়া যায়নি</div>`;
+            resultsContainer.classList.remove('hidden');
+            return;
+        }
+
+        let html = '';
+        filtered.slice(0, 10).forEach(s => {
+            html += `
+                <div onclick="selectStudentForFee('${s.id}', '${s.name}', '${s.class}', '${s.roll}')" class="p-3 hover:bg-emerald-50/50 cursor-pointer text-xs transition duration-150">
+                    <span class="font-bold text-emerald-950">${s.name}</span> 
+                    <span class="text-gray-400 text-[10px] ml-1">(${s.class} | রোল: ${s.roll})</span>
+                </div>`;
+        });
+
+        resultsContainer.innerHTML = html;
+        resultsContainer.classList.remove('hidden');
+    }
+
+    async function selectStudentForFee(id, name, studentClass, roll) {
+        document.getElementById('fee-student-id').value = id;
+        document.getElementById('student-search-input').value = `${name} (${studentClass} - রোল: ${roll})`;
+        document.getElementById('student-search-results').classList.add('hidden');
+
+        // শিক্ষার্থীর পূর্ববর্তী পেমেন্ট রেকর্ড খুঁজে বের করা
+        const studentFees = await db.fees.where('student_id').equals(id).toArray();
+        const activeFees = studentFees.filter(f => f.is_deleted !== 1);
+
+        activeFees.sort((a, b) => b.payment_date.localeCompare(a.payment_date));
+
+        const lastFee = activeFees[0];
+        let lastPaidMonth = "কোন রেকর্ড নেই";
+        let defaultAmount = 500; // ডিফল্ট পরিমাণ
+
+        if (lastFee) {
+            lastPaidMonth = lastFee.month;
+            defaultAmount = lastFee.amount;
+        }
+
+        // কুইক প্রোফাইল কার্ড রেন্ডার করা
+        const quickInfo = document.getElementById('student-quick-info');
+        quickInfo.innerHTML = `
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 text-xs space-y-1.5 text-emerald-950 mb-2">
+                <div class="flex justify-between font-bold">
+                    <span>শ্রেণী: ${studentClass}</span>
+                    <span>রোল নম্বর: ${roll}</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-gray-500">
+                    <span>সর্বশেষ পরিশোধিত: <strong class="text-emerald-700">${lastPaidMonth}</strong></span>
+                    <span>গত মাসের ফি: <strong class="text-emerald-700">৳ ${defaultAmount}</strong></span>
+                </div>
+            </div>`;
+        quickInfo.classList.remove('hidden');
+
+        document.getElementById('fee-amount').value = defaultAmount;
+        suggestNextMonth(lastPaidMonth);
+        calculateTotal();
+    }
+
+    function suggestNextMonth(lastPaidMonth) {
+        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        let nextIndex = 0;
+        if (lastPaidMonth && bnMonths.includes(lastPaidMonth)) {
+            const index = bnMonths.indexOf(lastPaidMonth);
+            nextIndex = (index + 1) % 12;
+        } else {
+            nextIndex = new Date().getMonth();
+        }
+        document.getElementById('fee-month').value = bnMonths[nextIndex];
+    }
+
+    function calculateTotal() {
+        const amount = parseFloat(document.getElementById('fee-amount').value) || 0;
+        const fine = parseFloat(document.getElementById('fee-fine').value) || 0;
+        const discount = parseFloat(document.getElementById('fee-discount').value) || 0;
+        const total = amount + fine - discount;
+        document.getElementById('fee-total').textContent = total.toLocaleString('bn-BD');
     }
 
     function filterFees() {
@@ -248,7 +469,7 @@
             if (fees.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
+                        <td colspan="7" class="px-4 py-8 text-center text-xs text-gray-500 font-medium">
                             কোনো বেতন আদায়ের তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
@@ -258,28 +479,49 @@
             let htmlContent = '';
             fees.forEach(fee => {
                 const syncStatusBadge = fee.is_synced === 1
-                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                          <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্কড
                        </span>`
-                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 animate-pulse">
+                    : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 animate-pulse">
                          <i class="fa-solid fa-clock"></i> পেন্ডিং
                        </span>`;
 
+                const showFineDiscount = (fee.fine > 0 || fee.discount > 0)
+                    ? `<div class="text-[9px] text-gray-400 font-en">ফি: ${fee.amount} ${fee.fine ? `+ জ: ${fee.fine}` : ''} ${fee.discount ? `- ছা: ${fee.discount}` : ''}</div>`
+                    : '';
+
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${fee.receipt_id}</td>
-                        <td class="px-4 py-3 text-sm text-gray-800 font-semibold">${fee.student_name}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${fee.month}</td>
-                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">৳ ${fee.amount}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${fee.payment_date}</td>
-                        <td class="px-4 py-3 text-sm">${syncStatusBadge}</td>
-                        <td class="px-4 py-3 text-sm flex gap-1.5">
-                            <button onclick="editFee('${fee.receipt_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteFee('${fee.receipt_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                        <td class="px-4 py-3 text-xs font-bold font-en text-gray-700">
+                            <div>${fee.receipt_id}</div>
+                            <div class="text-[9px] font-normal text-gray-400">${fee.payment_date}</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs">
+                            <div class="font-bold text-gray-800 text-sm">${fee.student_name}</div>
+                            <div class="text-[10px] text-gray-400 font-bold font-en">রোল: ${fee.student_roll || '-'} | ${fee.student_class || 'অজানা'}</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs text-gray-600 font-semibold">${fee.month}</td>
+                        <td class="px-4 py-3 text-xs text-gray-500">
+                            <div>মাধ্যম: ${fee.method || 'ক্যাশ'}</div>
+                            ${fee.note ? `<div class="text-[10px] italic text-emerald-600 text-ellipsis overflow-hidden">নোট: ${fee.note}</div>` : ''}
+                        </td>
+                        <td class="px-4 py-3 text-xs text-emerald-800 font-bold font-en">
+                            <div>৳ ${fee.total || fee.amount}</div>
+                            ${showFineDiscount}
+                        </td>
+                        <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
+                        <td class="px-4 py-3 text-xs">
+                            <div class="flex gap-1.5">
+                                <button onclick="showReceiptModal('${fee.receipt_id}')" class="text-emerald-600 hover:text-emerald-800 p-1 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
+                                    <i class="fa-solid fa-print"></i>
+                                </button>
+                                <button onclick="editFee('${fee.receipt_id}')" class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteFee('${fee.receipt_id}')" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>`;
             });
@@ -298,17 +540,24 @@
 
             document.getElementById('editing-receipt-id').value = fee.receipt_id;
             document.getElementById('fee-student-id').value = fee.student_id;
+            document.getElementById('student-search-input').value = `${fee.student_name} (${fee.student_class} - রোল: ${fee.student_roll})`;
             document.getElementById('fee-amount').value = fee.amount;
+            document.getElementById('fee-fine').value = fee.fine || 0;
+            document.getElementById('fee-discount').value = fee.discount || 0;
             document.getElementById('fee-month').value = fee.month;
+            document.getElementById('fee-method').value = fee.method || 'ক্যাশ';
             document.getElementById('fee-date').value = fee.payment_date;
+            document.getElementById('fee-note').value = fee.note || '';
+
+            calculateTotal();
 
             document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ফি আদায় সংশোধন`;
             const submitBtn = document.getElementById('fee-submit-btn');
-            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
             submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
 
             document.getElementById('cancel-fee-edit-btn').classList.remove('hidden');
-            document.getElementById('fee-student-id').focus();
+            document.getElementById('student-quick-info').classList.add('hidden');
 
         } catch (err) {
             console.error("সংশোধন মোডে রূপান্তর করতে সমস্যা:", err);
@@ -318,6 +567,9 @@
     function cancelFeeEdit() {
         document.getElementById('fees-form').reset();
         document.getElementById('editing-receipt-id').value = "";
+        document.getElementById('fee-student-id').value = "";
+        document.getElementById('student-quick-info').classList.add('hidden');
+        document.getElementById('fee-total').textContent = "0";
 
         const dateInput = document.getElementById('fee-date');
         if (dateInput) {
@@ -326,7 +578,7 @@
 
         document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন`;
         const submitBtn = document.getElementById('fee-submit-btn');
-        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
         submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন`;
 
         document.getElementById('cancel-fee-edit-btn').classList.add('hidden');
@@ -360,5 +612,79 @@
             console.error("মুছে ফেলার সময় সমস্যা হয়েছে:", err);
             showToast("তথ্যটি মুছে ফেলা সম্ভব হয়নি।", "error");
         }
+    }
+
+    // ============================================
+    // রসিদ প্রিন্টিং লজিক (Thermal Slip Generator)
+    // ============================================
+    async function showReceiptModal(receiptId) {
+        const fee = await db.fees.get(receiptId);
+        if (!fee) return;
+
+        const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const madrasahAddress = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
+        const madrasahPhone = localStorage.getItem('madrasah_phone') || '';
+
+        const receiptArea = document.getElementById('receipt-print-area');
+        receiptArea.innerHTML = `
+            <div class="text-center font-bold text-sm border-b pb-2 mb-2">
+                <div class="text-emerald-800 text-base mb-1">${madrasahName}</div>
+                <div class="text-gray-500 text-[10px] font-normal font-en">${madrasahAddress}</div>
+                ${madrasahPhone ? `<div class="text-gray-500 text-[10px] font-normal font-en">হেল্পলাইন: ${madrasahPhone}</div>` : ''}
+            </div>
+            
+            <div class="space-y-1 font-en text-[10px] border-b pb-2 mb-2">
+                <div class="flex justify-between"><span>Receipt ID:</span><span class="font-bold">${fee.receipt_id}</span></div>
+                <div class="flex justify-between"><span>Date:</span><span>${fee.payment_date}</span></div>
+                <div class="flex justify-between"><span>Month:</span><span>${fee.month}</span></div>
+            </div>
+
+            <div class="space-y-1 text-xs mb-3">
+                <div>শিক্ষার্থীর নাম: <strong class="text-emerald-950">${fee.student_name}</strong></div>
+                <div class="flex justify-between text-[11px] text-gray-500">
+                    <span>শ্রেণী: ${fee.student_class || 'অজানা'}</span>
+                    <span>রোল: ${fee.student_roll || '-'}</span>
+                </div>
+            </div>
+
+            <table class="w-full text-left text-[11px] border-t border-b border-dashed py-1.5 font-en my-2">
+                <thead>
+                    <tr class="font-bold">
+                        <th class="py-1">বিবরণ (Description)</th>
+                        <th class="py-1 text-right">টাকা (Amount)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dashed">
+                    <tr><td class="py-1">মাসিক বেতন (Monthly Fee)</td><td class="py-1 text-right">৳ ${fee.amount}</td></tr>
+                    ${fee.fine ? `<tr><td class="py-1 text-amber-800">বিলম্ব জরিমানা (Fine)</td><td class="py-1 text-right text-amber-800">+ ৳ ${fee.fine}</td></tr>` : ''}
+                    ${fee.discount ? `<tr><td class="py-1 text-red-600">বিশেষ ছাড় (Discount)</td><td class="py-1 text-right text-red-600">- ৳ ${fee.discount}</td></tr>` : ''}
+                </tbody>
+            </table>
+
+            <div class="flex justify-between font-bold text-sm text-emerald-800 pt-1.5 border-t font-en">
+                <span>Total Paid (${fee.method || 'ক্যাশ'}):</span>
+                <span>৳ ${fee.total || fee.amount}</span>
+            </div>
+
+            ${fee.note ? `<div class="text-[10px] italic text-gray-500 mt-2">মন্তব্য: ${fee.note}</div>` : ''}
+
+            <div class="text-center font-bold text-[10px] text-emerald-700 pt-4 border-t border-dashed mt-4">
+                জাজাকুমুল্লাহু খাইরান!<br>মাদরাসাতুল মদিনার সাথেই থাকুন।
+            </div>
+        `;
+
+        document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    function printReceipt() {
+        window.print();
+    }
+
+    function closeReceiptModal() {
+        document.getElementById('receipt-modal').classList.add('hidden');
+    }
+
+    function showReceiptModalFromList(receiptId) {
+        showReceiptModal(receiptId);
     }
 </script>
