@@ -1,0 +1,131 @@
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b pb-4">
+        <i class="fa-solid fa-gear text-emerald-600"></i> মাদরাসা সেটিংস কনফিগারেশন
+    </h3>
+
+    <form id="settings-form" class="space-y-5">
+        <div>
+            <label class="block text-sm font-semibold text-gray-600 mb-1">মাদরাসার নাম *</label>
+            <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-600 mb-1">মাদরাসার ঠিকানা</label>
+            <input type="text" id="set-madrasah-address" placeholder="যেমন: ঢাকা, বাংলাদেশ"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-600 mb-1">হেল্পলাইন/মোবাইল নম্বর</label>
+            <input type="tel" id="set-madrasah-phone" placeholder="যেমন: 017XXXXXXXX"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">লক স্ক্রিন পিন কোড (৪ সংখ্যার) *</label>
+                <input type="password" id="set-madrasah-pin" required maxlength="4" pattern="[0-9]{4}" placeholder="যেমন: 1234"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm tracking-widest font-bold">
+            </div>
+            <div class="flex items-end">
+                <p class="text-xs text-gray-500 pb-2">নিরাপত্তার স্বার্থে পিনটি অবশ্যই ৪ সংখ্যার হতে হবে।</p>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-600 mb-1">গুগল অ্যাপস স্ক্রিপ্ট (GAS) লিংক *</label>
+            <input type="url" id="set-madrasah-url" required placeholder="https://script.google.com/macros/s/.../exec"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs text-gray-600 font-mono">
+        </div>
+
+        <div class="pt-4 border-t flex gap-3">
+            <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-floppy-disk"></i> সেটিংস সংরক্ষণ করুন
+            </button>
+            <button type="button" onclick="loadModule('dashboard')" class="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition duration-200">
+                বাতিল
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    async function initSettings() {
+        try {
+            // DOM উপাদানগুলো রেন্ডার হওয়া নিশ্চিত করতে অবজেক্ট সিলেক্ট করা
+            const nameEl = document.getElementById('set-madrasah-name');
+            const addressEl = document.getElementById('set-madrasah-address');
+            const phoneEl = document.getElementById('set-madrasah-phone');
+            const pinEl = document.getElementById('set-madrasah-pin');
+            const urlEl = document.getElementById('set-madrasah-url');
+
+            // যদি উপাদানগুলো সঠিকভাবে খুঁজে পায়, তবেই ডাটা সেট হবে (এরর নিরোধক নিরাপদ হ্যান্ডলিং)
+            if (nameEl) nameEl.value = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            if (addressEl) addressEl.value = localStorage.getItem('madrasah_address') || '';
+            if (phoneEl) phoneEl.value = localStorage.getItem('madrasah_phone') || '';
+            if (pinEl) pinEl.value = localStorage.getItem('madrasah_pin') || '1234';
+            if (urlEl) urlEl.value = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbwGOQ5LdasLE41lSmz_xxFOTnLP_mBKH-UPSEr333MO6lEzVZxCAxIYJ1p7IuRyHchkpg/exec';
+
+            const form = document.getElementById('settings-form');
+            if (form) {
+                form.onsubmit = async function(e) {
+                    e.preventDefault();
+
+                    const name = nameEl ? nameEl.value.trim() : 'মাদরাসাতুল মদিনা';
+                    const address = addressEl ? addressEl.value.trim() : '';
+                    const phone = phoneEl ? phoneEl.value.trim() : '';
+                    const pin = pinEl ? pinEl.value.trim() : '1234';
+                    const url = urlEl ? urlEl.value.trim() : '';
+
+                    if (pin.length !== 4 || isNaN(pin)) {
+                        showToast("পিন কোডটি অবশ্যই ৪ সংখ্যার হতে হবে!", "error");
+                        return;
+                    }
+
+                    // ১. localStorage-এ সেটিংস সংরক্ষণ
+                    localStorage.setItem('madrasah_name', name);
+                    localStorage.setItem('madrasah_address', address);
+                    localStorage.setItem('madrasah_phone', phone);
+                    localStorage.setItem('madrasah_pin', pin);
+                    localStorage.setItem('madrasah_script_url', url);
+
+                    try {
+                        // ২. Dexie লোকাল ডাটাবেজে সংরক্ষণ (অটোমেটিক গুগল শিটে সিঙ্কের জন্য)
+                        await db.settings.put({
+                            id: 'madrasah_config_block',
+                            madrasah_name: name,
+                            madrasah_address: address,
+                            madrasah_phone: phone,
+                            madrasah_pin: pin,
+                            madrasah_script_url: url,
+                            is_synced: 0,
+                            is_deleted: 0
+                        });
+
+                        showToast("সেটিংস সফলভাবে সংরক্ষিত ও ক্লাউড সিঙ্ক কিউ-তে যুক্ত হয়েছে।", "success");
+
+                        if (typeof window.applyGlobalSettings === 'function') {
+                            window.applyGlobalSettings();
+                        }
+
+                        // ৩. সিঙ্ক প্রসেস চালু করা ও রিলোড
+                        if (typeof triggerAutoSync === 'function' && navigator.onLine) {
+                            await triggerAutoSync();
+                        }
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1200);
+
+                    } catch (err) {
+                        console.error("ডাটাবেজে সেটিংস সংরক্ষণে ত্রুটি:", err);
+                        showToast("সেটিংস ডাটাবেজে সংরক্ষণ করা যায়নি।", "error");
+                    }
+                };
+            }
+        } catch (error) {
+            console.error("সেটিংস ইনিশিয়ালাইজ করতে সমস্যা:", error);
+        }
+    }
+</script>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মাদরাসা ম্যানেজমেন্ট সিস্টেম</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* লক স্ক্রিনের ভুল পিনের জন্য কম্পন (Shake) অ্যানিমেশন */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* পিন স্ক্রিন ব্যাকগ্রাউন্ড */
+        #pin-lock-overlay {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            background: #065f46;
+            z-index: 50;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        #pin-lock-overlay.hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans overflow-hidden">
+
+<!-- টোস্ট নোটিফিকেশন কন্টেইনার (Toast Notification Container) -->
+<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+
+<!-- পিন লক ওভারলে (PIN Lock Screen Overlay) -->
+<div id="pin-lock-overlay">
+    <div class="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all duration-300">
+        <i class="fa-solid fa-lock text-5xl text-yellow-300 mb-4"></i>
+        <!-- মাদরাসার নাম আইডি দিয়ে ডাইনামিক করা হয়েছে -->
+        <h2 id="lock-madrasah-name" class="text-2xl font-bold mb-2 text-white">মাদরাসাতুল মদিনা</h2>
+        <p class="text-emerald-100 text-sm mb-6">অ্যাপে প্রবেশ করতে পিন কোড দিন</p>
+
+        <!-- পিন ডট ইন্ডিকেটর সমূহ -->
+        <div class="flex justify-center gap-4 mb-8">
+            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+        </div>
+
+        <!-- সংখ্যা টাইপ করার কিপ্যাড -->
+        <div class="grid grid-cols-3 gap-4 max-w-[240px] mx-auto">
+            <button onclick="pressPin('1')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">1</button>
+            <button onclick="pressPin('2')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">2</button>
+            <button onclick="pressPin('3')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">3</button>
+            <button onclick="pressPin('4')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">4</button>
+            <button onclick="pressPin('5')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">5</button>
+            <button onclick="pressPin('6')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">6</button>
+            <button onclick="pressPin('7')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">7</button>
+            <button onclick="pressPin('8')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">8</button>
+            <button onclick="pressPin('9')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">9</button>
+            <button onclick="clearPin()" class="w-14 h-14 rounded-full flex items-center justify-center text-red-300 font-semibold text-sm hover:text-red-200 transition">মুছুন</button>
+            <button onclick="pressPin('0')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-bold text-xl text-white transition">0</button>
+            <button onclick="checkPinSubmit()" class="w-14 h-14 rounded-full flex items-center justify-center text-emerald-300 font-bold text-lg hover:text-emerald-200 transition">✓</button>
+        </div>
+    </div>
+</div>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- সাইডবার (Sidebar) -->
+    <div id="sidebar" class="w-64 bg-emerald-800 text-white flex flex-col justify-between hidden md:flex transition-all duration-300 z-20">
+        <div class="p-5">
+            <!-- লোগো ও মাদরাসার ডাইনামিক নাম -->
+            <h1 id="sidebar-madrasah-name" class="text-xl font-bold tracking-wider mb-8 flex items-center gap-2">
+                <i class="fa-solid fa-mosque text-emerald-300"></i> মাদরাসাতুল মদিনা
+            </h1>
+
+            <!-- ন্যাভিগেশন মেনু লিংক সমূহ -->
+            <nav class="space-y-2">
+                <button onclick="loadModule('dashboard')" id="nav-dashboard" class="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-emerald-700 flex items-center gap-3 font-medium">
+                    <i class="fa-solid fa-chart-line w-5"></i> ড্যাশবোর্ড
+                </button>
+                <button onclick="loadModule('admission')" id="nav-admission" class="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-emerald-700 flex items-center gap-3 font-medium">
+                    <i class="fa-solid fa-user-plus w-5"></i> ছাত্র ভর্তি
+                </button>
+                <button onclick="loadModule('fees')" id="nav-fees" class="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-emerald-700 flex items-center gap-3 font-medium">
+                    <i class="fa-solid fa-money-bill-wave w-5"></i> বেতন কালেকশন
+                </button>
+                <button onclick="loadModule('student_list')" id="nav-student_list" class="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-emerald-700 flex items-center gap-3 font-medium">
+                    <i class="fa-solid fa-users w-5"></i> ছাত্রদের তালিকা
+                </button>
+                <!-- সেটিংস বাটন যুক্ত করা হয়েছে -->
+                <button onclick="loadModule('settings')" id="nav-settings" class="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-emerald-700 flex items-center gap-3 font-medium">
+                    <i class="fa-solid fa-gear w-5"></i> সেটিংস
+                </button>
+            </nav>
+        </div>
+
+        <!-- সংযোগের তথ্য ও সিঙ্ক বাটন -->
+        <div class="p-5 border-t border-emerald-700 text-xs space-y-2 bg-emerald-900/40">
+            <div class="flex items-center justify-between">
+                <span>কানেকশন:</span>
+                <span id="connection-status" class="px-2 py-0.5 rounded bg-red-500 text-white font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-circle-dot animate-pulse"></i> অফলাইন
+                </span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span>সিঙ্ক পেন্ডিং:</span>
+                <span id="pending-sync-count" class="font-bold text-yellow-300">0</span>
+            </div>
+            <button onclick="triggerManualSync()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-2 rounded mt-2 flex items-center justify-center gap-1.5 font-semibold transition">
+                <i class="fa-solid fa-rotate" id="sync-icon"></i> সিঙ্ক করুন
+            </button>
+        </div>
+    </div>
+
+    <!-- মূল কন্টেন্ট এরিয়া -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- টপ হেডার -->
+        <header class="bg-white shadow-sm border-b px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-emerald-800 text-xl focus:outline-none" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2 id="page-title" class="text-xl font-bold text-gray-800">ড্যাশবোর্ড</h2>
+            </div>
+
+            <!-- সিঙ্ক ইন্ডিকেটর -->
+            <div class="flex items-center gap-4 text-sm text-gray-600">
+                <span id="sync-loader" class="hidden text-emerald-600 font-semibold flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                    <i class="fa-solid fa-spinner animate-spin"></i> ক্লাউডে সিঙ্ক হচ্ছে...
+                </span>
+                <span class="font-semibold bg-gray-100 px-3 py-1 rounded border">এডমিন প্যানেল</span>
+            </div>
+        </header>
+
+        <!-- মডিউল লোড হওয়ার মেইন উইন্ডো -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-gray-50">
+            <div id="main-content" class="transition-all duration-300">
+                <!-- লক খোলার আগে এটি দেখাবে -->
+                <div class="flex items-center justify-center h-64 text-gray-500">
+                    <div class="text-center">
+                        <i class="fa-solid fa-lock text-5xl text-emerald-600 mb-4"></i>
+                        <p class="text-lg font-medium">অ্যাপ্লিকেশন লক করা আছে...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Dexie.js (IndexedDB wrapper) -->
+<script src="dexie.js"></script>
+
+<!-- App JS -->
+<script src="app.js"></script>
+
+<!-- ============================================ -->
+<!-- পিন লক স্ক্রিন - সম্পূর্ণ JavaScript কোড -->
+<!-- ============================================ -->
+<script>
+    // ============================================
+    // পিন লক স্ক্রিন - সম্পূর্ণ কোড (ডাইনামিক পিন ও নেম সাপোর্ট)
+    // ============================================
+
+    window.enteredPin = "";
+    // সেটিংস পেজের পিন কোড অথবা ডিফল্ট ১২৩৪
+    const CORRECT_PIN = localStorage.getItem('madrasah_pin') || "1234";
+    let isLocked = true;
+
+    // পিন প্রেস করার ফাংশন
+    function pressPin(num) {
+        if ((window.enteredPin || "").length < 4) {
+            window.enteredPin = (window.enteredPin || "") + num;
+            updatePinDots();
+            console.log("Entered PIN:", window.enteredPin); // ডিবাগিং
+        }
+
+        // ৪ টি ডিজিট পূর্ণ হলে স্বয়ংক্রিয়ভাবে যাচাই হবে
+        if ((window.enteredPin || "").length === 4) {
+            setTimeout(checkPinSubmit, 300);
+        }
+    }
+
+    // পিন ডট আপডেট করা
+    function updatePinDots() {
+        const dots = document.querySelectorAll('.pin-dot');
+        dots.forEach((dot, index) => {
+            if (index < (window.enteredPin || "").length) {
+                dot.className = "pin-dot w-4 h-4 rounded-full bg-yellow-300 border-2 border-yellow-300 scale-110 transition-all duration-150";
+            } else {
+                dot.className = "pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150";
+            }
+        });
+    }
+
+    // পিন ক্লিয়ার করা
+    function clearPin() {
+        window.enteredPin = "";
+        updatePinDots();
+        console.log("PIN cleared");
+    }
+
+    // পিন সাবমিট চেক
+    function checkPinSubmit() {
+        console.log("Checking PIN:", window.enteredPin, "vs", CORRECT_PIN);
+
+        if (window.enteredPin === CORRECT_PIN) {
+            // সঠিক পিন
+            showToast("স্বাগতম! লক সফলভাবে খোলা হয়েছে।", "success");
+            unlockApp();
+        } else {
+            // ভুল পিন
+            showToast("ভুল পিন কোড! পুনরায় চেষ্টা করুন।", "error");
+
+            // Shake অ্যানিমেশন
+            const card = document.querySelector('#pin-lock-overlay > div');
+            if (card) {
+                card.classList.add('animate-shake');
+                setTimeout(() => card.classList.remove('animate-shake'), 300);
+            }
+
+            // পিন রিসেট
+            window.enteredPin = "";
+            updatePinDots();
+        }
+    }
+
+    // অ্যাপ আনলক করা
+    function unlockApp() {
+        const overlay = document.getElementById('pin-lock-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+            isLocked = false;
+
+            // ড্যাশবোর্ড লোড
+            if (typeof loadModule === 'function') {
+                loadModule('dashboard');
+            } else {
+                console.error("loadModule function not found!");
+            }
+        }
+    }
+
+    // অ্যাপ লক করা (প্রয়োজনে)
+    function lockApp() {
+        const overlay = document.getElementById('pin-lock-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            isLocked = true;
+            window.enteredPin = "";
+            updatePinDots();
+        }
+    }
+
+    // কিবোর্ড সাপোর্ট
+    document.addEventListener('keydown', (e) => {
+        const overlay = document.getElementById('pin-lock-overlay');
+        if (overlay && overlay.style.display !== 'none') {
+            if (e.key >= '0' && e.key <= '9') {
+                pressPin(e.key);
+            } else if (e.key === 'Backspace') {
+                clearPin();
+            } else if (e.key === 'Enter') {
+                checkPinSubmit();
+            }
+        }
+    });
+
+    // DOM লোড হলে পিন স্ক্রিন দেখানো
+    document.addEventListener('DOMContentLoaded', function() {
+        // পিন স্ক্রিন নিশ্চিত করা
+        const overlay = document.getElementById('pin-lock-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+        }
+
+        // সেটিংস থেকে নাম গ্লোবালি রেন্ডার করা
+        if (typeof window.applyGlobalSettings === 'function') {
+            window.applyGlobalSettings();
+        }
+
+        // অ্যাপের বাকি ফাংশনালিটি লোড
+        if (typeof updateConnectionStatus === 'function') {
+            updateConnectionStatus();
+        }
+        if (typeof updatePendingCount === 'function') {
+            updatePendingCount();
+        }
+    });
+
+    // সাইডবার টগল
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.toggle('hidden');
+    }
+</script>
+</body>
+</html>

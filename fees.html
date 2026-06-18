@@ -1,0 +1,364 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- বেতন আদায় ফর্ম (১ ভাগ জায়গা নেবে) -->
+    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
+        <h3 id="fee-form-title" class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন
+        </h3>
+
+        <form id="fees-form" class="space-y-4">
+            <input type="hidden" id="editing-receipt-id" value="">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">ছাত্র নির্বাচন করুন *</label>
+                <select id="fee-student-id" required
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    <option value="">ছাত্র নির্বাচন করুন</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">বেতনের পরিমাণ (টাকা) *</label>
+                <input type="number" id="fee-amount" required placeholder="যেমন: ৫০০" min="1"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">কোন মাসের বেতন *</label>
+                <select id="fee-month" required
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    <option value="">মাস নির্বাচন করুন</option>
+                    <option value="জানুয়ারি">জানুয়ারি</option>
+                    <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                    <option value="মার্চ">মার্চ</option>
+                    <option value="এপ্রিল">এপ্রিল</option>
+                    <option value="মে">মে</option>
+                    <option value="জুন">জুন</option>
+                    <option value="জুলাই">জুলাই</option>
+                    <option value="আগস্ট">আগস্ট</option>
+                    <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                    <option value="অক্টোবর">অক্টোবর</option>
+                    <option value="নভেম্বর">নভেম্বর</option>
+                    <option value="ডিসেম্বর">ডিসেম্বর</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">প্রদানের তারিখ *</label>
+                <input type="date" id="fee-date" required
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+            </div>
+
+            <button type="submit" id="fee-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন
+            </button>
+
+            <button type="button" id="cancel-fee-edit-btn" onclick="cancelFeeEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2">
+                সংশোধন বাতিল করুন
+            </button>
+        </form>
+    </div>
+
+    <!-- বেতন আদায়ের তালিকা (২ ভাগ জায়গা নেবে) -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-emerald-600"></i> সাম্প্রতিক বেতন আদায়ের তালিকা
+        </h3>
+
+        <div class="mb-5 flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="search-fee" oninput="filterFees()" placeholder="রসিদ নং বা ছাত্রের নাম দিয়ে খুঁজুন..."
+                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+            </div>
+            <div class="w-full sm:w-48">
+                <select id="filter-fee-month" onchange="filterFees()"
+                        class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    <option value="">সকল মাস</option>
+                    <option value="জানুয়ারি">জানুয়ারি</option>
+                    <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                    <option value="মার্চ">মার্চ</option>
+                    <option value="এপ্রিল">এপ্রিল</option>
+                    <option value="মে">মে</option>
+                    <option value="জুন">জুন</option>
+                    <option value="জুলাই">জুলাই</option>
+                    <option value="আগস্ট">আগস্ট</option>
+                    <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                    <option value="অক্টোবর">অক্টোবর</option>
+                    <option value="নভেম্বর">নভেম্বর</option>
+                    <option value="ডিসেম্বর">ডিসেম্বর</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto flex-1">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রসিদ নং</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">নাম</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">মাস</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">পরিমাণ</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">তারিখ</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                </tr>
+                </thead>
+                <tbody id="fees-table-body" class="bg-white divide-y divide-gray-100">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    async function initFees() {
+        document.getElementById('editing-receipt-id').value = "";
+
+        const dateInput = document.getElementById('fee-date');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        await populateStudentsDropdown();
+        await renderFeesList();
+
+        const form = document.getElementById('fees-form');
+        if (form) {
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+
+                const studentId = document.getElementById('fee-student-id').value;
+                const amount = parseFloat(document.getElementById('fee-amount').value);
+                const month = document.getElementById('fee-month').value;
+                const paymentDate = document.getElementById('fee-date').value;
+                const editReceiptId = document.getElementById('editing-receipt-id').value;
+
+                if (!studentId || !amount || !month || !paymentDate) {
+                    showToast("সব ফিল্ড পূরণ করুন!", "error");
+                    return;
+                }
+
+                const student = await db.students.get(studentId);
+                const studentName = student ? student.name : "অজানা ছাত্র";
+
+                try {
+                    if (editReceiptId) {
+                        await db.fees.update(editReceiptId, {
+                            student_id: studentId,
+                            student_name: studentName,
+                            amount: amount,
+                            month: month,
+                            payment_date: paymentDate,
+                            is_synced: 0
+                        });
+                        showToast("বেতন আদায়ের তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
+                        cancelFeeEdit();
+                    } else {
+                        const receiptId = 'R-' + Date.now();
+
+                        await db.fees.add({
+                            receipt_id: receiptId,
+                            student_id: studentId,
+                            student_name: studentName,
+                            amount: amount,
+                            month: month,
+                            payment_date: paymentDate,
+                            is_synced: 0,
+                            is_deleted: 0
+                        });
+                        showToast("বেতন কালেকশন সফলভাবে সম্পন্ন হয়েছে।", "success");
+                        form.reset();
+                        if (dateInput) {
+                            dateInput.value = new Date().toISOString().split('T')[0];
+                        }
+                    }
+
+                    await renderFeesList();
+
+                    if (typeof updatePendingCount === 'function') {
+                        await updatePendingCount();
+                    }
+
+                    if (navigator.onLine && typeof triggerAutoSync === 'function') {
+                        triggerAutoSync();
+                    }
+
+                } catch (err) {
+                    console.error("বেতন সংগ্রহ/সংশোধন করতে সমস্যা হয়েছে:", err);
+                    showToast("দুঃখিত, তথ্য সংরক্ষণ করা সম্ভব হয়নি। আবার চেষ্টা করুন।", "error");
+                }
+            };
+        }
+    }
+
+    async function populateStudentsDropdown() {
+        const studentSelect = document.getElementById('fee-student-id');
+        if (!studentSelect) return;
+
+        try {
+            const students = await db.students.orderBy('name').toArray();
+            const activeStudents = students.filter(student => student.is_deleted !== 1);
+
+            let optionsHtml = '<option value="">ছাত্র নির্বাচন করুন</option>';
+            activeStudents.forEach(student => {
+                optionsHtml += `<option value="${student.id}">${student.name} (রোল: ${student.roll} - ${student.class})</option>`;
+            });
+
+            studentSelect.innerHTML = optionsHtml;
+
+            if (window.preselectedStudentId) {
+                studentSelect.value = window.preselectedStudentId;
+                window.preselectedStudentId = null;
+            }
+
+        } catch (err) {
+            console.error("ড্রপডাউনে ছাত্র তালিকা লোড করতে ত্রুটি:", err);
+        }
+    }
+
+    function filterFees() {
+        const searchQuery = document.getElementById('search-fee').value.toLowerCase().trim();
+        const monthQuery = document.getElementById('filter-fee-month').value;
+        renderFeesList(searchQuery, monthQuery);
+    }
+
+    async function renderFeesList(searchQuery = '', monthQuery = '') {
+        const tableBody = document.getElementById('fees-table-body');
+        if (!tableBody) return;
+
+        try {
+            let fees = await db.fees.reverse().toArray();
+            fees = fees.filter(fee => fee.is_deleted !== 1);
+
+            if (searchQuery) {
+                fees = fees.filter(fee =>
+                    fee.receipt_id.toLowerCase().includes(searchQuery) ||
+                    fee.student_name.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            if (monthQuery) {
+                fees = fees.filter(fee => fee.month === monthQuery);
+            }
+
+            if (fees.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
+                            কোনো বেতন আদায়ের তথ্য পাওয়া যায়নি।
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            let htmlContent = '';
+            fees.forEach(fee => {
+                const syncStatusBadge = fee.is_synced === 1
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                         <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্কড
+                       </span>`
+                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 animate-pulse">
+                         <i class="fa-solid fa-clock"></i> পেন্ডিং
+                       </span>`;
+
+                htmlContent += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${fee.receipt_id}</td>
+                        <td class="px-4 py-3 text-sm text-gray-800 font-semibold">${fee.student_name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${fee.month}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">৳ ${fee.amount}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${fee.payment_date}</td>
+                        <td class="px-4 py-3 text-sm">${syncStatusBadge}</td>
+                        <td class="px-4 py-3 text-sm flex gap-1.5">
+                            <button onclick="editFee('${fee.receipt_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteFee('${fee.receipt_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            tableBody.innerHTML = htmlContent;
+
+        } catch (err) {
+            console.error("ফি আদায়ের তালিকা রেন্ডার করতে সমস্যা হয়েছে:", err);
+        }
+    }
+
+    async function editFee(receiptId) {
+        try {
+            const fee = await db.fees.get(receiptId);
+            if (!fee) return;
+
+            document.getElementById('editing-receipt-id').value = fee.receipt_id;
+            document.getElementById('fee-student-id').value = fee.student_id;
+            document.getElementById('fee-amount').value = fee.amount;
+            document.getElementById('fee-month').value = fee.month;
+            document.getElementById('fee-date').value = fee.payment_date;
+
+            document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ফি আদায় সংশোধন`;
+            const submitBtn = document.getElementById('fee-submit-btn');
+            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+
+            document.getElementById('cancel-fee-edit-btn').classList.remove('hidden');
+            document.getElementById('fee-student-id').focus();
+
+        } catch (err) {
+            console.error("সংশোধন মোডে রূপান্তর করতে সমস্যা:", err);
+        }
+    }
+
+    function cancelFeeEdit() {
+        document.getElementById('fees-form').reset();
+        document.getElementById('editing-receipt-id').value = "";
+
+        const dateInput = document.getElementById('fee-date');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন`;
+        const submitBtn = document.getElementById('fee-submit-btn');
+        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+        submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন`;
+
+        document.getElementById('cancel-fee-edit-btn').classList.add('hidden');
+    }
+
+    async function deleteFee(receiptId) {
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই রসিদ বা ফি আদায়ের তথ্যটি মুছে ফেলতে চান?")) return;
+
+        try {
+            await db.fees.update(receiptId, {
+                is_deleted: 1,
+                is_synced: 0
+            });
+            showToast("ফি আদায়ের তথ্যটি সফলভাবে মুছে ফেলা হয়েছে।", "success");
+
+            if (document.getElementById('editing-receipt-id').value === receiptId) {
+                cancelFeeEdit();
+            }
+
+            await renderFeesList();
+
+            if (typeof updatePendingCount === 'function') {
+                await updatePendingCount();
+            }
+
+            if (navigator.onLine && typeof triggerAutoSync === 'function') {
+                triggerAutoSync();
+            }
+
+        } catch (err) {
+            console.error("মুছে ফেলার সময় সমস্যা হয়েছে:", err);
+            showToast("তথ্যটি মুছে ফেলা সম্ভব হয়নি।", "error");
+        }
+    }
+</script>

@@ -1,0 +1,266 @@
+<div class="space-y-6">
+    <!-- স্বাগতম ব্যানার -->
+    <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 text-white shadow-md">
+        <h3 class="text-2xl font-bold mb-2">আসসালামু আলাইকুম, এডমিন!</h3>
+        <p class="text-emerald-100 text-sm">মাদরাসা ম্যানেজমেন্ট ড্যাশবোর্ডে আপনাকে স্বাগতম। এখান থেকে ছাত্র ভর্তি ও বেতন কালেকশন সহজে পরিচালনা করুন।</p>
+    </div>
+
+    <!-- স্ট্যাটাস কার্ডসমূহ -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">মোট বর্তমান ছাত্র</p>
+                <h4 class="text-3xl font-bold text-gray-800 mt-1" id="dash-total-students">0</h4>
+            </div>
+            <div class="bg-blue-50 text-blue-600 p-4 rounded-full">
+                <i class="fa-solid fa-graduation-cap text-2xl"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">মোট আদায়কৃত ফি</p>
+                <h4 class="text-3xl font-bold text-gray-800 mt-1">৳ <span id="dash-total-fees">0</span></h4>
+            </div>
+            <div class="bg-emerald-50 text-emerald-600 p-4 rounded-full">
+                <i class="fa-solid fa-wallet text-2xl"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">আজকের ফি আদায়</p>
+                <h4 class="text-3xl font-bold text-gray-800 mt-1">৳ <span id="dash-today-fees">0</span></h4>
+            </div>
+            <div class="bg-yellow-50 text-yellow-600 p-4 rounded-full">
+                <i class="fa-solid fa-calendar-day text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- কুইক অ্যাকশন -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h4 class="text-lg font-bold text-gray-800 mb-4">কুইক অ্যাকশন (Quick Actions)</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button onclick="loadModule('admission')" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-emerald-50 rounded-xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-lg shadow-sm transition mb-2">
+                    <i class="fa-solid fa-user-plus text-lg"></i>
+                </div>
+                <span class="text-sm font-semibold text-gray-700 group-hover:text-emerald-800">নতুন ছাত্র ভর্তি</span>
+            </button>
+
+            <button onclick="loadModule('fees')" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-emerald-50 rounded-xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-lg shadow-sm transition mb-2">
+                    <i class="fa-solid fa-money-bill-wave text-lg"></i>
+                </div>
+                <span class="text-sm font-semibold text-gray-700 group-hover:text-emerald-800">বেতন আদায় করুন</span>
+            </button>
+
+            <button onclick="exportBackup()" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-blue-50 rounded-xl border border-dashed border-gray-200 hover:border-blue-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-blue-100 text-blue-700 rounded-lg shadow-sm transition mb-2">
+                    <i class="fa-solid fa-file-export text-lg"></i>
+                </div>
+                <span class="text-sm font-semibold text-gray-700 group-hover:text-blue-800">ডাটা ব্যাকআপ নিন</span>
+            </button>
+
+            <input type="file" id="backup-file-input" onchange="importBackup(event)" class="hidden" accept=".json">
+            <button onclick="document.getElementById('backup-file-input').click()" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-amber-50 rounded-xl border border-dashed border-gray-200 hover:border-amber-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-amber-100 text-amber-700 rounded-lg shadow-sm transition mb-2">
+                    <i class="fa-solid fa-file-import text-lg"></i>
+                </div>
+                <span class="text-sm font-semibold text-gray-700 group-hover:text-amber-800">ডাটা রিস্টোর করুন</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- চলতি মাসের বকেয়া -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h4 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-red-500 animate-pulse"></i>
+            চলতি মাসের বকেয়া বেতন তালিকা (<span id="due-current-month"></span>)
+        </h4>
+        <p class="text-xs text-gray-500 mb-4">যেসব ছাত্র চলতি মাসের বেতন এখনো পরিশোধ করেনি, তাদের তালিকা নিচে দেওয়া হলো।</p>
+
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রোল</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">নাম</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">শ্রেণী</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">মোবাইল</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                </tr>
+                </thead>
+                <tbody id="due-students-table-body" class="bg-white divide-y divide-gray-100">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function initDashboard() {
+        try {
+            const students = await db.students.toArray();
+            const activeStudents = students.filter(student => student.is_deleted !== 1);
+            document.getElementById('dash-total-students').textContent = activeStudents.length;
+
+            const fees = await db.fees.toArray();
+            const activeFees = fees.filter(fee => fee.is_deleted !== 1);
+
+            let totalFeesAmount = 0;
+            let todayFeesAmount = 0;
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            activeFees.forEach(fee => {
+                const amount = parseFloat(fee.amount) || 0;
+                totalFeesAmount += amount;
+
+                if (fee.payment_date === todayStr) {
+                    todayFeesAmount += amount;
+                }
+            });
+
+            document.getElementById('dash-total-fees').textContent = totalFeesAmount.toLocaleString('bn-BD');
+            document.getElementById('dash-today-fees').textContent = todayFeesAmount.toLocaleString('bn-BD');
+
+            await renderDueStudentsList(activeStudents, activeFees);
+
+        } catch (err) {
+            console.error("ড্যাশবোর্ড ডাটা লোড করতে সমস্যা হয়েছে:", err);
+        }
+    }
+
+    async function renderDueStudentsList(activeStudents, activeFees) {
+        const tableBody = document.getElementById('due-students-table-body');
+        const monthLabel = document.getElementById('due-current-month');
+        if (!tableBody || !monthLabel) return;
+
+        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        const currentMonthName = bnMonths[new Date().getMonth()];
+        monthLabel.textContent = currentMonthName;
+
+        try {
+            const paidStudentIds = new Set(
+                activeFees
+                    .filter(fee => fee.month === currentMonthName)
+                    .map(fee => fee.student_id)
+            );
+
+            const dueStudents = activeStudents.filter(student => !paidStudentIds.has(student.id));
+
+            if (dueStudents.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-sm text-emerald-600 font-bold bg-emerald-50/50">
+                            <i class="fa-solid fa-circle-check"></i> আলহামদুলিল্লাহ্‌, চলতি মাসের কোনো বকেয়া বেতন নেই!
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            let htmlContent = '';
+            dueStudents.forEach(student => {
+                htmlContent += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${student.roll}</td>
+                        <td class="px-4 py-3 text-sm text-gray-800 font-semibold">${student.name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${student.class}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${student.parent_phone}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <button onclick="collectFeeFor('${student.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition flex items-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-receipt"></i> বেতন নিন
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            tableBody.innerHTML = htmlContent;
+
+        } catch (err) {
+            console.error("বকেয়া তালিকা প্রস্তুত করতে ত্রুটি:", err);
+        }
+    }
+
+    function collectFeeFor(studentId) {
+        window.preselectedStudentId = studentId;
+        loadModule('fees');
+    }
+
+    async function exportBackup() {
+        try {
+            const students = await db.students.toArray();
+            const fees = await db.fees.toArray();
+
+            const backupData = {
+                app: "MadrasahManagementSystem",
+                timestamp: new Date().toISOString(),
+                students: students,
+                fees: fees
+            };
+
+            const jsonString = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `madrasah_backup_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("ডাটা ব্যাকআপ ফাইল সফলভাবে ডাউনলোড করা হয়েছে।", "success");
+
+        } catch (err) {
+            console.error("ব্যাকআপ ফাইলে সমস্যা:", err);
+            showToast("ব্যাকআপ ফাইল তৈরি করা সম্ভব হয়নি।", "error");
+        }
+    }
+
+    async function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (!data.students || !data.fees) {
+                    throw new Error("ভুল ফাইল ফরম্যাট");
+                }
+
+                if (confirm("সতর্কতা: এই ব্যাকআপ ফাইলটি ইম্পোর্ট করলে বর্তমান লোকাল ডাটাবেজের সকল ডাটা মুছে যাবে। আপনি কি ডাটা রিস্টোর করতে চান?")) {
+                    await db.students.clear();
+                    await db.fees.clear();
+
+                    if (data.students.length > 0) {
+                        await db.students.bulkAdd(data.students);
+                    }
+                    if (data.fees.length > 0) {
+                        await db.fees.bulkAdd(data.fees);
+                    }
+
+                    showToast("ডাটাবেজ সফলভাবে রিস্টোর বা পুনরুদ্ধার করা হয়েছে।", "success");
+
+                    await initDashboard();
+
+                    if (typeof updatePendingCount === 'function') {
+                        await updatePendingCount();
+                    }
+                }
+
+            } catch (err) {
+                console.error("ডাটা রিস্টোর করতে ত্রুটি:", err);
+                showToast("রিস্টোর করা যায়নি। দয়া করে একটি সঠিক ব্যাকআপ ফাইল নির্বাচন করুন।", "error");
+            }
+        };
+
+        reader.readAsText(file);
+        event.target.value = "";
+    }
+</script>

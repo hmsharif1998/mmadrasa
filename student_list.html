@@ -1,0 +1,265 @@
+<div class="space-y-6">
+
+    <!-- পরিসংখ্যান প্যানেল -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- মোট ছাত্র -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">ফিল্টারকৃত মোট ছাত্র</p>
+                <h4 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h4>
+            </div>
+            <div class="bg-blue-50 text-blue-600 p-3 rounded-full">
+                <i class="fa-solid fa-graduation-cap text-xl"></i>
+            </div>
+        </div>
+        <!-- বেতন পরিশোধিত -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">বেতন পরিশোধ করেছে</p>
+                <h4 class="text-3xl font-bold text-emerald-600 mt-1" id="stat-paid">0</h4>
+            </div>
+            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-full">
+                <i class="fa-solid fa-circle-check text-xl"></i>
+            </div>
+        </div>
+        <!-- বকেয়া আছে -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">বেতন বকেয়া আছে</p>
+                <h4 class="text-3xl font-bold text-red-600 mt-1" id="stat-due">0</h4>
+            </div>
+            <div class="bg-red-50 text-red-600 p-3 rounded-full">
+                <i class="fa-solid fa-circle-xmark text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- ফিল্টারিং ও সার্চ কন্টেইনার -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h3 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-filter text-emerald-600"></i> ফিল্টারিং ও সার্চ অপশন
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- নাম, আইডি বা মোবাইল সার্চ -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্র খুঁজুন</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="search-student-list" oninput="renderFilteredStudents()" placeholder="নাম, আইডি বা মোবাইল লিখুন..."
+                           class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                </div>
+            </div>
+
+            <!-- শ্রেণী ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী</label>
+                <select id="filter-class-list" onchange="renderFilteredStudents()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs bg-white text-gray-700 font-semibold">
+                    <option value="">সকল শ্রেণী</option>
+                    <option value="হিফজ">হিফজ</option>
+                    <option value="নাজেরা">নাজেরা</option>
+                    <option value="নূরানী">নূরানী</option>
+                    <option value="প্রথম শ্রেণী">প্রথম শ্রেণী</option>
+                    <option value="দ্বিতীয় শ্রেণী">দ্বিতীয় শ্রেণী</option>
+                </select>
+            </div>
+
+            <!-- বেতন মাস ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">বেতনের মাস</label>
+                <select id="filter-month" onchange="renderFilteredStudents()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs bg-white text-gray-700 font-semibold">
+                    <option value="জানুয়ারি">জানুয়ারি</option>
+                    <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                    <option value="মার্চ">মার্চ</option>
+                    <option value="এপ্রিল">এপ্রিল</option>
+                    <option value="মে">মে</option>
+                    <option value="জুন">জুন</option>
+                    <option value="জুলাই">জুলাই</option>
+                    <option value="আগস্ট">আগস্ট</option>
+                    <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                    <option value="অক্টোবর">অক্টোবর</option>
+                    <option value="নভেম্বর">নভেম্বর</option>
+                    <option value="ডিসেম্বর">ডিসেম্বর</option>
+                </select>
+            </div>
+
+            <!-- বেতন স্ট্যাটাস ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">বেতন স্ট্যাটাস</label>
+                <select id="filter-status-list" onchange="renderFilteredStudents()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs bg-white text-gray-700 font-semibold">
+                    <option value="all">সবাই</option>
+                    <option value="paid">পরিশোধিত</option>
+                    <option value="due">বকেয়া</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ছাত্রদের ডাটা টেবিল -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রোল ও আইডি</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">নাম ও পিতার নাম</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">শ্রেণী</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">যোগাযোগ</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">বেতন স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                </tr>
+                </thead>
+                <tbody id="student-list-table-body" class="bg-white divide-y divide-gray-100">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function initStudentList() {
+        // ড্রপডাউনে স্বয়ংক্রিয়ভাবে বর্তমান মাস সিলেক্ট করে রাখা
+        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        const currentMonthName = bnMonths[new Date().getMonth()];
+        const monthSelect = document.getElementById('filter-month');
+        if (monthSelect) {
+            monthSelect.value = currentMonthName;
+        }
+
+        await renderFilteredStudents();
+    }
+
+    async function renderFilteredStudents() {
+        const tableBody = document.getElementById('student-list-table-body');
+        if (!tableBody) return;
+
+        const searchQuery = document.getElementById('search-student-list').value.toLowerCase().trim();
+        const classQuery = document.getElementById('filter-class-list').value;
+        const monthQuery = document.getElementById('filter-month').value;
+        const statusQuery = document.getElementById('filter-status-list').value;
+
+        try {
+            // ছাত্রদের ডেটাবেজ ও বেতন ডেটাবেজ থেকে ডাটা নেওয়া
+            let students = await db.students.toArray();
+            students = students.filter(student => student.is_deleted !== 1);
+
+            let fees = await db.fees.toArray();
+            const activeFees = fees.filter(fee => fee.is_deleted !== 1);
+
+            // নির্বাচিত মাসের ফি পরিশোধের তথ্য একটি হ্যাশ-ম্যাপে সাজানো
+            const paidMap = {};
+            activeFees.forEach(fee => {
+                if (fee.month === monthQuery) {
+                    paidMap[fee.student_id] = fee;
+                }
+            });
+
+            // রিয়েল-টাইম ফিল্টারিং প্রসেস
+            let filtered = students;
+
+            if (searchQuery) {
+                filtered = filtered.filter(s =>
+                    s.name.toLowerCase().includes(searchQuery) ||
+                    s.id.toLowerCase().includes(searchQuery) ||
+                    s.parent_phone.includes(searchQuery) ||
+                    (s.father_name && s.father_name.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if (classQuery) {
+                filtered = filtered.filter(s => s.class === classQuery);
+            }
+
+            if (statusQuery === 'paid') {
+                filtered = filtered.filter(s => paidMap[s.id] !== undefined);
+            } else if (statusQuery === 'due') {
+                filtered = filtered.filter(s => paidMap[s.id] === undefined);
+            }
+
+            // রোল নম্বর অনুযায়ী ছোট থেকে বড় সাজানো
+            filtered.sort((a, b) => (a.roll || 0) - (b.roll || 0));
+
+            // পরিসংখ্যান আপডেট করা
+            let totalPaid = 0;
+            let totalDue = 0;
+            filtered.forEach(s => {
+                if (paidMap[s.id]) totalPaid++;
+                else totalDue++;
+            });
+
+            document.getElementById('stat-total').textContent = filtered.length;
+            document.getElementById('stat-paid').textContent = totalPaid;
+            document.getElementById('stat-due').textContent = totalDue;
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
+                            কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(s => {
+                const feeObj = paidMap[s.id];
+                let statusCell = '';
+                let actionButton = '';
+
+                if (feeObj) {
+                    statusCell = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                         <i class="fa-solid fa-circle-check"></i> পরিশোধিত (৳${feeObj.amount})
+                       </span>`;
+                    actionButton = `
+                        <span class="text-xs text-gray-400 font-bold"><i class="fa-solid fa-receipt"></i> ${feeObj.receipt_id}</span>
+                    `;
+                } else {
+                    statusCell = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 animate-pulse">
+                         <i class="fa-solid fa-circle-xmark"></i> বকেয়া
+                       </span>`;
+                    actionButton = `
+                        <button onclick="collectFeeFor('${s.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1 rounded-lg border border-red-200 transition flex items-center gap-1 text-[10px]">
+                            <i class="fa-solid fa-wallet"></i> বেতন নিন
+                        </button>
+                    `;
+                }
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-bold text-gray-700">${s.roll}</div>
+                            <div class="text-[10px] text-gray-400 font-bold">${s.id}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-semibold text-gray-800">${s.name}</div>
+                            <div class="text-xs text-gray-500">পিতা: ${s.father_name || '-'}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700 font-semibold">${s.class}</td>
+                        <td class="px-4 py-3 text-xs text-gray-600">
+                            <div><i class="fa-solid fa-phone text-emerald-600"></i> ${s.parent_phone}</div>
+                            ${s.whatsapp_no ? `<div><i class="fa-brands fa-whatsapp text-green-500"></i> ${s.whatsapp_no}</div>` : ''}
+                        </td>
+                        <td class="px-4 py-3 text-sm">${statusCell}</td>
+                        <td class="px-4 py-3 text-sm flex gap-1.5 h-full items-center">${actionButton}</td>
+                    </tr>`;
+            });
+
+            tableBody.innerHTML = html;
+
+        } catch (err) {
+            console.error("তালিকা প্রস্তুত করতে ত্রুটি:", err);
+        }
+    }
+
+    // বকেয়া ছাত্রদের বেতন আদায়ের লিংকে নিয়ে যাওয়ার গ্লোবাল অ্যাকশন
+    window.collectFeeFor = function(studentId) {
+        window.preselectedStudentId = studentId;
+        loadModule('fees');
+    }
+</script>
