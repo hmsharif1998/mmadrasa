@@ -1,125 +1,176 @@
+--- START OF FILE admission.html ---
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     <!-- ছাত্র ভর্তি ফরম (১ ভাগ জায়গা নেবে) -->
     <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
-        <h3 id="form-title" class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <h3 id="form-title" class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <i class="fa-solid fa-user-plus text-emerald-600"></i> নতুন ছাত্র ভর্তি ফরম
         </h3>
 
-        <form id="admission-form" class="space-y-4">
+        <form id="admission-form" class="space-y-5">
             <!-- এডিট ট্র্যাকিংয়ের জন্য হিডেন আইডি ফিল্ড -->
             <input type="hidden" id="editing-student-id" value="">
 
-            <!-- আইডি ও সিরিয়াল নম্বর (পাশাপাশি) -->
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">আইডি নম্বর *</label>
-                    <input type="text" id="student-id" required placeholder="S-10001"
-                           class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">সিরিয়াল নম্বর *</label>
-                    <input type="number" id="student-serial" required placeholder="যেমন: ১"
-                           class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold">
-                </div>
-            </div>
-
-            <!-- নাম ও পিতার নাম -->
+            <!-- বিভাগ ১: ভর্তি সংক্রান্ত মৌলিক তথ্য -->
             <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্রের নাম *</label>
-                    <input type="text" id="student-name" required placeholder="যেমন: আবদুর রহমান"
-                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider border-b border-gray-100 pb-1.5">১. ভর্তি সংক্রান্ত তথ্য</h4>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">আইডি নম্বর *</label>
+                        <input type="text" id="student-id" required placeholder="S-10001"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">সিরিয়াল নম্বর *</label>
+                        <input type="number" id="student-serial" required placeholder="যেমন: ১"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">পিতার নাম *</label>
-                    <input type="text" id="student-father-name" required placeholder="যেমন: মো: আবুল কাশেম"
-                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                </div>
-            </div>
 
-            <!-- শ্রেণী নির্বাচন (আধুনিক রেডিও বাটন গ্রিড) -->
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-2">শ্রেণী নির্বাচন করুন *</label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <!-- হিফজ -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="student-class" value="হিফজ" required class="sr-only peer">
-                        <div class="text-center p-2 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 transition duration-150">
-                            <span class="text-xs font-bold text-gray-700 peer-checked:text-emerald-950">হিফজ</span>
-                        </div>
-                    </label>
-                    <!-- নাজেরা -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="student-class" value="নাজেরা" required class="sr-only peer">
-                        <div class="text-center p-2 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 transition duration-150">
-                            <span class="text-xs font-bold text-gray-700 peer-checked:text-emerald-950">নাজেরা</span>
-                        </div>
-                    </label>
-                    <!-- নূরানী -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="student-class" value="নূরানী" required class="sr-only peer">
-                        <div class="text-center p-2 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 transition duration-150">
-                            <span class="text-xs font-bold text-gray-700 peer-checked:text-emerald-950">নূরানী</span>
-                        </div>
-                    </label>
-                    <!-- প্রথম শ্রেণী -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="student-class" value="প্রথম শ্রেণী" required class="sr-only peer">
-                        <div class="text-center p-2 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 transition duration-150">
-                            <span class="text-xs font-bold text-gray-700 peer-checked:text-emerald-950">১ম শ্রেণী</span>
-                        </div>
-                    </label>
-                    <!-- দ্বিতীয় শ্রেণী -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="student-class" value="দ্বিতীয় শ্রেণী" required class="sr-only peer">
-                        <div class="text-center p-2 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 transition duration-150">
-                            <span class="text-xs font-bold text-gray-700 peer-checked:text-emerald-950">২য় শ্রেণী</span>
-                        </div>
-                    </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">রোল নম্বর *</label>
+                        <input type="number" id="student-roll" required placeholder="যেমন: ১০"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">আবাসন স্ট্যাটাস *</label>
+                        <select id="student-residence" required
+                                class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
+                            <option value="অনাবাসিক">অনাবাসিক</option>
+                            <option value="আবাসিক">আবাসিক</option>
+                            <option value="দিবা-হাফেজ">দিবা-হাফেজ</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- রোল নম্বর -->
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">রোল নম্বর *</label>
-                <input type="number" id="student-roll" required placeholder="যেমন: ১০"
-                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold">
-            </div>
-
-            <!-- মোবাইল ও হোয়াটসঅ্যাপ নম্বর -->
-            <div class="space-y-3">
+                <!-- শ্রেণী নির্বাচন -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">অভিভাবকের মোবাইল নম্বর *</label>
-                    <input type="tel" id="student-phone" required placeholder="যেমন: 017XXXXXXXX" pattern="[0-9]{11}" oninput="syncWhatsapp()"
-                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-bold text-gray-500">হোয়াটসঅ্যাপ নম্বর</label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-emerald-700 font-semibold">
-                            <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="toggleWhatsappSync()">
-                            <span>মোবাইলের মতই</span>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-2">শ্রেণী নির্বাচন করুন *</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="student-class" value="হিফজ" required class="sr-only peer">
+                            <div class="text-center py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50/60 transition duration-150">
+                                <span class="text-xs font-bold text-gray-700">হিফজ</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="student-class" value="নাজেরা" required class="sr-only peer">
+                            <div class="text-center py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50/60 transition duration-150">
+                                <span class="text-xs font-bold text-gray-700">নাজেরা</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="student-class" value="নূরানী" required class="sr-only peer">
+                            <div class="text-center py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50/60 transition duration-150">
+                                <span class="text-xs font-bold text-gray-700">নূরানী</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="student-class" value="প্রথম শ্রেণী" required class="sr-only peer">
+                            <div class="text-center py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50/60 transition duration-150">
+                                <span class="text-xs font-bold text-gray-700">১ম শ্রেণী</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="student-class" value="দ্বিতীয় শ্রেণী" required class="sr-only peer">
+                            <div class="text-center py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50/40 peer-checked:border-emerald-600 peer-checked:bg-emerald-50/60 transition duration-150">
+                                <span class="text-xs font-bold text-gray-700">২য় শ্রেণী</span>
+                            </div>
                         </label>
                     </div>
-                    <input type="tel" id="student-whatsapp" placeholder="যেমন: 017XXXXXXXX" pattern="[0-9]{11}"
-                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
             </div>
 
-            <!-- ঠিকানা -->
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">বর্তমান ঠিকানা *</label>
-                <textarea id="student-address" required placeholder="গ্রাম, ডাকঘর, থানা ও জেলা লিখুন..." rows="2"
-                          class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"></textarea>
+            <!-- বিভাগ ২: শিক্ষার্থীর ব্যক্তিগত তথ্য -->
+            <div class="space-y-3 pt-2">
+                <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider border-b border-gray-100 pb-1.5">২. ব্যক্তিগত তথ্য</h4>
+                
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">ছাত্রের নাম *</label>
+                    <input type="text" id="student-name" required placeholder="যেমন: আবদুর রহমান"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">জন্ম তারিখ</label>
+                        <input type="date" id="student-dob"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">রক্তের গ্রুপ</label>
+                        <select id="student-blood-group"
+                                class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700">
+                            <option value="">নির্বাচন করুন</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">জন্ম নিবন্ধন নম্বর (১৭ ডিজিট)</label>
+                    <input type="text" id="student-birth-reg" placeholder="যেমন: ২০০৫xxxxxxxxxxxxx" pattern="[0-9]{17}"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en">
+                </div>
             </div>
 
-            <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+            <!-- বিভাগ ৩: অভিভাবকের তথ্য ও যোগাযোগ -->
+            <div class="space-y-3 pt-2">
+                <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider border-b border-gray-100 pb-1.5">৩. পিতা-মাতা ও যোগাযোগ তথ্য</h4>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">পিতার নাম *</label>
+                        <input type="text" id="student-father-name" required placeholder="পিতার নাম"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">মাতার নাম</label>
+                        <input type="text" id="student-mother-name" placeholder="মাতার নাম"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">মোবাইল নম্বর *</label>
+                        <input type="tel" id="student-phone" required placeholder="017XXXXXXXX" pattern="[0-9]{11}" oninput="syncWhatsapp()"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-[11px] font-bold text-gray-500">হোয়াটসঅ্যাপ</label>
+                            <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-emerald-700 font-bold">
+                                <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="toggleWhatsappSync()">
+                                <span>একই</span>
+                            </label>
+                        </div>
+                        <input type="tel" id="student-whatsapp" placeholder="017XXXXXXXX" pattern="[0-9]{11}"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">বর্তমান ঠিকানা *</label>
+                    <textarea id="student-address" required placeholder="গ্রাম, ডাকঘর, থানা ও জেলা..." rows="2"
+                              class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs resize-none"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10">
                 <i class="fa-solid fa-circle-check"></i> ভর্তি নিশ্চিত করুন
             </button>
 
-            <!-- সংশোধন বাতিল করার বাটন (শুধুমাত্র এডিটের সময় দেখাবে) -->
-            <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2">
+            <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2 text-sm">
                 সংশোধন বাতিল করুন
             </button>
         </form>
@@ -135,14 +186,14 @@
         <div class="mb-5 flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="search-student" oninput="filterStudents()" placeholder="নাম, আইডি বা মোবাইল নম্বর দিয়ে খুঁজুন..."
-                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                       class="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
             </div>
-            <div class="w-full sm:w-48">
+            <div class="w-full sm:w-44">
                 <select id="filter-class" onchange="filterStudents()"
-                        class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white font-semibold text-gray-700">
+                        class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                     <option value="">সকল শ্রেণী</option>
                     <option value="হিফজ">হিফজ</option>
                     <option value="নাজেরা">নাজেরা</option>
@@ -154,18 +205,17 @@
         </div>
 
         <!-- রেসপনসিভ টেবিল কন্টেইনার -->
-        <div class="overflow-x-auto flex-1 max-h-[550px] overflow-y-auto">
+        <div class="overflow-x-auto flex-1 max-h-[600px] overflow-y-auto rounded-xl border border-gray-100">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">সিরিয়াল</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রোল</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">আইডি ও নাম</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">পিতার নাম</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">শ্রেণী</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">যোগাযোগ</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">সিরিয়াল & রোল</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">শিক্ষার্থীর পরিচিতি</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">পিতা ও মাতা</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">শ্রেণী ও আবাসন</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">যোগাযোগ</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
                 </tr>
                 </thead>
                 <tbody id="students-table-body" class="bg-white divide-y divide-gray-100">
@@ -177,9 +227,8 @@
 
 </div>
 
-<!-- এই মডিউলের জন্য ডেডিকেটেড জাভাস্ক্রিপ্ট কোড -->
+<!-- স্ক্রিপ্ট হ্যান্ডলার -->
 <script>
-    // ভর্তি মডিউল লোড হওয়ার সময় স্বয়ংক্রিয়ভাবে রান হবে
     async function initAdmission() {
         document.getElementById('editing-student-id').value = "";
         document.getElementById('student-id').readOnly = false;
@@ -197,23 +246,27 @@
                 const serialNo = parseInt(document.getElementById('student-serial').value);
                 const name = document.getElementById('student-name').value.trim();
                 const fatherName = document.getElementById('student-father-name').value.trim();
+                const motherName = document.getElementById('student-mother-name').value.trim();
+                const dob = document.getElementById('student-dob').value;
+                const bloodGroup = document.getElementById('student-blood-group').value;
+                const birthReg = document.getElementById('student-birth-reg').value.trim();
                 const roll = parseInt(document.getElementById('student-roll').value);
+                const residence = document.getElementById('student-residence').value;
                 const phone = document.getElementById('student-phone').value.trim();
                 const whatsapp = document.getElementById('student-whatsapp').value.trim();
                 const address = document.getElementById('student-address').value.trim();
                 const editId = document.getElementById('editing-student-id').value;
 
-                // রেডিও বাটন থেকে নির্বাচিত শ্রেণী বের করা
                 const selectedClassRadio = document.querySelector('input[name="student-class"]:checked');
                 const className = selectedClassRadio ? selectedClassRadio.value : '';
 
-                if (!id || !serialNo || !name || !fatherName || !className || !roll || !phone || !address) {
+                if (!id || !serialNo || !name || !fatherName || !className || !roll || !phone || !address || !residence) {
                     showToast("সব লাল চিহ্নিত (*) ঘরগুলো পূরণ করুন!", "error");
                     return;
                 }
 
                 try {
-                    // একই শ্রেণীতে একই রোল নম্বর আছে কিনা তা চেক করা (ডুপ্লিকেট চেক)
+                    // ডুপ্লিকেট রোল চেক
                     const duplicate = await db.students
                         .where({ class: className, roll: roll })
                         .first();
@@ -229,8 +282,13 @@
                             serial_no: serialNo,
                             name: name,
                             father_name: fatherName,
+                            mother_name: motherName,
+                            dob: dob,
+                            blood_group: bloodGroup,
+                            birth_reg: birthReg,
                             class: className,
                             roll: roll,
+                            residence: residence,
                             parent_phone: phone,
                             whatsapp_no: whatsapp,
                             address: address,
@@ -247,8 +305,13 @@
                             serial_no: serialNo,
                             name: name,
                             father_name: fatherName,
+                            mother_name: motherName,
+                            dob: dob,
+                            blood_group: bloodGroup,
+                            birth_reg: birthReg,
                             class: className,
                             roll: roll,
+                            residence: residence,
                             parent_phone: phone,
                             whatsapp_no: whatsapp,
                             address: address,
@@ -279,26 +342,21 @@
         }
     }
 
-    // ইউনিক আইডি এবং পরবর্তী সিরিয়াল নম্বর অটো-জেনারেট করার লজিক
     async function generateIdAndSerial() {
         try {
             const students = await db.students.toArray();
             const activeStudents = students.filter(s => s.is_deleted !== 1);
 
-            // সিরিয়াল নম্বর নির্ধারণ (মোট শিক্ষার্থীর সংখ্যা + ১)
             const nextSerial = activeStudents.length + 1;
             document.getElementById('student-serial').value = nextSerial;
 
-            // আইডি নম্বর নির্ধারণ (S- এরপর ১০ হাজার + পরবর্তী সিরিয়াল)
             const generatedId = "S-" + (10000 + nextSerial);
             document.getElementById('student-id').value = generatedId;
-            document.getElementById('student-id').readOnly = false;
         } catch (err) {
             console.error("আইডি ও সিরিয়াল নম্বর জেনারেট করতে ব্যর্থ:", err);
         }
     }
 
-    // মোবাইল নম্বরের মতই হোয়াটসঅ্যাপ নম্বর অটো-ফিল করার লজিক
     function syncWhatsapp() {
         const sameAsMobile = document.getElementById('same-as-mobile').checked;
         if (sameAsMobile) {
@@ -334,7 +392,6 @@
             let students = await db.students.reverse().toArray();
             students = students.filter(student => student.is_deleted !== 1);
 
-            // সার্চ ফিল্টারিং (আইডি, নাম, এবং অভিভাবকের ফোন)
             if (searchQuery) {
                 students = students.filter(student =>
                     student.name.toLowerCase().includes(searchQuery) ||
@@ -347,13 +404,12 @@
                 students = students.filter(student => student.class === classQuery);
             }
 
-            // সিরিয়াল নম্বর অনুযায়ী ছোট থেকে বড় সাজানো
             students.sort((a, b) => (a.serial_no || 0) - (b.serial_no || 0));
 
             if (students.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
+                        <td colspan="7" class="px-4 py-8 text-center text-xs text-gray-500 font-medium">
                             কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
@@ -363,35 +419,46 @@
             let htmlContent = '';
             students.forEach(student => {
                 const syncStatusBadge = student.is_synced === 1
-                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                          <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্কড
                        </span>`
-                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 animate-pulse">
+                    : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 animate-pulse">
                          <i class="fa-solid fa-clock"></i> পেন্ডিং
                        </span>`;
 
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${student.serial_no || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${student.roll}</td>
-                        <td class="px-4 py-3 text-sm">
-                            <div class="font-semibold text-gray-800">${student.name}</div>
-                            <div class="text-[10px] text-gray-400 font-bold tracking-wider">${student.id}</div>
+                        <td class="px-4 py-3 text-xs text-gray-700 font-bold font-en">
+                            <div>Sl: ${student.serial_no || '-'}</div>
+                            <div class="text-[10px] text-emerald-600 font-bold">রোল: ${student.roll}</div>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${student.father_name || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-700 font-semibold">${student.class}</td>
+                        <td class="px-4 py-3 text-xs">
+                            <div class="font-bold text-gray-800 text-sm">${student.name}</div>
+                            <div class="text-[10px] text-gray-400 font-bold tracking-wider font-en">${student.id}</div>
+                            ${student.blood_group ? `<span class="inline-block mt-1 bg-rose-100 text-rose-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full">${student.blood_group}</span>` : ''}
+                        </td>
                         <td class="px-4 py-3 text-xs text-gray-600">
-                            <div><i class="fa-solid fa-phone text-emerald-600"></i> ${student.parent_phone}</div>
-                            ${student.whatsapp_no ? `<div><i class="fa-brands fa-whatsapp text-green-500"></i> ${student.whatsapp_no}</div>` : ''}
+                            <div class="font-medium">পিতা: ${student.father_name || '-'}</div>
+                            <div class="text-[11px] text-gray-500">মাতা: ${student.mother_name || '-'}</div>
                         </td>
-                        <td class="px-4 py-3 text-sm">${syncStatusBadge}</td>
-                        <td class="px-4 py-3 text-sm flex gap-1.5 h-full items-center">
-                            <button onclick="editStudent('${student.id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                        <td class="px-4 py-3 text-xs text-gray-700 font-bold">
+                            <div class="text-emerald-950">${student.class}</div>
+                            <div class="text-[10px] font-normal text-gray-400">${student.residence || 'অনাবাসিক'}</div>
+                        </td>
+                        <td class="px-4 py-3 text-[11px] text-gray-600">
+                            <div class="font-en"><i class="fa-solid fa-phone text-emerald-600"></i> ${student.parent_phone}</div>
+                            ${student.whatsapp_no ? `<div class="font-en"><i class="fa-brands fa-whatsapp text-green-500"></i> ${student.whatsapp_no}</div>` : ''}
+                        </td>
+                        <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
+                        <td class="px-4 py-3 text-xs">
+                            <div class="flex gap-1">
+                                <button onclick="editStudent('${student.id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>`;
             });
@@ -410,21 +477,24 @@
 
             document.getElementById('editing-student-id').value = student.id;
             document.getElementById('student-id').value = student.id;
-            document.getElementById('student-id').readOnly = true; // এডিটের সময় আইডি এডিট করা যাবে না
+            document.getElementById('student-id').readOnly = true;
 
             document.getElementById('student-serial').value = student.serial_no || '';
             document.getElementById('student-name').value = student.name;
             document.getElementById('student-father-name').value = student.father_name || '';
+            document.getElementById('student-mother-name').value = student.mother_name || '';
+            document.getElementById('student-dob').value = student.dob || '';
+            document.getElementById('student-blood-group').value = student.blood_group || '';
+            document.getElementById('student-birth-reg').value = student.birth_reg || '';
             document.getElementById('student-roll').value = student.roll;
+            document.getElementById('student-residence').value = student.residence || 'অনাবাসিক';
             document.getElementById('student-phone').value = student.parent_phone;
             document.getElementById('student-whatsapp').value = student.whatsapp_no || '';
             document.getElementById('student-address').value = student.address || '';
 
-            // রেডিও বাটনে শ্রেণী সেট করা
             const radio = document.querySelector(`input[name="student-class"][value="${student.class}"]`);
             if (radio) radio.checked = true;
 
-            // যদি হোয়াটসঅ্যাপ ও ফোন নম্বর একই হয়, তবে চেক বক্স অন করে দেওয়া
             if (student.parent_phone === student.whatsapp_no) {
                 document.getElementById('same-as-mobile').checked = true;
                 toggleWhatsappSync();
@@ -435,7 +505,7 @@
 
             document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ছাত্র তথ্য সংশোধন`;
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
             submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
 
             document.getElementById('cancel-edit-btn').classList.remove('hidden');
@@ -455,7 +525,7 @@
 
         document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-user-plus text-emerald-600"></i> নতুন ছাত্র ভর্তি ফরম`;
         const submitBtn = document.getElementById('submit-btn');
-        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2";
+        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
         submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ভর্তি নিশ্চিত করুন`;
 
         document.getElementById('cancel-edit-btn').classList.add('hidden');
