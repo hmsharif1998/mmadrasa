@@ -1,104 +1,350 @@
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b pb-4">
-        <i class="fa-solid fa-gear text-emerald-600"></i> মাদরাসা সেটিংস কনফিগারেশন
-    </h3>
+--- START OF FILE settings.html ---
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row min-h-[500px]">
 
-    <form id="settings-form" class="space-y-5">
-        <div>
-            <label class="block text-sm font-semibold text-gray-600 mb-1">মাদরাসার নাম *</label>
-            <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
-                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-        </div>
+    <!-- বাম পাশের ক্যাটাগরি মেনু (ট্যাব বাটনসমূহ) -->
+    <div class="md:w-60 border-b md:border-b-0 md:border-r border-gray-100 p-4 space-y-1 bg-gray-50/50 rounded-t-2xl md:rounded-r-none md:rounded-l-2xl">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-3">অ্যাপ সেটিংস</h3>
+        
+        <button onclick="switchTab('general')" id="tab-btn-general" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-emerald-700 bg-emerald-50/60 border-l-4 border-emerald-600">
+            <i class="fa-solid fa-mosque"></i> সাধারণ সেটিংস
+        </button>
+        <button onclick="switchTab('security')" id="tab-btn-security" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-shield-halved"></i> নিরাপত্তা ও পিন
+        </button>
+        <button onclick="switchTab('fees')" id="tab-btn-fees" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-money-bills"></i> ডিফল্ট মাসিক ফি
+        </button>
+        <button onclick="switchTab('sync')" id="tab-btn-sync" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও সংযোগ পরীক্ষা
+        </button>
+    </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-gray-600 mb-1">মাদরাসার ঠিকানা</label>
-            <input type="text" id="set-madrasah-address" placeholder="যেমন: ঢাকা, বাংলাদেশ"
-                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-        </div>
+    <!-- ডান পাশের মূল ফর্ম কন্টেন্ট এরিয়া -->
+    <div class="flex-1 p-6 md:p-8 flex flex-col justify-between">
+        
+        <form id="settings-form" class="space-y-6 flex-1">
+            
+            <!-- ট্যাব ১: সাধারণ সেটিংস -->
+            <div id="tab-content-general" class="space-y-4">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-mosque"></i> সাধারণ তথ্য ও প্রোফাইল সেটিংস
+                </h4>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">মাদরাসার নাম *</label>
+                    <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-gray-600 mb-1">হেল্পলাইন/মোবাইল নম্বর</label>
-            <input type="tel" id="set-madrasah-phone" placeholder="যেমন: 017XXXXXXXX"
-                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-        </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">মাদরাসার ঠিকানা</label>
+                    <input type="text" id="set-madrasah-address" placeholder="যেমন: ঢাকা, বাংলাদেশ"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-1">লক স্ক্রিন পিন কোড (৪ সংখ্যার) *</label>
-                <input type="password" id="set-madrasah-pin" required maxlength="4" pattern="[0-9]{4}" placeholder="যেমন: 1234"
-                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm tracking-widest font-bold">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">হেল্পলাইন/মোবাইল নম্বর</label>
+                    <input type="tel" id="set-madrasah-phone" placeholder="যেমন: 017XXXXXXXX"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en">
+                </div>
+
+                <!-- লোগো আপলোডার -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500">মাদরাসার লোগো (PNG/JPG)</label>
+                    <div class="flex items-center gap-4 border border-dashed border-gray-200 p-3 rounded-xl">
+                        <div id="logo-preview-container" class="hidden">
+                            <img id="logo-preview" class="w-12 h-12 rounded-full object-cover border bg-gray-50" src="" alt="Logo">
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="logo-file-input" onchange="handleLogoUpload(event)" accept="image/*" class="hidden">
+                            <button type="button" onclick="document.getElementById('logo-file-input').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-camera"></i> লোগো আপলোড করুন
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-end">
-                <p class="text-xs text-gray-500 pb-2">নিরাপত্তার স্বার্থে পিনটি অবশ্যই ৪ সংখ্যার হতে হবে।</p>
+
+            <!-- ট্যাব ২: নিরাপত্তা ও লক সেটিংস -->
+            <div id="tab-content-security" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i> নিরাপত্তা ও স্ক্রিন লক সেটিংস
+                </h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">লক স্ক্রিন পিন কোড (৪ সংখ্যার) *</label>
+                        <input type="password" id="set-madrasah-pin" required maxlength="4" pattern="[0-9]{4}" placeholder="যেমন: 1234"
+                               class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs tracking-widest font-bold font-en text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">অটো-লক টাইমআউট (Auto Lock)</label>
+                        <select id="set-lock-timeout"
+                                class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
+                            <option value="0">কখনো নয় (Never Lock)</option>
+                            <option value="1">১ মিনিট নিষ্ক্রিয় থাকলে</option>
+                            <option value="3">৩ মিনিট নিষ্ক্রিয় থাকলে</option>
+                            <option value="5">৫ মিনিট নিষ্ক্রিয় থাকলে</option>
+                            <option value="10">১০ মিনিট নিষ্ক্রিয় থাকলে</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="text-[11px] text-gray-400">নিরাপত্তার স্বার্থে পিন কোডটি অবশ্যই মনে রাখবেন এবং ৪ সংখ্যার সঠিক সংখ্যা দিন।</p>
             </div>
-        </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-gray-600 mb-1">গুগল অ্যাপস স্ক্রিপ্ট (GAS) লিংক *</label>
-            <input type="url" id="set-madrasah-url" required placeholder="https://script.google.com/macros/s/.../exec"
-                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs text-gray-600 font-mono">
-        </div>
+            <!-- ট্যাব ৩: ডিফল্ট ফি বা বেতনের হার -->
+            <div id="tab-content-fees" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bills"></i> শ্রেণী-ভিত্তিক প্রমিত মাসিক ফি কনফিগারেশন
+                </h4>
+                <p class="text-[11px] text-gray-400 mb-3">এখানে নির্ধারিত ফি-গুলো বেতন আদায় ফরম ও ছাত্র ভর্তি ফরমের ডিফল্ট ফি হিসেবে স্বয়ংক্রিয়ভাবে সাজেস্ট হবে।</p>
 
-        <div class="pt-4 border-t flex gap-3">
-            <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-floppy-disk"></i> সেটিংস সংরক্ষণ করুন
-            </button>
-            <button type="button" onclick="loadModule('dashboard')" class="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition duration-200">
-                বাতিল
-            </button>
-        </div>
-    </form>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">হিফজ শ্রেণী (৳)</label>
+                        <input type="number" id="fee-hifz" placeholder="৫০০" min="0"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">নাজেরা শ্রেণী (৳)</label>
+                        <input type="number" id="fee-nazera" placeholder="৪০০" min="0"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">নূরানী শ্রেণী (৳)</label>
+                        <input type="number" id="fee-noorani" placeholder="৩০০" min="0"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">প্রথম শ্রেণী (৳)</label>
+                        <input type="number" id="fee-class1" placeholder="৩০০" min="0"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-1">দ্বিতীয় শ্রেণী (৳)</label>
+                        <input type="number" id="fee-class2" placeholder="৩৫০" min="0"
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ট্যাব ৪: ক্লাউড সিঙ্ক ও ডায়াগনস্টিকস -->
+            <div id="tab-content-sync" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও ডেটাবেজ ডায়াগনস্টিকস
+                </h4>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">গুগল অ্যাপস স্ক্রিপ্ট (GAS) লিংক *</label>
+                    <input type="url" id="set-madrasah-url" required placeholder="https://script.google.com/macros/s/.../exec"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-[10px] text-gray-600 font-mono">
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" id="btn-test-connection" onclick="testConnection()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 border border-blue-200">
+                        <i class="fa-solid fa-plug"></i> সংযোগ পরীক্ষা করুন
+                    </button>
+                </div>
+
+                <!-- লোকাল ডাটাবেজ ডায়াগনস্টিকস -->
+                <div class="pt-4 border-t space-y-2">
+                    <h5 class="text-xs font-bold text-gray-500">লোকাল ডেটাবেজ স্ট্যাটাস:</h5>
+                    <div class="grid grid-cols-2 gap-3 text-xs bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div>মোট ছাত্র রেকর্ড: <span id="stat-db-students" class="font-bold font-en">0</span></div>
+                        <div>মোট রসিদ রেকর্ড: <span id="stat-db-fees" class="font-bold font-en">0</span></div>
+                    </div>
+                </div>
+
+                <!-- ডেঞ্জার জোন (Reset Database) -->
+                <div class="pt-4 border-t border-red-100">
+                    <h5 class="text-xs font-bold text-red-500 mb-1.5">ডেঞ্জার জোন (Danger Zone):</h5>
+                    <button type="button" onclick="resetDatabase()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 border border-red-200">
+                        <i class="fa-solid fa-triangle-exclamation"></i> সম্পূর্ণ ডাটাবেজ রিসেট করুন
+                    </button>
+                </div>
+            </div>
+
+            <!-- কনফার্মেশন ও সাবমিট বাটন -->
+            <div class="pt-6 border-t flex gap-3">
+                <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10">
+                    <i class="fa-solid fa-floppy-disk"></i> সেটিংস সংরক্ষণ করুন
+                </button>
+                <button type="button" onclick="loadModule('dashboard')" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition duration-200 text-sm">
+                    বাতিল
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
+    // ট্যাব পরিবর্তন করার লজিক
+    function switchTab(tabName) {
+        const tabs = ['general', 'security', 'fees', 'sync'];
+        tabs.forEach(tab => {
+            const btn = document.getElementById(`tab-btn-${tab}`);
+            const content = document.getElementById(`tab-content-${tab}`);
+            if (btn && content) {
+                if (tab === tabName) {
+                    btn.className = "w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-emerald-700 bg-emerald-50/60 border-l-4 border-emerald-600";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700";
+                    content.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // লগো আপলোড এবং প্রিভিউ প্রসেসিং (Base64)
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Data = e.target.result;
+            // এটি সাময়িকভাবে লোকালে রেখে দেওয়া হচ্ছে, ফর্ম সেভ হলে সম্পূর্ণ সেভ হবে
+            localStorage.setItem('madrasah_logo_temp', base64Data);
+            document.getElementById('logo-preview').src = base64Data;
+            document.getElementById('logo-preview-container').classList.remove('hidden');
+            showToast("লোগো আপলোড হয়েছে! স্থায়ীভাবে সেভ করতে নিচের সেভ বাটনে ক্লিক করুন।", "info");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // গুগল শিটের সাথে সংযোগ পরীক্ষা (Live Ping Test)
+    async function testConnection() {
+        const url = document.getElementById('set-madrasah-url').value.trim();
+        if (!url) {
+            showToast("অনুগ্রহ করে প্রথমে একটি গুগল স্ক্রিপ্ট ইউআরএল দিন!", "error");
+            return;
+        }
+
+        const testBtn = document.getElementById('btn-test-connection');
+        testBtn.disabled = true;
+        testBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> সংযোগ পরীক্ষা হচ্ছে...`;
+
+        try {
+            const response = await fetch(url, { method: 'GET' });
+            if (!response.ok) throw new Error("কানেকশন এরর");
+            
+            const data = await response.json();
+            if (data.status === 'success') {
+                showToast("আলহামদুলিল্লাহ্‌, ক্লাউড গুগল শিটের সাথে সফলভাবে সংযোগ স্থাপন করা হয়েছে!", "success");
+            } else {
+                showToast("গুগল স্ক্রিপ্ট রেসপন্স করেছে কিন্তু কোনো ডাটা পাওয়া যায়নি।", "error");
+            }
+        } catch (error) {
+            console.error("Connection failed:", error);
+            showToast("সংযোগ করা সম্ভব হয়নি। ইউআরএল সঠিক আছে কি না এবং নেট কানেকশন চেক করুন।", "error");
+        } finally {
+            testBtn.disabled = false;
+            testBtn.innerHTML = `<i class="fa-solid fa-plug"></i> সংযোগ পরীক্ষা করুন`;
+        }
+    }
+
+    // ডায়াগনস্টিক তথ্য লোড (Stats)
+    async function loadDbStats() {
+        try {
+            const totalStudents = await db.students.filter(s => s.is_deleted !== 1).count();
+            const totalFees = await db.fees.filter(f => f.is_deleted !== 1).count();
+            document.getElementById('stat-db-students').textContent = totalStudents;
+            document.getElementById('stat-db-fees').textContent = totalFees;
+        } catch (err) {
+            console.error("ডায়াগনস্টিক তথ্য লোড করতে ব্যর্থ:", err);
+        }
+    }
+
+    // সেটিংস ইনিশিয়ালাইজেশন
     async function initSettings() {
         try {
-            // DOM উপাদানগুলো রেন্ডার হওয়া নিশ্চিত করতে অবজেক্ট সিলেক্ট করা
-            const nameEl = document.getElementById('set-madrasah-name');
-            const addressEl = document.getElementById('set-madrasah-address');
-            const phoneEl = document.getElementById('set-madrasah-phone');
-            const pinEl = document.getElementById('set-madrasah-pin');
-            const urlEl = document.getElementById('set-madrasah-url');
+            // ১. সাধারণ সেটিংস ভ্যালু সেট
+            document.getElementById('set-madrasah-name').value = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            document.getElementById('set-madrasah-address').value = localStorage.getItem('madrasah_address') || '';
+            document.getElementById('set-madrasah-phone').value = localStorage.getItem('madrasah_phone') || '';
+            document.getElementById('set-madrasah-pin').value = localStorage.getItem('madrasah_pin') || '1234';
+            document.getElementById('set-lock-timeout').value = localStorage.getItem('madrasah_lock_timeout') || '0';
+            document.getElementById('set-madrasah-url').value = localStorage.getItem('madrasah_script_url') || '';
 
-            // যদি উপাদানগুলো সঠিকভাবে খুঁজে পায়, তবেই ডাটা সেট হবে (এরর নিরোধক নিরাপদ হ্যান্ডলিং)
-            if (nameEl) nameEl.value = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
-            if (addressEl) addressEl.value = localStorage.getItem('madrasah_address') || '';
-            if (phoneEl) phoneEl.value = localStorage.getItem('madrasah_phone') || '';
-            if (pinEl) pinEl.value = localStorage.getItem('madrasah_pin') || '1234';
-            if (urlEl) urlEl.value = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbwGOQ5LdasLE41lSmz_xxFOTnLP_mBKH-UPSEr333MO6lEzVZxCAxIYJ1p7IuRyHchkpg/exec';
+            // ২. লোগো প্রিভিউ লোড
+            const savedLogo = localStorage.getItem('madrasah_logo');
+            if (savedLogo) {
+                document.getElementById('logo-preview').src = savedLogo;
+                document.getElementById('logo-preview-container').classList.remove('hidden');
+            }
 
+            // ৩. ক্লাস-ভিত্তিক ডিফল্ট বেতন লোড
+            document.getElementById('fee-hifz').value = localStorage.getItem('fee_hifz') || '500';
+            document.getElementById('fee-nazera').value = localStorage.getItem('fee_nazera') || '400';
+            document.getElementById('fee-noorani').value = localStorage.getItem('fee_noorani') || '300';
+            document.getElementById('fee-class1').value = localStorage.getItem('fee_class1') || '300';
+            document.getElementById('fee-class2').value = localStorage.getItem('fee_class2') || '350';
+
+            // ৪. ডেটাবেজ স্ট্যাটাস আপডেট
+            await loadDbStats();
+
+            // ৫. সেটিংস ফর্ম সাবমিট হ্যান্ডলার
             const form = document.getElementById('settings-form');
             if (form) {
                 form.onsubmit = async function(e) {
                     e.preventDefault();
 
-                    const name = nameEl ? nameEl.value.trim() : 'মাদরাসাতুল মদিনা';
-                    const address = addressEl ? addressEl.value.trim() : '';
-                    const phone = phoneEl ? phoneEl.value.trim() : '';
-                    const pin = pinEl ? pinEl.value.trim() : '1234';
-                    const url = urlEl ? urlEl.value.trim() : '';
+                    const name = document.getElementById('set-madrasah-name').value.trim();
+                    const address = document.getElementById('set-madrasah-address').value.trim();
+                    const phone = document.getElementById('set-madrasah-phone').value.trim();
+                    const pin = document.getElementById('set-madrasah-pin').value.trim();
+                    const lockTimeout = document.getElementById('set-lock-timeout').value;
+                    const url = document.getElementById('set-madrasah-url').value.trim();
+
+                    // ডিফল্ট বেতন সেভ
+                    const feeHifz = document.getElementById('fee-hifz').value;
+                    const feeNazera = document.getElementById('fee-nazera').value;
+                    const feeNoorani = document.getElementById('fee-noorani').value;
+                    const feeClass1 = document.getElementById('fee-class1').value;
+                    const feeClass2 = document.getElementById('fee-class2').value;
 
                     if (pin.length !== 4 || isNaN(pin)) {
                         showToast("পিন কোডটি অবশ্যই ৪ সংখ্যার হতে হবে!", "error");
                         return;
                     }
 
-                    // ১. localStorage-এ সেটিংস সংরক্ষণ
+                    // অস্থায়ী লোগো স্থায়ী লোগো হিসেবে সেভ করা
+                    const tempLogo = localStorage.getItem('madrasah_logo_temp');
+                    if (tempLogo) {
+                        localStorage.setItem('madrasah_logo', tempLogo);
+                        localStorage.removeItem('madrasah_logo_temp');
+                    }
+
+                    // LocalStorage-এ সংরক্ষণ
                     localStorage.setItem('madrasah_name', name);
                     localStorage.setItem('madrasah_address', address);
                     localStorage.setItem('madrasah_phone', phone);
                     localStorage.setItem('madrasah_pin', pin);
+                    localStorage.setItem('madrasah_lock_timeout', lockTimeout);
                     localStorage.setItem('madrasah_script_url', url);
 
+                    localStorage.setItem('fee_hifz', feeHifz);
+                    localStorage.setItem('fee_nazera', feeNazera);
+                    localStorage.setItem('fee_noorani', feeNoorani);
+                    localStorage.setItem('fee_class1', feeClass1);
+                    localStorage.setItem('fee_class2', feeClass2);
+
                     try {
-                        // ২. Dexie লোকাল ডাটাবেজে সংরক্ষণ (অটোমেটিক গুগল শিটে সিঙ্কের জন্য)
+                        // লোকাল ডেটাবেজে (Dexie) ক্লাউড সিঙ্ক কিউ হিসেবে সেটিংস আপডেট
                         await db.settings.put({
                             id: 'madrasah_config_block',
                             madrasah_name: name,
                             madrasah_address: address,
                             madrasah_phone: phone,
                             madrasah_pin: pin,
+                            madrasah_lock_timeout: lockTimeout,
                             madrasah_script_url: url,
+                            fee_hifz: feeHifz,
+                            fee_nazera: feeNazera,
+                            fee_noorani: feeNoorani,
+                            fee_class1: feeClass1,
+                            fee_class2: feeClass2,
                             is_synced: 0,
                             is_deleted: 0
                         });
@@ -109,7 +355,6 @@
                             window.applyGlobalSettings();
                         }
 
-                        // ৩. সিঙ্ক প্রসেস চালু করা ও রিলোড
                         if (typeof triggerAutoSync === 'function' && navigator.onLine) {
                             await triggerAutoSync();
                         }
@@ -126,6 +371,31 @@
             }
         } catch (error) {
             console.error("সেটিংস ইনিশিয়ালাইজ করতে সমস্যা:", error);
+        }
+    }
+
+    // সম্পূর্ণ ডাটাবেজ রিসেট লজিক (Danger Zone)
+    async function resetDatabase() {
+        if (!confirm("সতর্কতা: এটি করলে লোকাল ডেটাবেজের সকল ডাটা এবং সেটিংস সম্পূর্ণ মুছে যাবে! আপনি কি নিশ্চিতভাবে ডাটাবেজ রিসেট করতে চান?")) {
+            return;
+        }
+
+        if (confirm("চূড়ান্ত সতকর্তা: আপনি কি আসলেই নিশ্চিত? এই পদক্ষেপটি আর ফেরত নেওয়া সম্ভব নয়!")) {
+            try {
+                await db.students.clear();
+                await db.fees.clear();
+                await db.settings.clear();
+                
+                localStorage.clear();
+                showToast("সম্পূর্ণ ডাটাবেজ ও ব্রাউজার সেটিংস রিসেট করা হয়েছে।", "success");
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } catch (err) {
+                console.error("রিসেট ব্যর্থ:", err);
+                showToast("ডাটাবেজ ক্লিয়ার করা সম্ভব হয়নি।", "error");
+            }
         }
     }
 </script>
