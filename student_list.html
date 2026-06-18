@@ -1,3 +1,4 @@
+
 <style>
     /* প্রিন্ট মোডে সাইডবার, হেডার এবং কন্ট্রোল প্যানেল লুকিয়ে ফেলার সিএসএস */
     @media print {
@@ -185,9 +186,7 @@
 </div>
 
 <script>
-    // app.js এর সাথে সিঙ্ক করতে ফাংশনটির নাম 'initStudentList' থেকে পরিবর্তন করে 'initStudentlist' করা হলো
     async function initStudentlist() {
-        // মাদরাসার নাম প্রিন্ট হেডারে আপডেট করা
         const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const address = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
         document.getElementById('print-madrasah-name').textContent = name;
@@ -212,7 +211,6 @@
         const monthQuery = document.getElementById('filter-month').value;
         const statusQuery = document.getElementById('filter-status-list').value;
 
-        // প্রিন্ট রিপোর্টে মাসের নাম যুক্ত করা
         document.getElementById('print-report-month').textContent = monthQuery;
 
         try {
@@ -284,6 +282,16 @@
                 let statusCell = '';
                 let actionButton = '';
 
+                // ডাইনামিক ফিল্ডগুলোর সেফগার্ড চেক (যাতে কোনো ভ্যালু আনডিফাইনড থাকলেও পেজ ক্র্যাশ না করে)
+                const sName = s.name || "অজানা";
+                const sRoll = s.roll || "-";
+                const sClass = s.class || "-";
+                const sResidence = s.residence || "অনাবাসিক";
+                const sId = s.id || "";
+                const sFather = s.father_name || "-";
+                const sPhone = s.parent_phone || "";
+                const sWhatsapp = s.whatsapp_no || "";
+
                 if (feeObj) {
                     statusCell = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                          <i class="fa-solid fa-circle-check"></i> পরিশোধিত (৳${feeObj.total || feeObj.amount})
@@ -296,14 +304,15 @@
                          <i class="fa-solid fa-circle-xmark"></i> বকেয়া
                        </span>`;
                     
-                    // হোয়াটসঅ্যাপ মেসেজ প্রস্তুত করা
-                    const formattedNumber = formatWhatsAppNumber(s.whatsapp_no || s.parent_phone);
-                    const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name} (শ্রেণী: ${s.class}, রোল: ${s.roll})-এর ${monthQuery} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
+                    // মোবাইল ও হোয়াটসঅ্যাপ নম্বর সেফগার্ড চেক
+                    const wpPhoneVal = sWhatsapp || sPhone || "";
+                    const formattedNumber = formatWhatsAppNumber(wpPhoneVal);
+                    const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
                     const wpUrl = `https://wa.me/${formattedNumber}?text=${encodeURIComponent(wpMessage)}`;
 
                     actionButton = `
                         <div class="flex gap-1">
-                            <button onclick="collectFeeFor('${s.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-150 transition flex items-center gap-1 text-[10px]" title="বেতন নিন">
+                            <button onclick="collectFeeFor('${sId}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-150 transition flex items-center gap-1 text-[10px]" title="বেতন নিন">
                                 <i class="fa-solid fa-wallet"></i> বেতন
                             </button>
                             <a href="${wpUrl}" target="_blank" class="bg-green-50 hover:bg-green-100 text-green-600 font-bold px-2 py-1 rounded-lg border border-green-150 transition flex items-center justify-center text-[10px]" title="হোয়াটসঅ্যাপ রিমাইন্ডার">
@@ -316,21 +325,20 @@
                 html += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="px-4 py-3 text-xs">
-                            <div class="font-bold text-gray-700 font-en">রোল: ${s.roll}</div>
-                            <div class="text-[10px] text-gray-400 font-bold font-en">${s.id}</div>
+                            <div class="font-bold text-gray-700 font-en">রোল: ${sRoll}</div>
+                            <div class="text-[10px] text-gray-400 font-bold font-en">${sId}</div>
                         </td>
                         <td class="px-4 py-3 text-xs">
-                            <!-- নামের ওপর ক্লিক করলেই প্রোফাইল মডাল ওপেন হবে -->
-                            <button onclick="showStudentProfile('${s.id}')" class="font-bold text-emerald-800 hover:underline text-left text-sm cursor-pointer">${s.name}</button>
-                            <div class="text-[11px] text-gray-500">পিতা: ${s.father_name || '-'}</div>
+                            <button onclick="showStudentProfile('${sId}')" class="font-bold text-emerald-800 hover:underline text-left text-sm cursor-pointer">${sName}</button>
+                            <div class="text-[11px] text-gray-500">পিতা: ${sFather}</div>
                         </td>
                         <td class="px-4 py-3 text-xs text-gray-700 font-bold">
-                            <div class="text-emerald-950">${s.class}</div>
-                            <div class="text-[10px] text-gray-400 font-normal">${s.residence || 'অনাবাসিক'}</div>
+                            <div class="text-emerald-950">${sClass}</div>
+                            <div class="text-[10px] text-gray-400 font-normal">${sResidence}</div>
                         </td>
                         <td class="px-4 py-3 text-[11px] text-gray-600 font-en">
-                            <div><i class="fa-solid fa-phone text-emerald-600"></i> ${s.parent_phone}</div>
-                            ${s.whatsapp_no ? `<div><i class="fa-brands fa-whatsapp text-green-500"></i> ${s.whatsapp_no}</div>` : ''}
+                            <div><i class="fa-solid fa-phone text-emerald-600"></i> ${sPhone}</div>
+                            ${sWhatsapp ? `<div><i class="fa-brands fa-whatsapp text-green-500"></i> ${sWhatsapp}</div>` : ''}
                         </td>
                         <td class="px-4 py-3 text-xs">${statusCell}</td>
                         <td class="px-4 py-3 text-xs no-print">${actionButton}</td>
@@ -344,16 +352,16 @@
         }
     }
 
-    // মোবাইল নম্বর বাংলাদেশের ফরম্যাটে ডাইনামিক রূপান্তর করার ফাংশন (যেমন: 88017xxxxxxxx)
+    // মোবাইল নম্বর বাংলাদেশের ফরম্যাটে ডাইনামিক রূপান্তর করার সেফগার্ড ফাংশন
     function formatWhatsAppNumber(phone) {
-        let clean = phone.replace(/\D/g, ''); // শুধু সংখ্যা রাখা
+        if (!phone) return "";
+        let clean = phone.toString().replace(/\D/g, ''); // সংখ্যা বা টেক্সট যা-ই হোক, স্ট্রিং কনভার্ট করে নিরাপদ রিপ্লেস করা
         if (clean.startsWith('0')) {
             clean = '88' + clean;
         }
         return clean;
     }
 
-    // শিক্ষার্থীর বিস্তারিত বায়োডাটা প্রোফাইল দেখানোর লজিক
     async function showStudentProfile(studentId) {
         try {
             const s = await db.students.get(studentId);
@@ -366,8 +374,8 @@
                         <i class="fa-solid fa-user-graduate text-3xl"></i>
                     </div>
                     <div>
-                        <h5 class="text-sm font-extrabold text-gray-800">${s.name}</h5>
-                        <p class="text-[10px] text-gray-400 font-bold tracking-wider font-en">ID: ${s.id}</p>
+                        <h5 class="text-sm font-extrabold text-gray-800">${s.name || "অজানা"}</h5>
+                        <p class="text-[10px] text-gray-400 font-bold tracking-wider font-en">ID: ${s.id || ""}</p>
                     </div>
                 </div>
 
@@ -379,15 +387,15 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3">
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">শ্রেণী:</span> <strong>${s.class}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">রোল নম্বর:</span> <strong class="font-en">${s.roll}</strong></div>
+                    <div><span class="text-gray-400 font-semibold block text-[10px]">শ্রেণী:</span> <strong>${s.class || "-"}</strong></div>
+                    <div><span class="text-gray-400 font-semibold block text-[10px]">রোল নম্বর:</span> <strong class="font-en">${s.roll || "-"}</strong></div>
                     <div><span class="text-gray-400 font-semibold block text-[10px]">আবাসন স্ট্যাটাস:</span> <strong>${s.residence || 'অনাবাসিক'}</strong></div>
                     <div><span class="text-gray-400 font-semibold block text-[10px]">ভর্তির তারিখ:</span> <strong class="font-en">${s.admission_date || '-'}</strong></div>
                 </div>
 
                 <div class="space-y-1">
                     <div><span class="text-gray-400 font-semibold block text-[10px]">জন্ম নিবন্ধন নম্বর:</span> <strong class="font-en">${s.birth_reg || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">মোবাইল নম্বর:</span> <strong class="font-en">${s.parent_phone}</strong></div>
+                    <div><span class="text-gray-400 font-semibold block text-[10px]">মোবাইল নম্বর:</span> <strong class="font-en">${s.parent_phone || ""}</strong></div>
                     <div><span class="text-gray-400 font-semibold block text-[10px]">বর্তমান ঠিকানা:</span> <strong>${s.address || '-'}</strong></div>
                 </div>
             `;
@@ -395,7 +403,7 @@
             document.getElementById('profile-modal').classList.remove('hidden');
 
         } catch (err) {
-            console.error("প্রোফাইল লোড করতে সমস্যা:", err);
+            console.error("প্রোফাইল লোড করতে समस्या:", err);
             showToast("প্রোফাইল ডাটা লোড করা সম্ভব হয়নি।", "error");
         }
     }
