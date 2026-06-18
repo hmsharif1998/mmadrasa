@@ -1,7 +1,7 @@
 // ============================================
 // ১. গুগল অ্যাপস স্ক্রিপ্ট লিংক
 // ============================================
-const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbwGOQ5LdasLE41lSmz_xxFOTnLP_mBKH-UPSEr333MO6lEzVZxCAxIYJ1p7IuRyHchkpg/exec';
+const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbxx3TWOrsGec3OuCRykm6GVhAH4pj-R4zBW6G5p-LOVp4f6nZIbANfiU0GunVWJAXjxAQ/exec';
 
 // ============================================
 // ২. Dexie.js লোকাল ডাটাবেজ টেবিল স্কিমা
