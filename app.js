@@ -320,14 +320,14 @@ async function pullServerData() {
         throw error;
     }
 }
-
 // ============================================
-// ১৩. সার্ভার থেকে ছাত্রদের ডেটা সিঙ্ক
+// ১৩. সার্ভার থেকে ছাত্রদের ডেটা সিঙ্ক (সম্পূর্ণ ডাইনামিক)
 // ============================================
 async function syncStudentsFromServer(serverStudents) {
     const serverIds = new Set(serverStudents.map(s => s.id));
     const localStudents = await db.students.toArray();
 
+    // সার্ভারে যা নেই কিন্তু লোকালে সিঙ্কড অবস্থায় আছে, তা ডিলিট করা
     for (let local of localStudents) {
         if (local.is_synced === 1 && !serverIds.has(local.id)) {
             await db.students.delete(local.id);
@@ -343,43 +343,22 @@ async function syncStudentsFromServer(serverStudents) {
             continue;
         }
 
-        const local = await db.students.get(student.id);
-        if (!local) {
-            await db.students.add({
-                id: student.id,
-                serial_no: parseInt(student.serial_no) || 0,
-                name: student.name || '',
-                father_name: student.father_name || '',
-                class: student.class || '',
-                roll: parseInt(student.roll) || 0,
-                parent_phone: student.parent_phone || '',
-                whatsapp_no: student.whatsapp_no || '',
-                address: student.address || '',
-                admission_date: student.admission_date || new Date().toISOString().split('T')[0],
-                is_synced: 1,
-                is_deleted: 0
-            });
-        } else if (local.is_synced === 1) {
-            await db.students.put({
-                id: student.id,
-                serial_no: parseInt(student.serial_no) || 0,
-                name: student.name || '',
-                father_name: student.father_name || '',
-                class: student.class || '',
-                roll: parseInt(student.roll) || 0,
-                parent_phone: student.parent_phone || '',
-                whatsapp_no: student.whatsapp_no || '',
-                address: student.address || '',
-                admission_date: student.admission_date || new Date().toISOString().split('T')[0],
-                is_synced: 1,
-                is_deleted: 0
-            });
-        }
+        // ডাইনামিক অবজেক্ট তৈরি: সার্ভার থেকে আসা সব প্রোপার্টি হুবহু নিয়ে নেওয়া হবে
+        const studentObj = {
+            ...student,
+            serial_no: parseInt(student.serial_no) || 0,
+            roll: parseInt(student.roll) || 0,
+            is_synced: 1,
+            is_deleted: 0
+        };
+
+        // Dexie-তে পুট (পুট স্বয়ংক্রিয়ভাবে অ্যাড বা আপডেট হ্যান্ডেল করে)
+        await db.students.put(studentObj);
     }
 }
 
 // ============================================
-// ১৪. সার্ভার থেকে বেতনের ডেটা সিঙ্ক
+// ১৪. সার্ভার থেকে বেতনের ডেটা সিঙ্ক (সম্পূর্ণ ডাইনামিক)
 // ============================================
 async function syncFeesFromServer(serverFees) {
     const serverIds = new Set(serverFees.map(f => f.receipt_id));
@@ -400,35 +379,19 @@ async function syncFeesFromServer(serverFees) {
             continue;
         }
 
-        const local = await db.fees.get(fee.receipt_id);
-        if (!local) {
-            await db.fees.add({
-                receipt_id: fee.receipt_id,
-                student_id: fee.student_id || '',
-                student_name: fee.student_name || '',
-                amount: parseFloat(fee.amount) || 0,
-                month: fee.month || '',
-                payment_date: fee.payment_date || new Date().toISOString().split('T')[0],
-                is_synced: 1,
-                is_deleted: 0
-            });
-        } else if (local.is_synced === 1) {
-            await db.fees.put({
-                receipt_id: fee.receipt_id,
-                student_id: fee.student_id || '',
-                student_name: fee.student_name || '',
-                amount: parseFloat(fee.amount) || 0,
-                month: fee.month || '',
-                payment_date: fee.payment_date || new Date().toISOString().split('T')[0],
-                is_synced: 1,
-                is_deleted: 0
-            });
-        }
+        const feeObj = {
+            ...fee,
+            amount: parseFloat(fee.amount) || 0,
+            is_synced: 1,
+            is_deleted: 0
+        };
+
+        await db.fees.put(feeObj);
     }
 }
 
 // ============================================
-// ১৫. সার্ভার থেকে সেটিংস ডেটা সিঙ্ক
+// ১৫. সার্ভার থেকে সেটিংস ডেটা সিঙ্ক (সম্পূর্ণ ডাইনামিক)
 // ============================================
 async function syncSettingsFromServer(serverSettings) {
     for (let set of serverSettings) {
@@ -440,30 +403,13 @@ async function syncSettingsFromServer(serverSettings) {
             continue;
         }
 
-        const local = await db.settings.get(set.id);
-        if (!local) {
-            await db.settings.add({
-                id: set.id,
-                madrasah_name: set.madrasah_name || '',
-                madrasah_address: set.madrasah_address || '',
-                madrasah_phone: set.madrasah_phone || '',
-                madrasah_pin: set.madrasah_pin || '1234',
-                madrasah_script_url: set.madrasah_script_url || '',
-                is_synced: 1,
-                is_deleted: 0
-            });
-        } else if (local.is_synced === 1) {
-            await db.settings.put({
-                id: set.id,
-                madrasah_name: set.madrasah_name || '',
-                madrasah_address: set.madrasah_address || '',
-                madrasah_phone: set.madrasah_phone || '',
-                madrasah_pin: set.madrasah_pin || '1234',
-                madrasah_script_url: set.madrasah_script_url || '',
-                is_synced: 1,
-                is_deleted: 0
-            });
-        }
+        const setObj = {
+            ...set,
+            is_synced: 1,
+            is_deleted: 0
+        };
+
+        await db.settings.put(setObj);
 
         localStorage.setItem('madrasah_name', set.madrasah_name || 'মাদরাসাতুল মদিনা');
         localStorage.setItem('madrasah_address', set.madrasah_address || '');
@@ -476,7 +422,6 @@ async function syncSettingsFromServer(serverSettings) {
         window.applyGlobalSettings();
     }
 }
-
 // ============================================
 // ১৬. টোস্ট নোটিফিকেশন
 // ============================================
