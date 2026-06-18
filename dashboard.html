@@ -1,100 +1,140 @@
+
 <div class="space-y-6">
     <!-- স্বাগতম ব্যানার -->
-    <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 text-white shadow-md">
-        <h3 class="text-2xl font-bold mb-2">আসসালামু আলাইকুম, এডমিন!</h3>
-        <p class="text-emerald-100 text-sm">মাদরাসা ম্যানেজমেন্ট ড্যাশবোর্ডে আপনাকে স্বাগতম। এখান থেকে ছাত্র ভর্তি ও বেতন কালেকশন সহজে পরিচালনা করুন।</p>
-    </div>
-
-    <!-- স্ট্যাটাস কার্ডসমূহ -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 font-medium">মোট বর্তমান ছাত্র</p>
-                <h4 class="text-3xl font-bold text-gray-800 mt-1" id="dash-total-students">0</h4>
-            </div>
-            <div class="bg-blue-50 text-blue-600 p-4 rounded-full">
-                <i class="fa-solid fa-graduation-cap text-2xl"></i>
-            </div>
+    <div class="bg-gradient-to-r from-emerald-900 via-emerald-850 to-teal-800 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+        <div class="relative z-10">
+            <h3 class="text-xl md:text-2xl font-bold mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-mosque text-emerald-300"></i> আসসালামু আলাইকুম, এডমিন!
+            </h3>
+            <p class="text-emerald-100 text-xs md:text-sm">মাদরাসাতুল মদিনা ড্যাশবোর্ডে আপনাকে স্বাগতম। এখান থেকে ছাত্র ভর্তি ও বেতন কালেকশন সহজে পরিচালনা করুন।</p>
         </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 font-medium">মোট আদায়কৃত ফি</p>
-                <h4 class="text-3xl font-bold text-gray-800 mt-1">৳ <span id="dash-total-fees">0</span></h4>
-            </div>
-            <div class="bg-emerald-50 text-emerald-600 p-4 rounded-full">
-                <i class="fa-solid fa-wallet text-2xl"></i>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 font-medium">আজকের ফি আদায়</p>
-                <h4 class="text-3xl font-bold text-gray-800 mt-1">৳ <span id="dash-today-fees">0</span></h4>
-            </div>
-            <div class="bg-yellow-50 text-yellow-600 p-4 rounded-full">
-                <i class="fa-solid fa-calendar-day text-2xl"></i>
-            </div>
+        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-white">
+            <i class="fa-solid fa-mosque"></i>
         </div>
     </div>
 
-    <!-- কুইক অ্যাকশন -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h4 class="text-lg font-bold text-gray-800 mb-4">কুইক অ্যাকশন (Quick Actions)</h4>
+    <!-- ৪টি তথ্যবহুল স্ট্যাটাস কার্ডসমূহ -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- মোট বর্তমান ছাত্র -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">মোট বর্তমান ছাত্র</p>
+                <h4 class="text-2xl font-bold text-gray-800 mt-1 font-en" id="dash-total-students">0</h4>
+            </div>
+            <div class="bg-blue-50 text-blue-600 p-3 rounded-full">
+                <i class="fa-solid fa-graduation-cap text-lg"></i>
+            </div>
+        </div>
+
+        <!-- মোট আদায়কৃত ফি -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">মোট আদায়কৃত ফি</p>
+                <h4 class="text-2xl font-bold text-emerald-600 mt-1 font-en">৳ <span id="dash-total-fees">0</span></h4>
+            </div>
+            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-full">
+                <i class="fa-solid fa-wallet text-lg"></i>
+            </div>
+        </div>
+
+        <!-- আজকের ফি আদায় -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">আজকের ফি আদায়</p>
+                <h4 class="text-2xl font-bold text-amber-600 mt-1 font-en">৳ <span id="dash-today-fees">0</span></h4>
+            </div>
+            <div class="bg-amber-50 text-amber-600 p-3 rounded-full">
+                <i class="fa-solid fa-calendar-day text-lg"></i>
+            </div>
+        </div>
+
+        <!-- চলতি মাসের বকেয়া ছাত্র সংখ্যা (নতুন কার্ড) -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">চলতি মাসে বকেয়া ছাত্র</p>
+                <h4 class="text-2xl font-bold text-rose-600 mt-1 font-en" id="dash-due-students">0</h4>
+            </div>
+            <div class="bg-rose-50 text-rose-600 p-3 rounded-full">
+                <i class="fa-solid fa-circle-exclamation text-lg"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- কুইক অ্যাকশন প্যানেল -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+        <h4 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> কুইক অ্যাকশন (Quick Actions)
+        </h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button onclick="loadModule('admission')" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-emerald-50 rounded-xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-lg shadow-sm transition mb-2">
-                    <i class="fa-solid fa-user-plus text-lg"></i>
+            <button onclick="loadModule('admission')" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-emerald-50 rounded-2xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-xl shadow-sm transition mb-2">
+                    <i class="fa-solid fa-user-plus text-base"></i>
                 </div>
-                <span class="text-sm font-semibold text-gray-700 group-hover:text-emerald-800">নতুন ছাত্র ভর্তি</span>
+                <span class="text-xs font-bold text-gray-700 group-hover:text-emerald-800">নতুন ছাত্র ভর্তি</span>
             </button>
 
-            <button onclick="loadModule('fees')" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-emerald-50 rounded-xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-lg shadow-sm transition mb-2">
-                    <i class="fa-solid fa-money-bill-wave text-lg"></i>
+            <button onclick="loadModule('fees')" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-blue-50 rounded-2xl border border-dashed border-gray-200 hover:border-blue-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-blue-100 text-blue-700 rounded-xl shadow-sm transition mb-2">
+                    <i class="fa-solid fa-money-bill-wave text-base"></i>
                 </div>
-                <span class="text-sm font-semibold text-gray-700 group-hover:text-emerald-800">বেতন আদায় করুন</span>
+                <span class="text-xs font-bold text-gray-700 group-hover:text-blue-800">বেতন আদায় করুন</span>
             </button>
 
-            <button onclick="exportBackup()" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-blue-50 rounded-xl border border-dashed border-gray-200 hover:border-blue-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-blue-100 text-blue-700 rounded-lg shadow-sm transition mb-2">
-                    <i class="fa-solid fa-file-export text-lg"></i>
+            <button onclick="exportBackup()" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-purple-50 rounded-2xl border border-dashed border-gray-200 hover:border-purple-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-purple-100 text-purple-700 rounded-xl shadow-sm transition mb-2">
+                    <i class="fa-solid fa-file-export text-base"></i>
                 </div>
-                <span class="text-sm font-semibold text-gray-700 group-hover:text-blue-800">ডাটা ব্যাকআপ নিন</span>
+                <span class="text-xs font-bold text-gray-700 group-hover:text-purple-800">ডাটা ব্যাকআপ নিন</span>
             </button>
 
             <input type="file" id="backup-file-input" onchange="importBackup(event)" class="hidden" accept=".json">
-            <button onclick="document.getElementById('backup-file-input').click()" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-amber-50 rounded-xl border border-dashed border-gray-200 hover:border-amber-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-amber-100 text-amber-700 rounded-lg shadow-sm transition mb-2">
-                    <i class="fa-solid fa-file-import text-lg"></i>
+            <button onclick="document.getElementById('backup-file-input').click()" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-amber-50 rounded-2xl border border-dashed border-gray-200 hover:border-amber-300 transition group text-center">
+                <div class="p-3 bg-white group-hover:bg-amber-100 text-amber-700 rounded-xl shadow-sm transition mb-2">
+                    <i class="fa-solid fa-file-import text-base"></i>
                 </div>
-                <span class="text-sm font-semibold text-gray-700 group-hover:text-amber-800">ডাটা রিস্টোর করুন</span>
+                <span class="text-xs font-bold text-gray-700 group-hover:text-amber-800">ডাটা রিস্টোর করুন</span>
             </button>
         </div>
     </div>
 
-    <!-- চলতি মাসের বকেয়া -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h4 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-red-500 animate-pulse"></i>
-            চলতি মাসের বকেয়া বেতন তালিকা (<span id="due-current-month"></span>)
-        </h4>
-        <p class="text-xs text-gray-500 mb-4">যেসব ছাত্র চলতি মাসের বেতন এখনো পরিশোধ করেনি, তাদের তালিকা নিচে দেওয়া হলো।</p>
+    <!-- মূল ডাটা উইজেটস (বকেয়া তালিকা এবং সাম্প্রতিক আদায়সমূহ) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- বাম পাশে: চলতি মাসের বকেয়া (২ ভাগ জায়গা নেবে) -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+            <h4 class="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-red-500 animate-pulse"></i>
+                চলতি মাসের বকেয়া বেতন তালিকা (<span id="due-current-month"></span>)
+            </h4>
+            <p class="text-[10px] text-gray-400 mb-4">যেসব ছাত্র চলতি মাসের বেতন এখনো পরিশোধ করেনি, তাদের তালিকা নিচে দেওয়া হলো।</p>
 
-        <div class="overflow-x-auto max-h-96 overflow-y-auto">
-            <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50 sticky top-0 z-10">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">রোল</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">নাম</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">শ্রেণী</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">মোবাইল</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
-                </tr>
-                </thead>
-                <tbody id="due-students-table-body" class="bg-white divide-y divide-gray-100">
-                </tbody>
-            </table>
+            <div class="overflow-x-auto max-h-80 overflow-y-auto rounded-xl border border-gray-50">
+                <table class="min-w-full divide-y divide-gray-100">
+                    <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">রোল</th>
+                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">নাম</th>
+                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">শ্রেণী</th>
+                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোবাইল</th>
+                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                    </tr>
+                    </thead>
+                    <tbody id="due-students-table-body" class="bg-white divide-y divide-gray-50">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ডান পাশে: সাম্প্রতিক আদায়কৃত বেতনসমূহ (১ ভাগ জায়গা নেবে) -->
+        <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+            <h4 class="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> সাম্প্রতিক আদায়সমূহ
+            </h4>
+            <p class="text-[10px] text-gray-400 mb-4">মাদরাসায় সর্বশেষ গৃহীত ৫টি বেতনের রসিদ বিবরণী।</p>
+
+            <div id="recent-fees-container" class="space-y-3 overflow-y-auto max-h-80 pr-1 divide-y divide-gray-50">
+                <!-- ডাইনামিক ডেটা লোড হবে -->
+            </div>
         </div>
     </div>
 </div>
@@ -114,7 +154,7 @@
             const todayStr = new Date().toISOString().split('T')[0];
 
             activeFees.forEach(fee => {
-                const amount = parseFloat(fee.amount) || 0;
+                const amount = parseFloat(fee.total || fee.amount) || 0;
                 totalFeesAmount += amount;
 
                 if (fee.payment_date === todayStr) {
@@ -126,6 +166,7 @@
             document.getElementById('dash-today-fees').textContent = todayFeesAmount.toLocaleString('bn-BD');
 
             await renderDueStudentsList(activeStudents, activeFees);
+            await renderRecentFees(activeFees);
 
         } catch (err) {
             console.error("ড্যাশবোর্ড ডাটা লোড করতে সমস্যা হয়েছে:", err);
@@ -149,11 +190,12 @@
             );
 
             const dueStudents = activeStudents.filter(student => !paidStudentIds.has(student.id));
+            document.getElementById('dash-due').textContent = dueStudents.length;
 
             if (dueStudents.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-sm text-emerald-600 font-bold bg-emerald-50/50">
+                        <td colspan="5" class="px-4 py-8 text-center text-xs text-emerald-600 font-bold bg-emerald-50/50">
                             <i class="fa-solid fa-circle-check"></i> আলহামদুলিল্লাহ্‌, চলতি মাসের কোনো বকেয়া বেতন নেই!
                         </td>
                     </tr>`;
@@ -162,16 +204,33 @@
 
             let htmlContent = '';
             dueStudents.forEach(student => {
+                // ডাইনামিক ফিল্ড সেফগার্ড
+                const sName = student.name || "অজানা";
+                const sRoll = student.roll || "-";
+                const sClass = student.class || "-";
+                const sPhone = student.parent_phone || "";
+                const sWhatsapp = student.whatsapp_no || "";
+
+                // হোয়াটসঅ্যাপ রিমাইন্ডার লিংক প্রস্তুত করা
+                const formattedNumber = formatWhatsAppNumber(sWhatsapp || sPhone || "");
+                const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${currentMonthName} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
+                const wpUrl = `https://wa.me/${formattedNumber}?text=${encodeURIComponent(wpMessage)}`;
+
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-3 text-sm text-gray-700 font-bold">${student.roll}</td>
-                        <td class="px-4 py-3 text-sm text-gray-800 font-semibold">${student.name}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${student.class}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${student.parent_phone}</td>
-                        <td class="px-4 py-3 text-sm">
-                            <button onclick="collectFeeFor('${student.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition flex items-center gap-1.5 text-xs">
-                                <i class="fa-solid fa-receipt"></i> বেতন নিন
-                            </button>
+                        <td class="px-4 py-2.5 text-xs text-gray-700 font-bold font-en">${sRoll}</td>
+                        <td class="px-4 py-2.5 text-xs text-gray-800 font-semibold">${sName}</td>
+                        <td class="px-4 py-2.5 text-xs text-gray-600">${sClass}</td>
+                        <td class="px-4 py-2.5 text-[11px] text-gray-600 font-en">${sPhone}</td>
+                        <td class="px-4 py-2.5 text-xs">
+                            <div class="flex gap-1">
+                                <button onclick="collectFeeFor('${student.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-lg border border-emerald-100 transition flex items-center gap-1 text-[10px]">
+                                    ৳ বেতন নিন
+                                </button>
+                                <a href="${wpUrl}" target="_blank" class="bg-green-50 hover:bg-green-100 text-green-600 px-2 py-1 rounded-lg border border-green-100 transition flex items-center justify-center text-[10px]" title="হোয়াটসঅ্যাপ রিমাইন্ডার">
+                                    <i class="fa-brands fa-whatsapp"></i> রিমাইন্ডার
+                                </a>
+                            </div>
                         </td>
                     </tr>`;
             });
@@ -181,6 +240,55 @@
         } catch (err) {
             console.error("বকেয়া তালিকা প্রস্তুত করতে ত্রুটি:", err);
         }
+    }
+
+    // সাম্প্রতিক ৫টি ট্রানজেকশন রেন্ডার করা (Recent Collections Log)
+    async function renderRecentFees(activeFees) {
+        const container = document.getElementById('recent-fees-container');
+        if (!container) return;
+
+        try {
+            // পেমেন্ট ডেট ও আইডি অনুযায়ী শর্টিং (সর্বশেষ লেনদেন প্রথমে)
+            const sorted = [...activeFees].sort((a, b) => b.receipt_id.localeCompare(a.receipt_id));
+            const recent = sorted.slice(0, 5);
+
+            if (recent.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-xs text-gray-400 font-medium">
+                        কোনো আদায়ের তথ্য পাওয়া যায়নি।
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            recent.forEach(fee => {
+                html += `
+                    <div class="flex justify-between items-start pt-2 first:pt-0">
+                        <div class="space-y-0.5">
+                            <h5 class="text-xs font-bold text-gray-800">${fee.student_name}</h5>
+                            <p class="text-[9px] text-gray-400 font-en">রসিদ: ${fee.receipt_id} | ${fee.month}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold text-emerald-700 font-en">৳ ${fee.total || fee.amount}</div>
+                            <span class="inline-block text-[8px] bg-gray-100 text-gray-600 px-1 py-0.5 rounded-full font-bold">${fee.method || 'ক্যাশ'}</span>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+
+        } catch (err) {
+            console.error("সাম্প্রতিক লেনদেন রেন্ডার করতে সমস্যা:", err);
+        }
+    }
+
+    function formatWhatsAppNumber(phone) {
+        if (!phone) return "";
+        let clean = phone.toString().replace(/\D/g, '');
+        if (clean.startsWith('0')) {
+            clean = '88' + clean;
+        }
+        return clean;
     }
 
     function collectFeeFor(studentId) {
