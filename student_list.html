@@ -1,4 +1,3 @@
-
 <style>
     /* প্রিন্ট মোডে সাইডবার, হেডার এবং কন্ট্রোল প্যানেল লুকিয়ে ফেলার সিএসএস */
     @media print {
@@ -186,7 +185,8 @@
 </div>
 
 <script>
-    async function initStudentList() {
+    // app.js এর সাথে সিঙ্ক করতে ফাংশনটির নাম 'initStudentList' থেকে পরিবর্তন করে 'initStudentlist' করা হলো
+    async function initStudentlist() {
         // মাদরাসার নাম প্রিন্ট হেডারে আপডেট করা
         const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const address = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
@@ -296,7 +296,7 @@
                          <i class="fa-solid fa-circle-xmark"></i> বকেয়া
                        </span>`;
                     
-                    // হোয়াটসঅ্যাপ মেসেজ প্রস্তুত করা [1]
+                    // হোয়াটসঅ্যাপ মেসেজ প্রস্তুত করা
                     const formattedNumber = formatWhatsAppNumber(s.whatsapp_no || s.parent_phone);
                     const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name} (শ্রেণী: ${s.class}, রোল: ${s.roll})-এর ${monthQuery} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
                     const wpUrl = `https://wa.me/${formattedNumber}?text=${encodeURIComponent(wpMessage)}`;
