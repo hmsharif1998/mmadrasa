@@ -27,9 +27,7 @@
             print-color-adjust: exact !important;
         }
 
-        /* --------------------------------------------------------- */
         /* সাধারণ রিপোর্ট প্রিন্ট করার সিএসএস (A4 Size) */
-        /* --------------------------------------------------------- */
         html, body, main, #main-content, #student-list-container {
             height: auto !important;
             min-height: 0 !important;
@@ -54,18 +52,16 @@
         #student-list-table-container {
             position: absolute !important;
             left: 0 !important;
-            top: 40mm !important; /* প্রিন্ট হেডার এর নিচে পজিশন */
+            top: 40mm !important;
             width: 100% !important;
             display: block !important;
         }
-        .no-print, button, .border-b, #column-chooser-wrapper, #profile-modal {
+        .no-print, button, .border-b, #column-chooser-wrapper, #profile-modal, #pagination-wrapper {
             display: none !important;
             visibility: hidden !important;
         }
 
-        /* --------------------------------------------------------- */
         /* একক শিক্ষার্থীর বায়োডাটা প্রিন্ট (A5 portrait) */
-        /* --------------------------------------------------------- */
         body.print-single-biodata {
             height: auto !important;
             overflow: visible !important;
@@ -88,8 +84,8 @@
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 148mm !important; /* A5 standard width */
-            height: 210mm !important; /* A5 standard height */
+            width: 148mm !important;
+            height: 210mm !important;
             background: white !important;
             z-index: 999999 !important;
             box-shadow: none !important;
@@ -211,14 +207,15 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- ফিল্টার গ্রিড ৬ কলাম বিশিষ্ট পেজিনেশন ও সার্চ সহ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্র খুঁজুন</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </span>
-                    <input type="text" id="search-student-list" oninput="window.renderFilteredStudents()" placeholder="নাম, রোল, আইডি বা মোবাইল..."
+                    <input type="text" id="search-student-list" oninput="window.renderFilteredStudents()" placeholder="নাম, আইডি বা মোবাইল..."
                            class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold bg-gray-50/50">
                 </div>
             </div>
@@ -267,6 +264,18 @@
                     <option value="due">বকেয়া</option>
                 </select>
             </div>
+
+            <!-- ডাইনামিক পেজ সাইজ ড্রপডাউন (Pagination Size Selector) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">প্রতি পেজে রেকর্ড</label>
+                <select id="filter-page-size" onchange="window.onPageSizeChange()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                    <option value="10">১০ জন</option>
+                    <option value="30">৩০ জন</option>
+                    <option value="50">৫০ জন</option>
+                    <option value="100">১০০ জন</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -289,12 +298,20 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- ৫. পেজিনেশন বাটন ও ইন্ডিকেটর বার (Pagination Toolbar) -->
+        <div id="pagination-wrapper" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-gray-100 no-print">
+            <div class="text-xs text-gray-500 font-semibold">
+                মোট রেকর্ড: <span id="pag-total-records" class="font-bold font-en text-emerald-800">০</span> এর মধ্যে দেখছেন <span id="pag-range-start" class="font-bold font-en">০</span> - <span id="pag-range-end" class="font-bold font-en">০</span>
+            </div>
+            <div class="flex items-center gap-1" id="pagination-buttons">
+                <!-- ডাইনামিক Prev/Next এবং পেজ নাম্বার বাটনসমূহ স্ক্রিপ্ট দিয়ে লোড হবে -->
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- ========================================================== -->
 <!-- মডাল ১: শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল (A5 Biodata Layout) -->
-<!-- ========================================================== -->
 <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
     <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl relative border border-gray-100 animate-fadeIn">
         <h4 class="text-sm font-extrabold text-emerald-850 border-b pb-3 mb-4 flex items-center gap-2">
@@ -307,7 +324,7 @@
         
         <div class="mt-6 flex justify-end gap-2 border-t pt-4">
             <button id="btn-modal-edit" onclick="" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-pen-to-square"></i> চার নম্বর সম্পাদনা করুন
+                <i class="fa-solid fa-pen-to-square"></i> তথ্য সম্পাদন
             </button>
             <button onclick="window.printSingleBiodata()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
                 <i class="fa-solid fa-print"></i> বায়োডাটা প্রিন্ট করুন (A5)
@@ -322,8 +339,13 @@
 <script>
 (function() {
     let allActiveStudents = [];
+    let filteredStudentsArray = []; // ফিল্টারকৃত সকল ছাত্রদের ক্যাশ মেমরি
 
-    // ১. উইন্ডো অবজেক্টে প্রধান ইনিশিয়ালাইজার বাইন্ডিং (SPA Module Loader Compat)
+    // পেজিনেশন ভেরিয়েবলসমূহ
+    let currentPage = 1;
+    let pageSize = 10;
+
+    // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
     window.initStudentlist = async function() {
         const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const address = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
@@ -344,6 +366,14 @@
             monthSelect.value = currentMonthName;
         }
 
+        // পেজ সাইজ ড্রপডাউন ইনিশিয়ালাইজ
+        const sizeSelect = document.getElementById('filter-page-size');
+        if (sizeSelect) {
+            pageSize = parseInt(sizeSelect.value) || 10;
+        }
+
+        currentPage = 1; // রি-লোড বা এন্ট্রি করার সময় ১ম পেজ
+
         window.loadColumnChooserSettings();
         await window.renderFilteredStudents();
     };
@@ -361,7 +391,6 @@
         }
     });
 
-    // ২. রানটাইম সেফগার্ডসহ কলাম কাস্টমাইজার লজিক
     window.toggleColumn = function(colClass) {
         const chk = document.getElementById(`chk-${colClass}`);
         if (!chk) return;
@@ -391,7 +420,7 @@
         if (!branchSelect || !classSelect) return;
         
         branchSelect.innerHTML = `<option value="">সকল শাখা</option>`;
-        classSelect.innerHTML = `<option value="">সকল শ্রেণী</option>`;
+        classSelect.innerHTML = `<option value="">সকল জামাত</option>`;
 
         const classesSet = new Set();
 
@@ -421,10 +450,87 @@
         window.location.href = `tel:${clean}`;
     };
 
-    // ৩. রিয়্যালটাইম সেফগার্ড তালিকা রেন্ডারার (Empty Check Added for All Fields)
-    window.renderFilteredStudents = async function() {
+    // ২. পেজ সাইজ পরিবর্তনের ইভেন্ট
+    window.onPageSizeChange = async function() {
+        const sizeSelect = document.getElementById('filter-page-size');
+        if (sizeSelect) {
+            pageSize = parseInt(sizeSelect.value) || 10;
+        }
+        currentPage = 1; // প্রতি পেজ সাইজ আপডেটে ১ম পেজে নিয়ে যাবে
+        await window.renderFilteredStudents(true); // পূর্ববর্তী ফিল্টার বজায় রাখবে
+    };
+
+    // ৩. পেজ চেঞ্জ হ্যান্ডলার
+    window.changePage = async function(pageNumber) {
+        currentPage = pageNumber;
+        await window.renderFilteredStudents(true); // ফিল্টার ঠিক রেখে পেজ চেইঞ্জ
+    };
+
+    // ৪. ডাইনামিক পেজিনেশন কন্ট্রোলস জেনারেটর (Prev/Next Page Controller)
+    function renderPaginationControls(totalRecords) {
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        const pagWrapper = document.getElementById('pagination-wrapper');
+        const pagButtons = document.getElementById('pagination-buttons');
+        
+        if (!pagWrapper || !pagButtons) return;
+
+        // পেজ রেঞ্জ নির্ধারণ
+        const startRange = totalRecords > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+        const endRange = Math.min(currentPage * pageSize, totalRecords);
+
+        document.getElementById('pag-total-records').textContent = totalRecords.toLocaleString('bn-BD');
+        document.getElementById('pag-range-start').textContent = startRange.toLocaleString('bn-BD');
+        document.getElementById('pag-range-end').textContent = endRange.toLocaleString('bn-BD');
+
+        if (totalRecords === 0) {
+            pagButtons.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        // Prev বাটন
+        html += `
+            <button onclick="window.changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} 
+                    class="px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold transition ${currentPage === 1 ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}">
+                পূর্ববর্তী
+            </button>
+        `;
+
+        // সংখ্যাযুক্ত পেজ বাটনসমূহ
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `
+                    <button onclick="window.changePage(${i})" 
+                            class="px-3 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold font-en transition ${currentPage === i ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white hover:bg-gray-50 text-gray-700'}">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += `<span class="px-1 text-gray-400 text-xs">...</span>`;
+            }
+        }
+
+        // Next বাটন
+        html += `
+            <button onclick="window.changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} 
+                    class="px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold transition ${currentPage === totalPages ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}">
+                পরবর্তী
+            </button>
+        `;
+
+        pagButtons.innerHTML = html;
+    }
+
+    // ৫. ছাত্র তালিকা ফিল্টারিং ও রেন্ডারিং গেটওয়ে (Pagination Integration Added)
+    window.renderFilteredStudents = async function(preservePage = false) {
         const tableBody = document.getElementById('student-list-table-body');
         if (!tableBody) return;
+
+        // ফিল্টারিং করা হলে ১ম পেজে রিসেট করবে (যদি না পেজ বাটন ক্লিক করে কল করা হয়)
+        if (!preservePage) {
+            currentPage = 1;
+        }
 
         const sList = document.getElementById('search-student-list');
         const bList = document.getElementById('filter-branch-list');
@@ -456,6 +562,7 @@
                 }
             });
 
+            // ১. ফিল্টারিং প্রসেস শুরু
             let filtered = students;
 
             if (searchQuery) {
@@ -482,7 +589,9 @@
             }
 
             filtered.sort((a, b) => (a.roll || 0) - (b.roll || 0));
+            filteredStudentsArray = filtered; // ক্যাশ মেমরিতে সেভ
 
+            // ২. পরিসংখ্যান কাউন্টার আপডেট
             let totalPaid = 0;
             let totalDue = 0;
             filtered.forEach(s => {
@@ -511,11 +620,15 @@
                             কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
+                renderPaginationControls(0);
                 return;
             }
 
+            // ৩. পেজিনেশন স্লাইসিং মেকানিজম (Array Slicing)
+            const paginatedStudents = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
             let html = '';
-            filtered.forEach(s => {
+            paginatedStudents.forEach(s => {
                 const feeObj = paidMap[s.id];
                 let statusCell = '';
                 let actionButton = '';
@@ -544,7 +657,7 @@
                     let waNumber = String(sWhatsapp).replace(/\D/g, '');
                     if (waNumber.startsWith('0')) waNumber = '88' + waNumber;
 
-                    const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
+                    const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
                     const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
 
                     actionButton = `
@@ -596,6 +709,9 @@
 
             tableBody.innerHTML = html;
 
+            // ৪. পেজ ইন্ডিকেটর ও বাটনসমূহ রেন্ডার
+            renderPaginationControls(filtered.length);
+
             window.loadColumnChooserSettings();
             const cols = ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'];
             cols.forEach(window.toggleColumn);
@@ -605,7 +721,7 @@
         }
     };
 
-    // ৪. একক শিক্ষার্থীর বায়োডাটা পপআপ লোডার (উইন্ডো বাইন্ডিং)
+    // ৪. একক শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল লোডার (A5 Layout)
     window.showStudentProfile = async function(studentId) {
         try {
             const s = await db.students.get(studentId);
@@ -636,10 +752,10 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3 text-gray-700">
-                    <div><span class="text-gray-400 font-bold block text-[10px]">শাখা ও বিভাগ:</span> <strong class="text-gray-850">${s.branch || '-'} | ${s.department || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">শ্রেণী ও রোল নম্বর:</span> <strong class="text-emerald-800 font-en">${s.class || '-'} (রোল: ${s.roll || '-'})</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">বেতন গ্রুপ:</span> <strong class="text-emerald-800">${feeGroupName}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">মাসিক ফিস (বেতন):</span> <strong class="text-emerald-800 font-en">৳ ${monthlyFee}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">শ্রেণী ও শাখা:</span> <strong class="text-emerald-800">${s.class} (${s.branch})</strong></div>
+                    <div><span class="text-gray-400 block text-[10px]">রোল নম্বর:</span> <strong class="font-en">${s.roll || '-'}</strong></div>
+                    <div><span class="text-gray-400 block text-[10px]">বেতন গ্রুপ:</span> <strong class="text-emerald-800">${feeGroupName}</strong></div>
+                    <div><span class="text-gray-400 block text-[10px]">মাসিক ফিস (বেতন):</span> <strong class="text-emerald-800 font-en">৳ ${monthlyFee}</strong></div>
                 </div>
 
                 <div class="space-y-1.5 text-gray-700">
@@ -668,7 +784,6 @@
         if (modal) modal.classList.add('hidden');
     };
 
-    // ৫. A5 পোর্ট্রেট সিঙ্গেল বায়োডাটা প্রিন্ট ট্রিগার (উইন্ডো এক্সপোজ)
     window.printSingleBiodata = function() {
         document.body.classList.add('print-single-biodata');
         window.print();

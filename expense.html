@@ -30,7 +30,6 @@
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        /* প্রিন্ট করার সময় মূল উইন্ডোর অন্য সব কিছু সম্পূর্ণ হাইড */
         body * {
             visibility: hidden !important;
         }
@@ -38,7 +37,6 @@
             display: none !important;
             visibility: hidden !important;
         }
-        /* সাদা পেজের সমস্যা আনলক করা */
         html, body, main, #main-content, #expense-container {
             height: auto !important;
             min-height: 0 !important;
@@ -50,7 +48,6 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* ভাউচার মডাল সেটিংস */
         #voucher-modal {
             visibility: visible !important;
             position: absolute !important;
@@ -159,21 +156,20 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-500 mb-1">তারিখ *</label>
                         <input type="date" id="expense-date" required
-                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs font-semibold">
+                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-sm font-semibold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-500 mb-1">খরচের খাত (Category) *</label>
-                    <select id="expense-category" required onchange="window.toggleCategoryInput()"
+                    <label class="block text-sm font-bold text-gray-500 mb-1">খরচের ক্যাটাগরি *</label>
+                    <select id="expense-category" required onchange="window.onCategoryChange()"
                             class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
-                        <option value="">খাত নির্বাচন করুন</option>
-                        <option value="শিক্ষক-কর্মচারী বেতন">শিক্ষক-কর্মচারী বেতন</option>
-                        <option value="বোর্ডিং ও মেস খরচ">বোর্ডিং ও মেস খরচ</option>
-                        <option value="বিদ্যুৎ ও পানি বিল">বিদ্যুৎ ও পানি বিল</option>
-                        <option value="সংস্কার ও নির্মাণ">সংস্কার ও নির্মাণ</option>
+                        <option value="বাজার">বাজার খরচ</option>
+                        <option value="বেতন">শিক্ষক/স্টাফ বেতন</option>
+                        <option value="ইউটিলিটি">কারেন্ট/গ্যাস/পানি বিল</option>
                         <option value="আপ্যায়ন">আপ্যায়ন</option>
-                        <option value="বিবিধ">বিবিধ</option>
+                        <option value="নির্মাণ">সংস্কার ও নির্মাণ</option>
+                        <option value="উত্তোলন">তহবিল উত্তোলন (উত্তোলন)</option>
                         <option value="অন্যান্য">অন্যান্য (ম্যানুয়ালি লিখুন)</option>
                     </select>
                 </div>
@@ -188,7 +184,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-bold text-gray-500 mb-1">পরিমাণ (৳) *</label>
-                        <input type="number" id="expense-amount" required placeholder="৳ পরিমাণ" min="1"
+                        <input type="text" id="expense-amount" required placeholder="৳ পরিমাণ" min="1"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-sm font-bold font-en bg-white">
                     </div>
                     <div>
@@ -268,12 +265,12 @@
                     <select id="filter-expense-category" onchange="window.filterExpenses()"
                             class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white font-bold text-gray-700">
                         <option value="">সকল খাতের খরচ</option>
-                        <option value="শিক্ষক-কর্মচারী বেতন">শিক্ষক-কর্মচারী বেতন</option>
-                        <option value="বোর্ডিং ও মেস খরচ">বোর্ডিং ও মেস খরচ</option>
-                        <option value="বিদ্যুৎ ও পানি বিল">বিদ্যুৎ ও পানি বিল</option>
-                        <option value="সংস্কার ও নির্মাণ">সংস্কার ও নির্মাণ</option>
+                        <option value="বাজার">বাজার খরচ</option>
+                        <option value="বেতন">শিক্ষক/স্টাফ বেতন</option>
+                        <option value="ইউটিলিটি">কারেন্ট/গ্যাস/पानी বিল</option>
                         <option value="আপ্যায়ন">আপ্যায়ন</option>
-                        <option value="বিবিধ">বিবিধ</option>
+                        <option value="নির্মাণ">সংস্কার ও নির্মাণ</option>
+                        <option value="উত্তোলন">তহবিল উত্তোলন</option>
                     </select>
                 </div>
             </div>
@@ -313,7 +310,7 @@
 
         <!-- মডাল অ্যাকশন বাটনসমূহ -->
         <div class="flex gap-2 mt-5 border-t pt-4 bg-white">
-            <button onclick="window.print()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+            <button onclick="window.printDebitVoucher()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-print"></i> ভাউচার প্রিন্ট করুন (A5)
             </button>
             <button onclick="window.closeVoucherModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-xs transition border">
@@ -351,7 +348,7 @@
                 const date = document.getElementById('expense-date').value;
                 const categorySelect = document.getElementById('expense-category').value;
                 const categoryOther = document.getElementById('expense-category-other').value.trim();
-                const amount = parseFloat(document.getElementById('expense-amount').value) || 0;
+                const amount = parseFloat(window.convertToEnglishDigits(document.getElementById('expense-amount').value)) || 0;
                 const method = document.getElementById('expense-method').value;
                 const paidTo = document.getElementById('expense-paid-to').value.trim();
                 const voucherUrl = document.getElementById('expense-voucher-url').value.trim();
@@ -392,15 +389,16 @@
                         document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
                     }
 
+                    // রিয়েল-টাইম সিঙ্ক কাউন্টার রি-পপুলেট করা
+                    if (typeof updatePendingCount === 'function') {
+                        await updatePendingCount();
+                    }
+
                     await window.generateVoucherId();
                     await window.renderExpensesList();
 
                     // সফলভাবে সেভ হলে ডেবিট ভাউচার দেখানো হবে
                     window.showVoucherModal(expenseObj);
-
-                    if (typeof updatePendingCount === 'function') {
-                        await updatePendingCount();
-                    }
 
                 } catch (err) {
                     console.error("খরচ এন্ট্রি করতে ত্রুটি:", err);
@@ -410,12 +408,11 @@
         }
     };
 
-    // ২. বাগার-মুক্ত ইউনিক ভাউচার আইডি মেকানিজম (Max Id Safe strategy)
+    // ২. বাগার-মুক্ত ইউনিক ভাউচার আইডি মেকানিজম
     window.generateVoucherId = async function() {
         try {
             const list = await db.expenses.toArray();
             
-            // ডাটাবেজের সর্বোচ্চ সিরিয়াল নম্বর থেকে ইউনিক জেনারেশন
             const maxSerial = list.reduce((max, e) => {
                 const serialNum = parseInt((e.expense_id || '').replace('EXP-', ''));
                 return (!isNaN(serialNum) && serialNum > max) ? serialNum : max;
@@ -442,7 +439,7 @@
         });
     };
 
-    window.toggleCategoryInput = function() {
+    window.onCategoryChange = function() {
         const val = document.getElementById('expense-category').value;
         const container = document.getElementById('other-category-container');
         const otherInput = document.getElementById('expense-category-other');
@@ -686,24 +683,35 @@
                 window.cancelExpenseEdit();
             }
 
-            await window.renderExpensesList();
-
+            // রিয়েল-টাইম পেন্ডিং কাউন্টার ট্রিগার
             if (typeof updatePendingCount === 'function') {
                 await updatePendingCount();
             }
+
+            await window.renderExpensesList();
 
         } catch (err) {
             console.error("মুছে ফেলতে ব্যর্থ:", err);
         }
     };
 
-    // ৪. A5 ডেবিট ভাউচার রেন্ডার ও গ্লোবাল উইন্ডো বাইন্ডিং (কথায় রূপান্তর ইঞ্জিনসহ)
+    // ৫. এ৫ সাইজ প্রিন্ট আইসোলেশন সলিউশন (A5 Print Isolated Wrapper)
+    window.printDebitVoucher = function() {
+        const cleanPrintClass = () => {
+            document.body.classList.remove('print-mode-a5-voucher');
+        };
+        window.addEventListener('afterprint', cleanPrintClass, { once: true });
+        
+        document.body.classList.add('print-mode-a5-voucher');
+        window.print();
+    };
+
+    // ৪. A5 ডেবিট ভাউচার রেন্ডার ও গ্লোবাল উইন্ডো বাইন্ডিং
     window.showVoucherModal = function(expense) {
         activePrintedExpense = expense;
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const madrasahAddress = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
-        const madrasahPhone = localStorage.getItem('madrasah_phone') || '';
         const logoUrl = localStorage.getItem('madrasah_logo') || '';
 
         const modalBody = document.getElementById('voucher-modal-body');
@@ -726,8 +734,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-4 text-xs">
-                <div class="md:col-span-1 flex flex-col items-center justify-start border-r border-gray-150 pr-2">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-4 border-b border-dashed text-xs text-gray-700">
+                <div class="md:col-span-1 flex flex-col items-center justify-start border-r pr-2 border-gray-150">
                     ${expense.voucher_url ? `<img class="w-24 h-24 rounded-lg object-cover border shadow-sm" src="${expense.voucher_url}">` : '<div class="w-24 h-24 rounded-lg bg-gray-100 border text-gray-400 flex flex-col items-center justify-center text-[9px] font-bold"><i class="fa-solid fa-receipt text-xl mb-1"></i><span>রসিদ নেই</span></div>'}
                     <div class="mt-2 text-center">
                         <div class="text-[10px] text-gray-400 font-bold">ভাউচার নং</div>

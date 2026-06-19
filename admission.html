@@ -17,13 +17,12 @@
     @media print {
         @page {
             size: A5 portrait !important;
-            margin: 0 !important; /* প্রিন্ট মার্জিন সম্পূর্ণ ব্রাউজার নিয়ন্ত্রিত */
+            margin: 0 !important; 
         }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        /* প্রিন্ট করার সময় মূল পেজের অন্য সব ব্যাকগ্রাউন্ড এলিমেন্ট হাইড */
         body * {
             visibility: hidden !important;
         }
@@ -42,14 +41,13 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* শুধুমাত্র প্রিন্ট রসিদটি ভিজিবল ও ফুল-পেজ ফিট করা */
         #print-receipt-modal {
             visibility: visible !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 148mm !important;  /* A5 Standard Width */
-            height: 210mm !important; /* A5 Standard Height */
+            width: 148mm !important;  
+            height: 210mm !important; 
             display: block !important;
             background: white !important;
             box-shadow: none !important;
@@ -140,7 +138,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">রোল নম্বর *</label>
-                        <input type="number" id="student-roll" required placeholder="যেমন: ১০"
+                        <input type="text" id="student-roll" required placeholder="যেমন: ১০"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-semibold font-en">
                     </div>
                 </div>
@@ -201,7 +200,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">জন্ম নিবন্ধন নম্বর (১৭ ডিজিট)</label>
-                        <input type="text" id="student-birth-reg" placeholder="যেমন: ২০০৫xxxxxxxxxxxxx" pattern="[0-9]{17}"
+                        <input type="text" id="student-birth-reg" placeholder="যেমন: ২০০৫xxxxxxxxxxxxx" maxlength="17"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-en font-semibold">
                     </div>
                 </div>
@@ -209,7 +209,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">অভিভাবকের মোবাইল নম্বর *</label>
-                        <input type="tel" id="student-phone" required placeholder="017XXXXXXXX" pattern="[0-9]{11}" oninput="window.syncWhatsapp()"
+                        <input type="tel" id="student-phone" required placeholder="017XXXXXXXX" maxlength="11"
+                               oninput="this.value = window.convertToEnglishDigits(this.value); window.syncWhatsapp();"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-en font-bold">
                     </div>
                     <div>
@@ -220,7 +221,8 @@
                                 <span>একই নাম্বার</span>
                             </label>
                         </div>
-                        <input type="tel" id="student-whatsapp" placeholder="017XXXXXXXX" pattern="[0-9]{11}"
+                        <input type="tel" id="student-whatsapp" placeholder="017XXXXXXXX" maxlength="11"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en font-bold">
                     </div>
                     
@@ -340,7 +342,7 @@
             <button id="btn-wa-send" onclick="window.sendReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ এ পাঠান
             </button>
-            <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+            <button onclick="window.printAdmissionReceipt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-print"></i> প্রিন্ট করুন (A5 Size)
             </button>
             <button onclick="window.closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition border">
@@ -363,7 +365,7 @@
 
     let activePrintedStudent = null;
 
-    // ১. গ্লোবাল উইন্ডো অবজেক্টে প্রধান ইনিশিয়ালাইজার বাইন্ডিং
+    // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
     window.initAdmission = async function() {
         document.getElementById('editing-student-id').value = "";
         document.getElementById('student-id').readOnly = false;
@@ -391,10 +393,10 @@
                 const motherName = document.getElementById('student-mother-name').value.trim();
                 const dob = document.getElementById('student-dob').value;
                 const bloodGroup = document.getElementById('student-blood-group').value;
-                const birthReg = document.getElementById('student-birth-reg').value.trim();
-                const roll = parseInt(document.getElementById('student-roll').value);
-                const phone = document.getElementById('student-phone').value.trim();
-                const whatsapp = document.getElementById('student-whatsapp').value.trim();
+                const birthReg = window.convertToEnglishDigits(document.getElementById('student-birth-reg').value.trim());
+                const roll = parseInt(window.convertToEnglishDigits(document.getElementById('student-roll').value));
+                const phone = window.convertToEnglishDigits(document.getElementById('student-phone').value.trim());
+                const whatsapp = window.convertToEnglishDigits(document.getElementById('student-whatsapp').value.trim());
                 
                 const village = document.getElementById('student-village').value.trim();
                 const post = document.getElementById('student-post').value.trim();
@@ -430,7 +432,7 @@
 
                     if (duplicate && duplicate.id !== editId && duplicate.is_deleted !== 1) {
                         if (duplicate.branch === sBranch) {
-                            showToast(`দুঃখিত! ${sBranch} শাখার ${sClass} জামাতে রোল নম্বর ${roll} ইতিমধ্যে একজন শিক্ষার্থীর জন্য সংরক্ষিত।`, "error");
+                            showToast(`দুঃখিত! ${sBranch} শাখার ${sClass} জামাতে রোল নম্বর ${roll} ইতিমধ্যে সংরক্ষিত।`, "error");
                             return;
                         }
                     }
@@ -476,15 +478,16 @@
                         window.clearLogoUrl();
                     }
 
+                    // রিয়েল-টাইম পেন্ডিং কাউন্টার ট্রিগার
+                    if (typeof updatePendingCount === 'function') {
+                        await updatePendingCount();
+                    }
+
                     await generateIdAndSerial();
                     await renderStudentsList();
 
                     // রসিদ পপআপ লোড করা
                     window.showReceiptModal(studentObj);
-
-                    if (typeof updatePendingCount === 'function') {
-                        await updatePendingCount();
-                    }
 
                     if (navigator.onLine && typeof triggerAutoSync === 'function') {
                         triggerAutoSync();
@@ -498,7 +501,7 @@
         }
     };
 
-    // ২. ডাইনামিক নির্ভরশীল বাটন রেন্ডারিং (Cascades)
+    // ২. ডাইনামিক নির্ভরশীল বাটন রেন্ডারিং
     function renderDynamicAcademicFields() {
         const branchContainer = document.getElementById('dynamic-branches');
         if (!branchContainer) return;
@@ -678,7 +681,6 @@
         renderDynamicFeeGroups();
     };
 
-    // ৩. লোগো এবং ফোন নাম্বার সিঙ্ক্রোনাইজেশন ও উইন্ডো এক্সপোজ
     window.updateStudentPhotoPreview = function() {
         const urlInput = document.getElementById('student-photo-url');
         if (!urlInput) return;
@@ -741,12 +743,10 @@
         }
     };
 
-    // ৪. ইউনিক আইডি ও সর্বোচ্চ সিরিয়াল নির্ধারণ (Bag-Free ID Generation)
+    // ৪. আইডি ও সিরিয়াল নির্ধারণ
     async function generateIdAndSerial() {
         try {
             const students = await db.students.toArray();
-            
-            // ডাটাবেজের সর্বোচ্চ সিরিয়াল নম্বর অনুসন্ধান
             const maxSerial = students.reduce((max, s) => ((s.serial_no || 0) > max ? s.serial_no : max), 0);
             const nextSerial = maxSerial + 1;
             
@@ -755,7 +755,6 @@
             
             if (sSerial) sSerial.value = nextSerial;
             
-            // ইউনিক অফলাইন-সেফ আইডি জেনারেশন (TIMESTAMP + RANDOM SUFFIX)
             const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
             const generatedId = "S-" + (10000 + nextSerial) + "-" + randomSuffix;
             if (sId) sId.value = generatedId;
@@ -791,7 +790,6 @@
         renderStudentsList(searchQuery, classQuery);
     };
 
-    // ৫. ছাত্র তালিকা রেন্ডার করার নিরাপদ লজিক (Empty / Null-Check Added)
     async function renderStudentsList(searchQuery = '', classQuery = '') {
         const tableBody = document.getElementById('students-table-body');
         if (!tableBody) return;
@@ -885,7 +883,6 @@
         }
     }
 
-    // ৬. শিক্ষার্থীর ডাটা এডিট মোডে রূপান্তর (উইন্ডো এক্সপোজ)
     window.editStudent = async function(id) {
         try {
             const student = await db.students.get(id);
@@ -904,7 +901,6 @@
             document.getElementById('student-birth-reg').value = student.birth_reg || '';
             document.getElementById('student-roll').value = student.roll || '';
             
-            // পৃথক ঠিকানা উইজেট লোড
             if (student.village) {
                 document.getElementById('student-village').value = student.village;
                 document.getElementById('student-post').value = student.post;
@@ -920,7 +916,6 @@
 
             window.updateStudentPhotoPreview();
 
-            // ডাইনামিক বাটনগুলোর সিলেকশন সচল করা
             const branchObj = academicStructure.find(b => b.name === student.branch);
             if (branchObj) {
                 selectedBranchId = branchObj.id;
@@ -1053,7 +1048,18 @@
         }
     };
 
-    // ৭. A5 পোর্ট্রেট প্রিন্ট রসিদ জেনারেটর (বডি হ্যাক রিমুভড, পারফেক্ট মার্জিনস)
+    // ৫. এ৫ সাইজ প্রিন্ট আইসোলেশন সলিউশন (A5 Print Isolated Wrapper)
+    window.printAdmissionReceipt = function() {
+        // প্রিন্ট ডায়ালগ ক্লোজ হওয়ার সাথে সাথে বডি ক্লাস মুছে ফেলবে
+        const cleanPrintClass = () => {
+            document.body.classList.remove('print-mode-a5-receipt');
+        };
+        window.addEventListener('afterprint', cleanPrintClass, { once: true });
+        
+        document.body.classList.add('print-mode-a5-receipt');
+        window.print();
+    };
+
     window.showReceiptModal = function(student) {
         activePrintedStudent = student;
 
@@ -1179,13 +1185,11 @@
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
 
-        const wpMessage = `প্রিয় অভিভাবক,
-আপনার সন্তান ${activePrintedStudent.name} কে
-${madrasahName} এ ভর্তি সম্পন্ন করা হয়েছে
+        const wpMessage = `আসসালামু আলাইকুম।
+আপনার সন্তান ${activePrintedStudent.name}-কে ${madrasahName}-এ সফলভাবে ভর্তি সম্পন্ন করা হয়েছে।
 
-আইডি/রোলঃ ${activePrintedStudent.id} / ${activePrintedStudent.roll}
-শ্রেনী/জামাতঃ ${activePrintedStudent.class}
-
+আইডি: ${activePrintedStudent.id}
+জামাত: ${activePrintedStudent.class} (রোল: ${activePrintedStudent.roll})
 ধন্যবাদ।`;
 
         const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
