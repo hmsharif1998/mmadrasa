@@ -14,11 +14,11 @@
     <!-- FontAwesome CDN (আইকন কালেকশন) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Custom CSS -->
+    <!-- Custom CSS Link -->
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* Hind Siliguri এবং Inter ফন্টের মসৃণ সমন্বয় */
+        /* ফন্ট লোডিং */
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
         body {
@@ -35,20 +35,20 @@
             75% { transform: translateX(8px); }
         }
         .animate-shake {
-            animation: shake 0.3s ease-in-out;
+            animation: shake 0.35s ease-in-out;
         }
 
-        /* পিন স্ক্রিন ব্যাকগ্রাউন্ড (Sleek Dark Green Glassmorphism) */
+        /* পিন স্ক্রিন ব্যাকগ্রাউন্ড (Sleek Islamic Dark Green Gradient) */
         #pin-lock-overlay {
             display: flex;
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%);
+            background: linear-gradient(135deg, #012017 0%, #034431 50%, #012017 100%);
             z-index: 100;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         #pin-lock-overlay.hidden {
@@ -59,29 +59,50 @@
 <body class="bg-gray-50 overflow-hidden select-none">
 
 <!-- টোস্ট নোটিফিকেশন কন্টেইনার -->
-<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+<div id="toast-container" class="fixed top-5 right-5 z-[200] space-y-3 pointer-events-none"></div>
 
-<!-- পিন লক ওভারলে স্ক্রিন -->
+<!-- ========================================================== -->
+<!-- পিন লক ওভারলে স্ক্রিন (Username + PIN Online Validation) -->
+<!-- ========================================================== -->
 <div id="pin-lock-overlay">
     <div class="bg-white/10 backdrop-blur-lg p-8 rounded-3xl border border-white/20 shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all duration-300">
-        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
-            <i class="fa-solid fa-lock text-3xl text-yellow-300 animate-pulse"></i>
+        
+        <!-- ১. প্রধান হেডার আইকন -->
+        <div id="lock-header-icon" class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
+            <i class="fa-solid fa-lock text-3xl text-yellow-300"></i>
         </div>
         
         <!-- ডাইনামিক মাদরাসার নাম -->
-        <h2 id="lock-madrasah-name" class="text-2xl font-extrabold mb-2 text-white">মাদরাসাতুল মদিনা</h2>
-        <p class="text-emerald-200 text-sm mb-6 font-semibold">অ্যাপে প্রবেশ করতে নিরাপত্তা পিন কোড দিন</p>
+        <h2 id="lock-madrasah-name" class="text-2xl font-extrabold mb-1 text-white">মাদরাসাতুল মদিনা</h2>
+        <p class="text-emerald-200 text-xs mb-5 font-semibold">নিরাপত্তা স্ক্রিন যাচাইকরণ</p>
 
-        <!-- পিন ডট ইন্ডিকেটর সমূহ -->
-        <div class="flex justify-center gap-4 mb-8">
-            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-            <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+        <!-- ২. ডাইনামিক ইউজারনেম সিলেক্টর ও পিন ডট কন্টেইনার -->
+        <div id="lock-input-group" class="space-y-4">
+            <div>
+                <select id="lock-user-select" class="w-full px-4 py-2.5 rounded-xl border border-white/20 bg-emerald-950/80 hover:bg-emerald-950 text-white font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs text-center transition">
+                    <option value="">ইউজার লোড হচ্ছে...</option>
+                </select>
+            </div>
+
+            <!-- পিন ডট ইন্ডিকেটর সমূহ -->
+            <div class="flex justify-center gap-4 py-2">
+                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+            </div>
         </div>
 
-        <!-- সংখ্যা টাইপ করার কিপ্যাড (উইন্ডো মেথড বাইন্ডিং সহ) -->
-        <div class="grid grid-cols-3 gap-4 max-w-[240px] mx-auto">
+        <!-- ৩. রিয়্যাল-টাইম স্ট্যাটাস ও লোডার স্ক্রিন (পিন ভেরিফিকেশন ফেস) -->
+        <div id="lock-status-area" class="hidden py-10 space-y-4">
+            <!-- ডাইনামিক আইকন লোডার এখানে স্ক্রিপ্ট দিয়ে ইনজেক্ট হবে -->
+            <div id="status-icon-box" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl"></div>
+            <h3 id="status-message" class="text-lg font-bold text-white"></h3>
+            <p id="status-sub-message" class="text-xs text-emerald-200"></p>
+        </div>
+
+        <!-- ৪. সংখ্যা কিপ্যাড গ্রিড -->
+        <div id="lock-keypad-area" class="grid grid-cols-3 gap-3.5 max-w-[240px] mx-auto mt-6">
             <button onclick="window.pressPin('1')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">1</button>
             <button onclick="window.pressPin('2')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">2</button>
             <button onclick="window.pressPin('3')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">3</button>
@@ -98,6 +119,9 @@
     </div>
 </div>
 
+<!-- ========================================================== -->
+<!-- মূল অ্যাপ্লিকেশন লেআউট (Sidebar + Main Content Window) -->
+<!-- ========================================================== -->
 <div class="flex h-screen overflow-hidden">
 
     <!-- মোবাইল সাইডবার ব্যাকড্রপ ব্লার ওভারলে -->
@@ -111,7 +135,7 @@
                 <i class="fa-solid fa-mosque text-emerald-300"></i> মাদরাসাতুল মদিনা
             </h1>
 
-            <!-- ন্যাভিগেশন লিংক সমূহ -->
+            <!-- ডাইনামিক মেনু বাটনসমূহ (রোল ভিত্তিক ফিল্টারিং সচল) -->
             <nav class="space-y-1">
                 <button onclick="loadModule('dashboard')" id="nav-dashboard" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
                     <i class="fa-solid fa-chart-line w-5 text-emerald-300"></i> ড্যাশবোর্ড
@@ -141,7 +165,7 @@
         <div class="p-5 border-t border-emerald-800/40 text-[11px] space-y-2.5 bg-emerald-950/50">
             <div class="flex items-center justify-between">
                 <span class="text-emerald-300 font-bold">সার্ভার সংযোগ:</span>
-                <span id="connection-status" class="px-2 py-0.5 rounded-full bg-red-500 text-white font-extrabold flex items-center gap-1">
+                <span id="connection-status" class="px-2 py-0.5 rounded bg-red-500 text-white font-extrabold flex items-center gap-1">
                     <i class="fa-solid fa-plane-slash"></i> অফলাইন
                 </span>
             </div>
@@ -155,7 +179,7 @@
         </div>
     </div>
 
-    <!-- মূল কন্টেন্ট এরিয়া -->
+    <!-- মূল কন্টেন্ট উইন্ডো -->
     <div class="flex-1 flex flex-col overflow-hidden">
 
         <!-- টপ হেডার বার -->
@@ -172,11 +196,20 @@
                 <span id="sync-loader" class="hidden text-emerald-600 font-bold flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shadow-sm animate-pulse text-xs">
                     <i class="fa-solid fa-spinner animate-spin"></i> ক্লাউডে সিঙ্ক হচ্ছে...
                 </span>
-                <span class="font-bold bg-gray-100 px-3 py-1.5 rounded-xl border text-xs">এডমিন প্যানেল</span>
+                
+                <!-- লগআউট বাটন এবং সেশন ইন্ডিকেটর -->
+                <div class="flex items-center gap-2">
+                    <span id="user-display-badge" class="font-bold bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200 text-xs hidden">
+                        <i class="fa-solid fa-user-circle"></i> এডমিন
+                    </span>
+                    <button onclick="window.lockApp()" class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 shadow-sm" title="লগআউট">
+                        <i class="fa-solid fa-right-from-bracket"></i> প্রস্থান
+                    </button>
+                </div>
             </div>
         </header>
 
-        <!-- মডিউল লোড হওয়ার মূল উইন্ডো -->
+        <!-- মডিউল লোড হওয়ার উইন্ডো -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-gray-50">
             <div id="main-content" class="transition-all duration-300">
                 <div class="flex items-center justify-center h-64 text-gray-400">
@@ -190,17 +223,46 @@
     </div>
 </div>
 
-<!-- Dexie.js Database Wrapper -->
+<!-- Dexie.js Database Link -->
 <script src="dexie.js"></script>
 
-<!-- App Core Script -->
+<!-- App Core Link -->
 <script src="app.js"></script>
 
-<!-- পিন লক স্ক্রিন জাভাস্ক্রিপ্ট কন্ট্রোলার (উইন্ডো মেথড বাইন্ডিং সহ) -->
+<!-- ========================================================== -->
+<!-- লক স্ক্রিন ও পিন ভেরিফিকেশন কন্ট্রোলার -->
+<!-- ========================================================== -->
 <script>
 (function() {
     window.enteredPin = "";
-    
+
+    // লোকাল ও ক্লাউড ডাটাবেজ থেকে ড্রপডাউন ইউজার লোড করা
+    window.populateLockUserDropdown = async function() {
+        const userSelect = document.getElementById('lock-user-select');
+        if (!userSelect) return;
+
+        userSelect.innerHTML = `<option value="">ইউজার নির্বাচন করুন</option>`;
+        try {
+            const localUsers = await db.users.toArray();
+            const activeUsers = localUsers.filter(u => u.is_deleted !== 1);
+
+            if (activeUsers.length === 0) {
+                // ডিফল্ট fallback (যদি লোকাল কোনো ইউজার সিঙ্ক না হয়ে থাকে)
+                userSelect.innerHTML += `<option value="admin">মুহতামিম (Default)</option>`;
+            } else {
+                activeUsers.forEach(u => {
+                    let roleText = "মুহতামিম";
+                    if (u.role === 'accountant') roleText = "হিসাবরক্ষক";
+                    else if (u.role === 'teacher') roleText = "শিক্ষক";
+
+                    userSelect.innerHTML += `<option value="${u.username}">${u.username} (${roleText})</option>`;
+                });
+            }
+        } catch (err) {
+            userSelect.innerHTML += `<option value="admin">মুহতামিম (Default)</option>`;
+        }
+    };
+
     window.pressPin = function(num) {
         if ((window.enteredPin || "").length < 4) {
             window.enteredPin = (window.enteredPin || "") + num;
@@ -223,53 +285,201 @@
         });
     };
 
-    window.clearPin = function() {
+    window.clearPinInput = function() {
         window.enteredPin = "";
         window.updatePinDots();
     };
 
-    window.checkPinSubmit = function() {
-        const CORRECT_PIN = localStorage.getItem('madrasah_pin') || "1234";
-        if (window.enteredPin === CORRECT_PIN) {
-            showToast("স্বাগতম! লক সফলভাবে খোলা হয়েছে।", "success");
-            window.unlockApp();
-        } else {
-            showToast("ভুল পিন কোড! পুনরায় চেষ্টা করুন।", "error");
+    window.clearPin = function() {
+        window.clearPinInput();
+    };
 
-            const card = document.querySelector('#pin-lock-overlay > div');
-            if (card) {
-                card.classList.add('animate-shake');
-                setTimeout(() => card.classList.remove('animate-shake'), 300);
+    // ৩.১ পিন ভেরিফিকেশন ফ্লো (গুগল শিট অনলাইন এপিআই চেক)
+    window.checkPinSubmit = async function() {
+        const userSelect = document.getElementById('lock-user-select');
+        const username = userSelect ? userSelect.value : '';
+        const pin = window.convertToEnglishDigits(window.enteredPin);
+
+        if (!username) {
+            showToast("দয়া করে ইউজার নির্বাচন করুন!", "error");
+            window.clearPinInput();
+            return;
+        }
+
+        // এনিমেশন শুরু: ইনপুট হাইড ও লোডার প্রদর্শন
+        const lockInputGroup = document.getElementById('lock-input-group');
+        const lockKeypadArea = document.getElementById('lock-keypad-area');
+        const lockStatusArea = document.getElementById('lock-status-area');
+        const lockHeaderIcon = document.getElementById('lock-header-icon');
+
+        const statusIconBox = document.getElementById('status-icon-box');
+        const statusMessage = document.getElementById('status-message');
+        const statusSubMessage = document.getElementById('status-sub-message');
+
+        if (lockInputGroup) lockInputGroup.classList.add('hidden');
+        if (lockKeypadArea) lockKeypadArea.classList.add('hidden');
+        if (lockHeaderIcon) lockHeaderIcon.classList.add('hidden');
+        
+        if (lockStatusArea) {
+            lockStatusArea.classList.remove('hidden');
+            statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-white/10 text-yellow-300 animate-spin";
+            statusIconBox.innerHTML = `<i class="fa-solid fa-spinner"></i>`;
+            statusMessage.textContent = "পিন যাচাই করা হচ্ছে...";
+            statusSubMessage.textContent = "সার্ভারের সাথে সংযোগ স্থাপন করা হচ্ছে";
+        }
+
+        // ৩.২ অনলাইন চেক (Online API Authentication)
+        if (navigator.onLine && SCRIPT_URL) {
+            try {
+                const payload = new URLSearchParams({
+                    action: 'verify_user',
+                    username: username,
+                    pin: pin
+                }).toString();
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payload
+                });
+
+                if (!response.ok) throw new Error("নেটওয়ার্ক সমস্যা");
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // সফল লগইন স্টেট
+                    await handleSuccessfulLogin(username, result.role, result.fullname || username, pin);
+                    return;
+                } else {
+                    // ভুল পিন স্টেট
+                    handleFailedLogin(result.message || "ভুল পিন নাম্বার!");
+                    return;
+                }
+            } catch (err) {
+                console.warn("অনলাইন লগইন ফেইলড, অফলাইন ডেটা চেক করা হচ্ছে...");
+            }
+        }
+
+        // ৩.৩ অফলাইন ব্যাকআপ চেক (Offline Dexie Fallback Check)
+        try {
+            // যদি অফলাইন থাকে এবং ডেটাবেজে কোনো ইউজার না থাকে তবে ডিফল্ট অ্যাডমিন বাইপাস
+            const totalUsers = await db.users.count();
+            if (totalUsers === 0 && username === 'admin' && pin === '1234') {
+                await handleSuccessfulLogin('admin', 'muhtamim', 'মুহতামিম', '1234');
+                return;
             }
 
-            window.enteredPin = "";
-            window.updatePinDots();
-        }
-    };
-
-    window.unlockApp = function() {
-        const overlay = document.getElementById('pin-lock-overlay');
-        if (overlay) {
-            overlay.style.display = 'none';
-            if (typeof loadModule === 'function') {
-                loadModule('dashboard');
+            const localUser = await db.users.get(username);
+            if (localUser && localUser.is_deleted !== 1 && localUser.pin === pin) {
+                await handleSuccessfulLogin(username, localUser.role, username, pin);
+            } else {
+                handleFailedLogin("ভুল পিন কোড! পুনরায় চেষ্টা করুন।");
             }
+        } catch (err) {
+            handleFailedLogin("অফলাইন যাচাইকরণে ত্রুটি হয়েছে!");
         }
     };
 
-    window.lockApp = function() {
-        const overlay = document.getElementById('pin-lock-overlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            window.enteredPin = "";
-            window.updatePinDots();
+    // ৪. সফল লগইন রেন্ডারিং (আলহামদু লিল্লাহ!)
+    async function handleSuccessfulLogin(username, role, fullname, pin) {
+        const statusIconBox = document.getElementById('status-icon-box');
+        const statusMessage = document.getElementById('status-message');
+        const statusSubMessage = document.getElementById('status-sub-message');
+
+        // সাকসেস স্টেট রেন্ডার
+        if (statusIconBox) {
+            statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-4xl bg-emerald-500/20 text-emerald-400 border border-emerald-500 animate-bounce";
+            statusIconBox.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
         }
-    };
+        if (statusMessage) statusMessage.textContent = "আলহামদু লিল্লাহ";
+        if (statusSubMessage) statusSubMessage.textContent = `${fullname} হিসেবে সফলভাবে প্রবেশ করেছেন`;
+
+        // সেশন স্টোরেজে সংরক্ষণ
+        const userObj = { username, role, fullname };
+        sessionStorage.setItem('currentUser', JSON.stringify(userObj));
+        window.currentUser = userObj;
+
+        // লোকাল ডেটাবেজে সিঙ্কড কপি আপডেট করা
+        try {
+            await db.users.put({
+                username: username,
+                pin: pin,
+                role: role,
+                is_synced: 1,
+                is_deleted: 0
+            });
+        } catch(e) {}
+
+        // উইন্ডো হেডার ও সাইডবার ফিল্টার আপডেট করা
+        const userBadge = document.getElementById('user-display-badge');
+        if (userBadge) {
+            let roleTitle = "মুহতামিম";
+            if (role === 'accountant') roleTitle = "হিসাবরক্ষক";
+            else if (role === 'teacher') roleTitle = "শিক্ষক";
+
+            userBadge.innerHTML = `<i class="fa-solid fa-user-circle"></i> ${fullname} (${roleTitle})`;
+            userBadge.classList.remove('hidden');
+        }
+
+        setTimeout(() => {
+            const overlay = document.getElementById('pin-lock-overlay');
+            if (overlay) overlay.style.display = 'none';
+
+            // ইনপুট ফর্ম রিসেট
+            resetLockOverlayState();
+
+            // রোল অনুযায়ী সাইডবার কনফিগার করা
+            window.updateSidebarNavigation();
+            
+            // ড্যাশবোর্ড মডিউল লোড করা
+            loadModule('dashboard');
+        }, 1500);
+    }
+
+    // ৫. ব্যর্থ লগইন রেন্ডারিং (ইন্না লিল্লাহ!)
+    function handleFailedLogin(errorText) {
+        const statusIconBox = document.getElementById('status-icon-box');
+        const statusMessage = document.getElementById('status-message');
+        const statusSubMessage = document.getElementById('status-sub-message');
+        const overlayCard = document.querySelector('#pin-lock-overlay > div');
+
+        if (statusIconBox) {
+            statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-4xl bg-red-500/20 text-red-400 border border-red-500";
+            statusIconBox.innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
+        }
+        if (statusMessage) statusMessage.textContent = "ইন্না লিল্লাহ";
+        if (statusSubMessage) statusSubMessage.textContent = errorText;
+
+        if (overlayCard) {
+            overlayCard.classList.add('animate-shake');
+            setTimeout(() => overlayCard.classList.remove('animate-shake'), 400);
+        }
+
+        setTimeout(() => {
+            resetLockOverlayState();
+        }, 1800);
+    }
+
+    function resetLockOverlayState() {
+        const lockInputGroup = document.getElementById('lock-input-group');
+        const lockKeypadArea = document.getElementById('lock-keypad-area');
+        const lockStatusArea = document.getElementById('lock-status-area');
+        const lockHeaderIcon = document.getElementById('lock-header-icon');
+
+        if (lockInputGroup) lockInputGroup.classList.remove('hidden');
+        if (lockKeypadArea) lockKeypadArea.classList.remove('hidden');
+        if (lockHeaderIcon) lockHeaderIcon.classList.remove('hidden');
+        if (lockStatusArea) lockStatusArea.classList.add('hidden');
+
+        window.clearPinInput();
+    }
 
     // কিবোর্ড ইভেন্ট লিসেনার
     document.addEventListener('keydown', (e) => {
         const overlay = document.getElementById('pin-lock-overlay');
-        if (overlay && overlay.style.display !== 'none') {
+        if (overlay && overlay.style.display !== 'none' && !document.getElementById('lock-status-area').classList.contains('hidden') === false) {
             if (e.key >= '0' && e.key <= '9') {
                 window.pressPin(e.key);
             } else if (e.key === 'Backspace') {
@@ -312,12 +522,9 @@
         }
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const overlay = document.getElementById('pin-lock-overlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
         window.applyGlobalSettings();
+        await window.populateLockUserDropdown();
     });
 })();
 </script>
