@@ -38,7 +38,7 @@
             animation: shake 0.3s ease-in-out;
         }
 
-        /* পিন স্ক্রিন ব্যাকগ্রাউন্ড (Glassmorphism design) */
+        /* পিন স্ক্রিন ব্যাকগ্রাউন্ড (Sleek Dark Green Glassmorphism) */
         #pin-lock-overlay {
             display: flex;
             position: fixed;
@@ -58,17 +58,17 @@
 </head>
 <body class="bg-gray-50 overflow-hidden select-none">
 
-<!-- টোস্ট নোটিফিকেশন কন্টেইনার (Toast Notification Container) -->
+<!-- টোস্ট নোটিফিকেশন কন্টেইনার -->
 <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 pointer-events-none"></div>
 
-<!-- পিন লক ওভারলে (PIN Lock Screen Overlay with glassy look) -->
+<!-- পিন লক ওভারলে স্ক্রিন -->
 <div id="pin-lock-overlay">
     <div class="bg-white/10 backdrop-blur-lg p-8 rounded-3xl border border-white/20 shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all duration-300">
         <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
             <i class="fa-solid fa-lock text-3xl text-yellow-300 animate-pulse"></i>
         </div>
         
-        <!-- মাদরাসার নাম ও লোগো ডাইনামিক লোড হবে -->
+        <!-- ডাইনামিক মাদরাসার নাম -->
         <h2 id="lock-madrasah-name" class="text-2xl font-extrabold mb-2 text-white">মাদরাসাতুল মদিনা</h2>
         <p class="text-emerald-200 text-sm mb-6 font-semibold">অ্যাপে প্রবেশ করতে নিরাপত্তা পিন কোড দিন</p>
 
@@ -80,38 +80,38 @@
             <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
         </div>
 
-        <!-- সংখ্যা টাইপ করার কিপ্যাড -->
+        <!-- সংখ্যা টাইপ করার কিপ্যাড (উইন্ডো মেথড বাইন্ডিং সহ) -->
         <div class="grid grid-cols-3 gap-4 max-w-[240px] mx-auto">
-            <button onclick="pressPin('1')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">1</button>
-            <button onclick="pressPin('2')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">2</button>
-            <button onclick="pressPin('3')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">3</button>
-            <button onclick="pressPin('4')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">4</button>
-            <button onclick="pressPin('5')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">5</button>
-            <button onclick="pressPin('6')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">6</button>
-            <button onclick="pressPin('7')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">7</button>
-            <button onclick="pressPin('8')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">8</button>
-            <button onclick="pressPin('9')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">9</button>
-            <button onclick="clearPin()" class="w-14 h-14 rounded-full flex items-center justify-center text-red-300 font-bold text-xs hover:text-red-200 active:scale-95 transition-all">মুছুন</button>
-            <button onclick="pressPin('0')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">0</button>
-            <button onclick="checkPinSubmit()" class="w-14 h-14 rounded-full flex items-center justify-center text-emerald-300 font-extrabold text-xl hover:text-emerald-200 active:scale-95 transition-all">✓</button>
+            <button onclick="window.pressPin('1')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">1</button>
+            <button onclick="window.pressPin('2')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">2</button>
+            <button onclick="window.pressPin('3')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">3</button>
+            <button onclick="window.pressPin('4')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">4</button>
+            <button onclick="window.pressPin('5')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">5</button>
+            <button onclick="window.pressPin('6')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">6</button>
+            <button onclick="window.pressPin('7')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">7</button>
+            <button onclick="window.pressPin('8')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">8</button>
+            <button onclick="window.pressPin('9')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">9</button>
+            <button onclick="window.clearPin()" class="w-14 h-14 rounded-full flex items-center justify-center text-red-300 font-bold text-xs hover:text-red-200 active:scale-95 transition-all">মুছুন</button>
+            <button onclick="window.pressPin('0')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">0</button>
+            <button onclick="window.checkPinSubmit()" class="w-14 h-14 rounded-full flex items-center justify-center text-emerald-300 font-extrabold text-xl hover:text-emerald-200 active:scale-95 transition-all">✓</button>
         </div>
     </div>
 </div>
 
 <div class="flex h-screen overflow-hidden">
 
-    <!-- মোবাইল স্ক্রিনের ব্যাকড্রপ ব্লার ওভারলে (Sidebar Backdrop for mobile) -->
-    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 hidden md:hidden transition-all duration-300"></div>
+    <!-- মোবাইল সাইডবার ব্যাকড্রপ ব্লার ওভারলে -->
+    <div id="sidebar-backdrop" onclick="window.toggleSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 hidden md:hidden transition-all duration-300"></div>
 
-    <!-- সাইডবার (Sidebar with sleek Emerald gradients) -->
+    <!-- সাইডবার প্যানেল -->
     <div id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-gradient-to-b from-emerald-950 to-emerald-900 text-white flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40 shadow-2xl md:shadow-none border-r border-emerald-800/30">
         <div class="p-5">
-            <!-- লোগো ও মাদরাসার ডাইনামিক নাম (ডাইনামিক ইমেজ সহ) -->
+            <!-- লোগো ও মাদরাসার ডাইনামিক নাম -->
             <h1 id="sidebar-madrasah-name" class="text-lg font-bold tracking-wider mb-8 border-b border-emerald-800/40 pb-4">
                 <i class="fa-solid fa-mosque text-emerald-300"></i> মাদরাসাতুল মদিনা
             </h1>
 
-            <!-- ন্যাভিগেশন মেনু লিংক সমূহ (আইকন ভিত্তিক এবং এলাইনড) -->
+            <!-- ন্যাভিগেশন লিংক সমূহ -->
             <nav class="space-y-1">
                 <button onclick="loadModule('dashboard')" id="nav-dashboard" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
                     <i class="fa-solid fa-chart-line w-5 text-emerald-300"></i> ড্যাশবোর্ড
@@ -137,7 +137,7 @@
             </nav>
         </div>
 
-        <!-- সংযোগের তথ্য ও ডাইনামিক সিঙ্ক ইন্ডিকেটর প্যানেল -->
+        <!-- সংযোগের তথ্য ও সিঙ্ক ইন্ডিকেটর প্যানেল -->
         <div class="p-5 border-t border-emerald-800/40 text-[11px] space-y-2.5 bg-emerald-950/50">
             <div class="flex items-center justify-between">
                 <span class="text-emerald-300 font-bold">সার্ভার সংযোগ:</span>
@@ -155,20 +155,19 @@
         </div>
     </div>
 
-    <!-- মূল কন্টেন্ট এরিয়া (Main Dashboard Window) -->
+    <!-- মূল কন্টেন্ট এরিয়া -->
     <div class="flex-1 flex flex-col overflow-hidden">
 
-        <!-- টপ হেডার (Sleek Top Bar) -->
+        <!-- টপ হেডার বার -->
         <header class="bg-white shadow-sm border-b px-6 py-4 flex items-center justify-between z-10 no-print">
             <div class="flex items-center gap-4">
-                <!-- মোবাইলের হ্যামবার্গার টগল বাটন -->
-                <button class="md:hidden text-emerald-800 text-xl focus:outline-none w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition border" onclick="toggleSidebar()">
+                <button class="md:hidden text-emerald-800 text-xl focus:outline-none w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition border" onclick="window.toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h2 id="page-title" class="text-xl font-bold text-gray-800">ড্যাশবোর্ড</h2>
             </div>
 
-            <!-- রিয়্যাল-টাইম সিঙ্ক এবং অ্যাক্টিভ এডমিন ব্যাজ -->
+            <!-- রিয়্যাল-টাইম সিঙ্ক ইন্ডিকেটর -->
             <div class="flex items-center gap-3 text-sm text-gray-600">
                 <span id="sync-loader" class="hidden text-emerald-600 font-bold flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shadow-sm animate-pulse text-xs">
                     <i class="fa-solid fa-spinner animate-spin"></i> ক্লাউডে সিঙ্ক হচ্ছে...
@@ -177,10 +176,9 @@
             </div>
         </header>
 
-        <!-- মডিউল লোড হওয়ার মেইন উইন্ডো -->
+        <!-- মডিউল লোড হওয়ার মূল উইন্ডো -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-gray-50">
             <div id="main-content" class="transition-all duration-300">
-                <!-- লক খোলার আগে এটি দেখাবে -->
                 <div class="flex items-center justify-center h-64 text-gray-400">
                     <div class="text-center">
                         <i class="fa-solid fa-lock text-5xl text-emerald-600 mb-4 animate-bounce"></i>
@@ -192,35 +190,29 @@
     </div>
 </div>
 
-<!-- Dexie.js (IndexedDB wrapper) -->
+<!-- Dexie.js Database Wrapper -->
 <script src="dexie.js"></script>
 
-<!-- App JS -->
+<!-- App Core Script -->
 <script src="app.js"></script>
 
-<!-- ============================================ -->
-<!-- পিন লক স্ক্রিন - সম্পূর্ণ JavaScript কোড -->
-<!-- ============================================ -->
+<!-- পিন লক স্ক্রিন জাভাস্ক্রিপ্ট কন্ট্রোলার (উইন্ডো মেথড বাইন্ডিং সহ) -->
 <script>
+(function() {
     window.enteredPin = "";
-    const CORRECT_PIN = localStorage.getItem('madrasah_pin') || "1234";
-    let isLocked = true;
-
-    // পিন প্রেস করার ফাংশন
-    function pressPin(num) {
+    
+    window.pressPin = function(num) {
         if ((window.enteredPin || "").length < 4) {
             window.enteredPin = (window.enteredPin || "") + num;
-            updatePinDots();
+            window.updatePinDots();
         }
 
-        // ৪ টি ডিজিট পূর্ণ হলে স্বয়ংক্রিয়ভাবে যাচাই হবে
         if ((window.enteredPin || "").length === 4) {
-            setTimeout(checkPinSubmit, 200);
+            setTimeout(window.checkPinSubmit, 200);
         }
-    }
+    };
 
-    // পিন ডট আপডেট করা (এনিমেশন সহ)
-    function updatePinDots() {
+    window.updatePinDots = function() {
         const dots = document.querySelectorAll('.pin-dot');
         dots.forEach((dot, index) => {
             if (index < (window.enteredPin || "").length) {
@@ -229,23 +221,21 @@
                 dot.className = "pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150";
             }
         });
-    }
+    };
 
-    // পিন ক্লিয়ার করা
-    function clearPin() {
+    window.clearPin = function() {
         window.enteredPin = "";
-        updatePinDots();
-    }
+        window.updatePinDots();
+    };
 
-    // পিন সাবমিট চেক (ভুল হলে Shake এনিমেশন দেখাবে)
-    function checkPinSubmit() {
+    window.checkPinSubmit = function() {
+        const CORRECT_PIN = localStorage.getItem('madrasah_pin') || "1234";
         if (window.enteredPin === CORRECT_PIN) {
             showToast("স্বাগতম! লক সফলভাবে খোলা হয়েছে।", "success");
-            unlockApp();
+            window.unlockApp();
         } else {
             showToast("ভুল পিন কোড! পুনরায় চেষ্টা করুন।", "error");
 
-            // ভুল পিনের Shake কম্পন অ্যানিমেশন
             const card = document.querySelector('#pin-lock-overlay > div');
             if (card) {
                 card.classList.add('animate-shake');
@@ -253,61 +243,65 @@
             }
 
             window.enteredPin = "";
-            updatePinDots();
+            window.updatePinDots();
         }
-    }
+    };
 
-    // অ্যাপ আনলক করা
-    function unlockApp() {
+    window.unlockApp = function() {
         const overlay = document.getElementById('pin-lock-overlay');
         if (overlay) {
             overlay.style.display = 'none';
-            isLocked = false;
-
-            // ড্যাশবোর্ড লোড
             if (typeof loadModule === 'function') {
                 loadModule('dashboard');
-            } else {
-                console.error("loadModule function not found!");
             }
         }
-    }
+    };
 
-    // অ্যাপ লক করা
-    function lockApp() {
+    window.lockApp = function() {
         const overlay = document.getElementById('pin-lock-overlay');
         if (overlay) {
             overlay.style.display = 'flex';
-            isLocked = true;
             window.enteredPin = "";
-            updatePinDots();
+            window.updatePinDots();
         }
-    }
+    };
 
-    // কিবোর্ড ইনপুট সমর্থন
+    // কিবোর্ড ইভেন্ট লিসেনার
     document.addEventListener('keydown', (e) => {
         const overlay = document.getElementById('pin-lock-overlay');
         if (overlay && overlay.style.display !== 'none') {
             if (e.key >= '0' && e.key <= '9') {
-                pressPin(e.key);
+                window.pressPin(e.key);
             } else if (e.key === 'Backspace') {
-                clearPin();
+                window.clearPin();
             } else if (e.key === 'Enter') {
-                checkPinSubmit();
+                window.checkPinSubmit();
             }
         }
     });
 
-    // ডাইনামিক মাদরাসা নাম ও লোগো রেন্ডারিং [6]
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (!sidebar || !backdrop) return;
+        
+        if (sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        }
+    };
+
+    // ডাইনামিক মাদরাসা নাম ও লোগো রেন্ডারিং
     window.applyGlobalSettings = function() {
         const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const logoUrl = localStorage.getItem('madrasah_logo') || '';
 
-        // লক স্ক্রিন টাইটেল আপডেট
         const lockTitle = document.getElementById('lock-madrasah-name');
         if (lockTitle) lockTitle.textContent = name;
 
-        // সাইডবার শিরোনামে লোগো ও নাম ডাইনামিকালি লোড করা
         const sidebarTitle = document.getElementById('sidebar-madrasah-name');
         if (sidebarTitle) {
             sidebarTitle.innerHTML = `
@@ -318,36 +312,14 @@
         }
     };
 
-    // DOM লোড হলে পিন স্ক্রিন ও ডাইনামিক সেটিংস চেক করা
     document.addEventListener('DOMContentLoaded', function() {
         const overlay = document.getElementById('pin-lock-overlay');
         if (overlay) {
             overlay.style.display = 'flex';
         }
-
         window.applyGlobalSettings();
-
-        if (typeof updateConnectionStatus === 'function') {
-            updateConnectionStatus();
-        }
-        if (typeof updatePendingCount === 'function') {
-            updatePendingCount();
-        }
     });
-
-    // মোবাইল সাইডবার টগল ড্রয়ার (Sliding Overlay Logic)
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('sidebar-backdrop');
-        
-        if (sidebar.classList.contains('-translate-x-full')) {
-            sidebar.classList.remove('-translate-x-full');
-            backdrop.classList.remove('hidden');
-        } else {
-            sidebar.classList.add('-translate-x-full');
-            backdrop.classList.add('hidden');
-        }
-    }
+})();
 </script>
 </body>
 </html>

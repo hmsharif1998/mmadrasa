@@ -1,7 +1,7 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    #expense-container, #voucher-modal {
+    #expense-container {
         font-family: 'Hind Siliguri', 'Inter', sans-serif;
     }
     .font-en {
@@ -19,19 +19,27 @@
     }
 
     /* ========================================================= */
-    /* A5 ডেবিট ভাউচার প্রিন্টিং মিডিয়া কোয়েরি (A5 Portrait) */
+    /* A5 ডেবিট ভাউচার প্রিন্টিং মিডিয়া কোয়েরি (A5 Standard) */
     /* ========================================================= */
     @media print {
+        @page {
+            size: A5 portrait !important;
+            margin: 0 !important;
+        }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
         /* প্রিন্ট করার সময় মূল উইন্ডোর অন্য সব কিছু সম্পূর্ণ হাইড */
-        #sidebar, header, #expense-form-container, #expense-list-table, .no-print, button, .border-t, #voucher-modal > div > div:last-child {
+        body * {
+            visibility: hidden !important;
+        }
+        #sidebar, header, #expense-form-container, #expense-list-table, .no-print, button, .border-t {
             display: none !important;
+            visibility: hidden !important;
         }
         /* সাদা পেজের সমস্যা আনলক করা */
-        html, body, .flex, .flex-1, main, #main-content, #expense-container {
+        html, body, main, #main-content, #expense-container {
             height: auto !important;
             min-height: 0 !important;
             overflow: visible !important;
@@ -44,6 +52,7 @@
         }
         /* ভাউচার মডাল সেটিংস */
         #voucher-modal {
+            visibility: visible !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
@@ -54,13 +63,26 @@
             box-shadow: none !important;
             border: none !important;
             z-index: 999999 !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
         #voucher-modal-body {
+            visibility: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
             width: 148mm !important;
             height: 210mm !important;
             box-sizing: border-box !important;
-            padding: 5mm !important;
-            display: block !important;
+            padding: 8mm !important;
+            background: white !important;
+        }
+        #voucher-modal-body * {
+            visibility: visible !important;
+        }
+        .no-print, button, .no-print * {
+            display: none !important;
+            visibility: hidden !important;
         }
     }
 </style>
@@ -72,7 +94,7 @@
         <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-5 rounded-2xl shadow-sm border border-rose-100 flex items-center justify-between">
             <div>
                 <p class="text-xs text-rose-800 font-bold uppercase tracking-wider">আজকের মোট খরচ</p>
-                <h4 class="text-3xl font-extrabold text-rose-950 mt-1 font-en">৳ <span id="stat-today-expense" class="font-en">0</span></h4>
+                <h4 class="text-3xl font-extrabold text-rose-950 mt-1 font-en">৳ <span id="stat-today-expense">0</span></h4>
             </div>
             <div class="bg-rose-600 text-white p-3.5 rounded-full shadow-md shadow-rose-500/10">
                 <i class="fa-solid fa-calendar-day text-xl"></i>
@@ -82,7 +104,7 @@
         <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 p-5 rounded-2xl shadow-sm border border-amber-100 flex items-center justify-between">
             <div>
                 <p class="text-xs text-amber-800 font-bold uppercase tracking-wider">চলতি মাসের খরচ</p>
-                <h4 class="text-3xl font-extrabold text-amber-950 mt-1 font-en">৳ <span id="stat-month-expense" class="font-en">0</span></h4>
+                <h4 class="text-3xl font-extrabold text-amber-950 mt-1 font-en">৳ <span id="stat-month-expense">0</span></h4>
             </div>
             <div class="bg-amber-600 text-white p-3.5 rounded-full shadow-md shadow-amber-500/10">
                 <i class="fa-solid fa-calendar-days text-xl"></i>
@@ -92,7 +114,7 @@
         <div class="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
             <div>
                 <p class="text-xs text-slate-800 font-bold uppercase tracking-wider">সর্বমোট ব্যয় (লোকাল)</p>
-                <h4 class="text-3xl font-extrabold text-slate-950 mt-1 font-en">৳ <span id="stat-total-expense" class="font-en">0</span></h4>
+                <h4 class="text-3xl font-extrabold text-slate-950 mt-1 font-en">৳ <span id="stat-total-expense">0</span></h4>
             </div>
             <div class="bg-slate-700 text-white p-3.5 rounded-full shadow-md shadow-slate-600/10">
                 <i class="fa-solid fa-calculator text-xl"></i>
@@ -111,7 +133,7 @@
     <!-- ২. নতুন খরচ এন্ট্রি ফরম এবং তালিকা (Split Layout) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- বাম পাশে: খরচ এন্ট্রি ফরম (১ ভাগ জায়গা) -->
+        <!-- বাম পাশে: খরচ এন্ট্রি ফরম -->
         <div id="expense-form-container" class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-gray-100 h-fit no-print">
             <h4 id="form-title" class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2 border-b pb-3">
                 <i class="fa-solid fa-file-invoice-dollar text-rose-600 text-xl"></i> নতুন খরচ এন্ট্রি করুন
@@ -122,7 +144,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-500 mb-1">ভাউচার নম্বর *</label>
-                    <input type="text" id="expense-id" required placeholder="V-10001"
+                    <input type="text" id="expense-id" required placeholder="EXP-10001"
                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs font-semibold bg-gray-50 font-en font-bold" readonly>
                 </div>
 
@@ -143,7 +165,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-500 mb-1">খরচের খাত (Category) *</label>
-                    <select id="expense-category" required onchange="toggleCategoryInput()"
+                    <select id="expense-category" required onchange="window.toggleCategoryInput()"
                             class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                         <option value="">খাত নির্বাচন করুন</option>
                         <option value="শিক্ষক-কর্মচারী বেতন">শিক্ষক-কর্মচারী বেতন</option>
@@ -191,11 +213,11 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-500 mb-1">রসিদ/ভাউচার ইমেজ লিংক (যদি থাকে)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="expense-voucher-url" oninput="updateVoucherPreview()" placeholder="যেমন: https://i.ibb.co/..."
+                        <input type="text" id="expense-voucher-url" oninput="window.updateVoucherPreview()" placeholder="যেমন: https://i.ibb.co/..."
                                class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs font-mono font-semibold bg-white">
                         
                         <a href="https://www.hmsharif.com/p/umage.html" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm shrink-0">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন
+                            <i class="fa-solid fa-cloud-arrow-up"></i> আপলোড
                         </a>
 
                         <div id="voucher-image-preview-container" class="hidden shrink-0 flex items-center justify-center">
@@ -214,14 +236,14 @@
                     <button type="submit" id="submit-btn" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-rose-700/10">
                         <i class="fa-solid fa-floppy-disk"></i> খরচ সেভ করুন
                     </button>
-                    <button type="button" id="cancel-edit-btn" onclick="cancelExpenseEdit()" class="hidden bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3.5 rounded-xl transition border text-xs">
+                    <button type="button" id="cancel-edit-btn" onclick="window.cancelExpenseEdit()" class="hidden bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3.5 rounded-xl transition border text-xs">
                         বাতিল
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- ডান পাশে: খরচের তালিকা (২ ভাগ জায়গা) -->
+        <!-- ডান পাশে: খরচের তালিকা -->
         <div id="expense-list-table" class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col no-print">
             <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
                 <i class="fa-solid fa-list-check text-rose-600 text-xl"></i> ব্যয়ের তালিকা ও রিপোর্ট
@@ -233,21 +255,21 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </span>
-                    <input type="text" id="search-expense" oninput="filterExpenses()" placeholder="ভাউচার নং বা প্রাপকের নাম খুঁজুন..."
+                    <input type="text" id="search-expense" oninput="window.filterExpenses()" placeholder="ভাউচার নং বা প্রাপকের নাম খুঁজুন..."
                            class="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white">
                 </div>
                 <div>
-                    <select id="filter-expense-branch" onchange="filterExpenses()"
+                    <select id="filter-expense-branch" onchange="window.filterExpenses()"
                             class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white font-bold text-gray-700">
                         <option value="">সকল শাখা</option>
                     </select>
                 </div>
                 <div>
-                    <select id="filter-expense-category" onchange="filterExpenses()"
+                    <select id="filter-expense-category" onchange="window.filterExpenses()"
                             class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none text-xs bg-white font-bold text-gray-700">
                         <option value="">সকল খাতের খরচ</option>
-                        <option value="শিক্ষক-कर्मचारी वेतन">শিক্ষক-कर्मचारी वेतन</option>
-                        <option value="बোর্ডিং ও মেস খরচ">बোর্ডিং ও মেস খরচ</option>
+                        <option value="শিক্ষক-কর্মচারী বেতন">শিক্ষক-কর্মচারী বেতন</option>
+                        <option value="বোর্ডিং ও মেস খরচ">বোর্ডিং ও মেস খরচ</option>
                         <option value="বিদ্যুৎ ও পানি বিল">বিদ্যুৎ ও পানি বিল</option>
                         <option value="সংস্কার ও নির্মাণ">সংস্কার ও নির্মাণ</option>
                         <option value="আপ্যায়ন">আপ্যায়ন</option>
@@ -259,15 +281,15 @@
             <!-- খরচের রেসপনসিভ টেবিল -->
             <div class="overflow-x-auto flex-1 max-h-[400px] overflow-y-auto rounded-xl border border-gray-100 custom-scroll">
                 <table class="min-w-full divide-y divide-gray-100 text-xs">
-                    <thead class="bg-gray-50 sticky top-0 z-10">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold">
                     <tr>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">ভাউচার ও তারিখ</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">শাখা ও খাত</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">প্রাপক</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">মাধ্যম</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">পরিমাণ</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">ভাউচার ও তারিখ</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">শাখা ও খাত</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">প্রাপক</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">মাধ্যম</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">পরিমাণ</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
+                        <th class="px-4 py-3 text-left text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
                     </tr>
                     </thead>
                     <tbody id="expense-table-body" class="bg-white divide-y divide-gray-100"></tbody>
@@ -278,13 +300,12 @@
 </div>
 
 <!-- ============================================ -->
-<!-- ৩. A5 ডেবিট ভাউচার মডাল পপআপ (corrected overflow print bug) -->
+<!-- ৩. A5 ডেবিট ভাউচার মডাল পপআপ -->
 <!-- ============================================ -->
 <div id="voucher-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
     <div class="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 shadow-2xl relative border flex flex-col justify-between max-h-[90vh]">
         
         <div class="overflow-y-auto flex-1 pr-1 custom-scroll">
-            <!-- ভাউচার প্রিন্ট এরিয়া (A5 Optimized Layout) -->
             <div id="voucher-modal-body" class="bg-white p-6 rounded-xl border border-gray-100 space-y-6 text-gray-800 leading-relaxed font-sans max-w-[148mm] mx-auto min-h-[210mm] flex flex-col justify-between">
                 <!-- ডাইনামিক ভাউচার ডাটা স্ক্রিপ্ট দিয়ে এখানে লোড হবে -->
             </div>
@@ -295,7 +316,7 @@
             <button onclick="window.print()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-print"></i> ভাউচার প্রিন্ট করুন (A5)
             </button>
-            <button onclick="closeVoucherModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-xs transition border">
+            <button onclick="window.closeVoucherModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-xs transition border">
                 বন্ধ করুন
             </button>
         </div>
@@ -303,32 +324,22 @@
 </div>
 
 <script>
-    // ডাইনামিক ক্যাটাগরি এবং শাখা সেটিংস অবজেক্ট
+(function() {
     let academicStructure = [];
     let activePrintedExpense = null;
 
-    // Dexie DB তে ডাইনামিক উপায়ে version-3 বা নতুন expenses টেবিল যুক্ত করা
-    async function initExpense() {
+    // ১. উইন্ডো অবজেক্টে প্রধান ইনিশিয়ালাইজার বাইন্ডিং
+    window.initExpense = async function() {
         document.getElementById('editing-expense-id').value = "";
         document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
 
-        // ১. Dexie DB-তে ডাইনামিক উপায়ে Expenses টেবিল ইনজেক্ট করা (সেফগার্ড সহ)
-        if (!db.expenses) {
-            db.close();
-            db.version(3).stores({
-                expenses: 'expense_id, branch, category, amount, date, is_synced, is_deleted'
-            });
-            await db.open();
-        }
-
-        // ২. সেটিংস থেকে ডাইনামিক শাখা ডাটা নিয়ে সিলেক্ট বক্সে ড্রপডাউন তৈরি
         const config = await db.settings.get('madrasah_config_block') || {};
         academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
-        populateBranchDropdowns();
+        
+        window.populateBranchDropdowns();
 
-        // ৩. সিরিয়াল ও খরচের তালিকা রেন্ডার
-        await generateVoucherId();
-        await renderExpensesList();
+        await window.generateVoucherId();
+        await window.renderExpensesList();
 
         const form = document.getElementById('expense-form');
         if (form) {
@@ -371,21 +382,21 @@
                     if (editId) {
                         await db.expenses.update(editId, expenseObj);
                         showToast("খরচের ভাউচার সফলভাবে সংশোধন করা হয়েছে।", "success");
-                        cancelExpenseEdit();
+                        window.cancelExpenseEdit();
                     } else {
                         expenseObj.is_deleted = 0;
                         await db.expenses.add(expenseObj);
                         showToast("খরচ সফলভাবে এন্ট্রি করা হয়েছে।", "success");
                         form.reset();
-                        clearLogoUrl();
+                        window.clearLogoUrl();
                         document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
                     }
 
-                    await generateVoucherId();
-                    await renderExpensesList();
+                    await window.generateVoucherId();
+                    await window.renderExpensesList();
 
-                    // সফলভাবে সেভ হলে সরাসরি ডেবিট ভাউচার পপআপ ওপেন হবে
-                    showVoucherModal(expenseObj);
+                    // সফলভাবে সেভ হলে ডেবিট ভাউচার দেখানো হবে
+                    window.showVoucherModal(expenseObj);
 
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
@@ -397,35 +408,30 @@
                 }
             };
         }
-    }
+    };
 
-    // ভাউচার আইডি জেনারেশন
-    async function generateVoucherId() {
+    // ২. বাগার-মুক্ত ইউনিক ভাউচার আইডি মেকানিজম (Max Id Safe strategy)
+    window.generateVoucherId = async function() {
         try {
             const list = await db.expenses.toArray();
-            const activeList = list.filter(e => e.is_deleted !== 1);
-            const nextSerial = activeStudents = activeList => activeStudents.length; // safe count
-            const nextSerialNo = activeListCount() + 1;
-            document.getElementById('student-serial'); // safe fallback
             
-            function countActive(arr) {
-                return arr.filter(x => x.is_deleted !== 1).length;
-            }
-            const count = countActive(list);
-            document.getElementById('expense-id').value = "EXP-" + (10000 + count + 1);
+            // ডাটাবেজের সর্বোচ্চ সিরিয়াল নম্বর থেকে ইউনিক জেনারেশন
+            const maxSerial = list.reduce((max, e) => {
+                const serialNum = parseInt((e.expense_id || '').replace('EXP-', ''));
+                return (!isNaN(serialNum) && serialNum > max) ? serialNum : max;
+            }, 0);
+            
+            const nextSerial = maxSerial > 0 ? maxSerial + 1 : 10001;
+            document.getElementById('expense-id').value = "EXP-" + nextSerial;
         } catch (err) {
-            document.getElementById('expense-id').value = "EXP-" + Date.now().toString().substr(-5);
+            document.getElementById('expense-id').value = "EXP-" + Date.now().toString().slice(-5);
         }
-    }
+    };
 
-    function countActive(arr) {
-        return arr.filter(x => x.is_deleted !== 1).length;
-    }
-
-    // ডাইনামিক শাখা ড্রপডাউন পপুলেট করা
-    function populateBranchDropdowns() {
+    window.populateBranchDropdowns = function() {
         const branchSelect = document.getElementById('expense-branch');
         const filterBranch = document.getElementById('filter-expense-branch');
+        if (!branchSelect || !filterBranch) return;
 
         branchSelect.innerHTML = `<option value="">শাখা নির্বাচন করুন</option>`;
         filterBranch.innerHTML = `<option value="">সকল শাখা</option>`;
@@ -434,52 +440,63 @@
             branchSelect.innerHTML += `<option value="${branch.name}">${branch.name}</option>`;
             filterBranch.innerHTML += `<option value="${branch.name}">${branch.name}</option>`;
         });
-    }
+    };
 
-    function toggleCategoryInput() {
+    window.toggleCategoryInput = function() {
         const val = document.getElementById('expense-category').value;
         const container = document.getElementById('other-category-container');
-        if (val === "অন্যান্য") {
+        const otherInput = document.getElementById('expense-category-other');
+        
+        if (val === "অন্যান্য" && container && otherInput) {
             container.classList.remove('hidden');
-            document.getElementById('expense-category-other').required = true;
-        } else {
+            otherInput.required = true;
+        } else if (container && otherInput) {
             container.classList.add('hidden');
-            document.getElementById('expense-category-other').required = false;
+            otherInput.required = false;
         }
-    }
+    };
 
-    // ইমেজ লাইভ প্রিভিউ
-    function updateVoucherPreview() {
-        const url = document.getElementById('expense-voucher-url').value.trim();
+    window.updateVoucherPreview = function() {
+        const urlInput = document.getElementById('expense-voucher-url');
+        if (!urlInput) return;
+        const url = urlInput.value.trim();
         const previewContainer = document.getElementById('voucher-image-preview-container');
         const previewImg = document.getElementById('voucher-image-preview');
         
-        if (url) {
+        if (url && previewContainer && previewImg) {
             previewImg.src = url;
             previewContainer.classList.remove('hidden');
             previewImg.onerror = function() {
                 previewContainer.classList.add('hidden');
                 showToast("ভুল ইমেজ লিংক! লোড হচ্ছে না।", "error");
             };
-        } else {
+        } else if (previewContainer) {
             previewContainer.classList.add('hidden');
         }
-    }
+    };
 
-    function clearLogoUrl() {
-        document.getElementById('expense-voucher-url').value = '';
-        updateVoucherPreview();
-    }
+    window.clearLogoUrl = function() {
+        const urlInput = document.getElementById('expense-voucher-url');
+        if (urlInput) {
+            urlInput.value = '';
+            window.updateVoucherPreview();
+        }
+    };
 
-    function filterExpenses() {
-        const searchQuery = document.getElementById('search-expense').value.toLowerCase().trim();
-        const branchQuery = document.getElementById('filter-expense-branch').value;
-        const categoryQuery = document.getElementById('filter-expense-category').value;
-        renderExpensesList(searchQuery, branchQuery, categoryQuery);
-    }
+    window.filterExpenses = function() {
+        const searchInput = document.getElementById('search-expense');
+        const branchSelect = document.getElementById('filter-expense-branch');
+        const categorySelect = document.getElementById('filter-expense-category');
+        
+        const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const branchQuery = branchSelect ? branchSelect.value : '';
+        const categoryQuery = categorySelect ? categorySelect.value : '';
+        
+        window.renderExpensesList(searchQuery, branchQuery, categoryQuery);
+    };
 
-    // খরচের তালিকা ও রিয়্যাল-টাইম পরিসংখ্যান রেন্ডার করা
-    async function renderExpensesList(searchQuery = '', branchQuery = '', categoryQuery = '') {
+    // ৩. খরচের রিয়্যালটাইম তালিকা ও পরিসংখ্যান রেন্ডারার
+    window.renderExpensesList = async function(searchQuery = '', branchQuery = '', categoryQuery = '') {
         const tableBody = document.getElementById('expense-table-body');
         if (!tableBody) return;
 
@@ -492,25 +509,27 @@
             let grandTotal = 0;
 
             const todayStr = new Date().toISOString().split('T')[0];
-            const currentMonthPrefix = todayStr.substring(0, 7); // "YYYY-MM"
+            const currentMonthPrefix = todayStr.substring(0, 7); 
 
             expenses.forEach(e => {
                 const amt = parseFloat(e.amount) || 0;
                 grandTotal += amt;
                 if (e.date === todayStr) todayTotal += amt;
-                if (e.date.startsWith(currentMonthPrefix)) monthTotal += amt;
+                if (e.date && e.date.startsWith(currentMonthPrefix)) monthTotal += amt;
             });
 
-            // ডাইনামিক স্ট্যাটস কার্ড আপডেট
-            document.getElementById('stat-today-expense').textContent = todayTotal.toLocaleString('bn-BD');
-            document.getElementById('stat-month-expense').textContent = monthTotal.toLocaleString('bn-BD');
-            document.getElementById('stat-total-expense').textContent = grandTotal.toLocaleString('bn-BD');
+            const todayEl = document.getElementById('stat-today-expense');
+            const monthEl = document.getElementById('stat-month-expense');
+            const totalEl = document.getElementById('stat-total-expense');
 
-            // ফিল্টারিং অ্যাপ্লাই
+            if (todayEl) todayEl.textContent = todayTotal.toLocaleString('bn-BD');
+            if (monthEl) monthEl.textContent = monthTotal.toLocaleString('bn-BD');
+            if (totalEl) totalEl.textContent = grandTotal.toLocaleString('bn-BD');
+
             if (searchQuery) {
                 expenses = expenses.filter(e =>
-                    e.expense_id.toLowerCase().includes(searchQuery) ||
-                    e.paid_to.toLowerCase().includes(searchQuery)
+                    (e.expense_id || '').toLowerCase().includes(searchQuery) ||
+                    (e.paid_to || '').toLowerCase().includes(searchQuery)
                 );
             }
             if (branchQuery) {
@@ -520,12 +539,13 @@
                 expenses = expenses.filter(e => e.category === categoryQuery);
             }
 
-            // সিঙ্ক পেন্ডিং স্ট্যাটাস ডিটেকশন
             const unsyncedCount = expenses.filter(e => e.is_synced === 0).length;
             const syncStatusText = unsyncedCount > 0 ? `${unsyncedCount}টি পেন্ডিং` : "সব সিঙ্কড";
             const syncEl = document.getElementById('expense-sync-status');
-            syncEl.textContent = syncStatusText;
-            syncEl.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${unsyncedCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`;
+            if (syncEl) {
+                syncEl.textContent = syncStatusText;
+                syncEl.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${unsyncedCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`;
+            }
 
             if (expenses.length === 0) {
                 tableBody.innerHTML = `
@@ -555,19 +575,19 @@
                         </td>
                         <td class="px-4 py-3 text-xs text-gray-600 font-semibold">${e.paid_to}</td>
                         <td class="px-4 py-3 text-xs">
-                            <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">${e.method}</span>
+                            <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">${e.method || 'ক্যাশ'}</span>
                         </td>
-                        <td class="px-4 py-3 text-xs text-rose-700 font-extrabold font-en">৳ ${parseFloat(e.amount).toLocaleString('bn-BD')}</td>
+                        <td class="px-4 py-3 text-xs text-rose-700 font-extrabold font-en">৳ ${parseFloat(e.amount || 0).toLocaleString('bn-BD')}</td>
                         <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
                         <td class="px-4 py-3 text-xs">
                             <div class="flex gap-1.5">
-                                <button onclick="showVoucherModalFromList('${e.expense_id}')" class="text-rose-600 hover:text-rose-800 p-1.5 rounded hover:bg-rose-50 transition" title="ভাউচার প্রিন্ট">
+                                <button onclick="window.showVoucherModalFromList('${e.expense_id}')" class="text-rose-600 hover:text-rose-800 p-1.5 rounded hover:bg-rose-50 transition" title="ভাউচার প্রিন্ট">
                                     <i class="fa-solid fa-print"></i>
                                 </button>
-                                <button onclick="editExpense('${e.expense_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                <button onclick="window.editExpense('${e.expense_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="deleteExpense('${e.expense_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                <button onclick="window.deleteExpense('${e.expense_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -580,9 +600,9 @@
         } catch (err) {
             console.error("ব্যয়ের তালিকা রেন্ডারে সমস্যা:", err);
         }
-    }
+    };
 
-    async function editExpense(id) {
+    window.editExpense = async function(id) {
         try {
             const e = await db.expenses.get(id);
             if (!e) return;
@@ -592,15 +612,19 @@
             document.getElementById('expense-branch').value = e.branch;
             document.getElementById('expense-date').value = e.date;
 
-            // ক্যাটাগরি অপশন চেক
             const select = document.getElementById('expense-category');
-            if ([...select.options].some(opt => opt.value === e.category)) {
-                select.value = e.category;
-                document.getElementById('other-category-container').classList.add('hidden');
-            } else {
-                select.value = "অন্যান্য";
-                document.getElementById('other-category-container').classList.remove('hidden');
-                document.getElementById('expense-category-other').value = e.category;
+            if (select) {
+                if ([...select.options].some(opt => opt.value === e.category)) {
+                    select.value = e.category;
+                    const container = document.getElementById('other-category-container');
+                    if (container) container.classList.add('hidden');
+                } else {
+                    select.value = "অন্যান্য";
+                    const container = document.getElementById('other-category-container');
+                    if (container) container.classList.remove('hidden');
+                    const otherInput = document.getElementById('expense-category-other');
+                    if (otherInput) otherInput.value = e.category;
+                }
             }
 
             document.getElementById('expense-amount').value = e.amount;
@@ -609,35 +633,46 @@
             document.getElementById('expense-voucher-url').value = e.voucher_url || '';
             document.getElementById('expense-desc').value = e.description || '';
 
-            updateVoucherPreview();
+            window.updateVoucherPreview();
 
-            document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ভাউচার সংশোধন`;
+            const title = document.getElementById('form-title');
+            if (title) title.innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ভাউচার সংশোধন`;
+            
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
-            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            if (submitBtn) {
+                submitBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            }
 
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
 
         } catch (err) {
             console.error("এডিটে রূপান্তর করতে সমস্যা:", err);
         }
-    }
+    };
 
-    function cancelExpenseEdit() {
-        document.getElementById('expense-form').reset();
+    window.cancelExpenseEdit = function() {
+        const form = document.getElementById('expense-form');
+        if (form) form.reset();
         document.getElementById('editing-expense-id').value = "";
-        clearLogoUrl();
+        window.clearLogoUrl();
 
-        document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-file-invoice-dollar text-rose-600 text-xl"></i> নতুন খরচ এন্ট্রি করুন`;
+        const title = document.getElementById('form-title');
+        if (title) title.innerHTML = `<i class="fa-solid fa-file-invoice-dollar text-rose-600 text-xl"></i> নতুন খরচ এন্ট্রি করুন`;
+        
         const submitBtn = document.getElementById('submit-btn');
-        submitBtn.className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-rose-700/10";
-        submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> খরচ সেভ করুন`;
+        if (submitBtn) {
+            submitBtn.className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-rose-700/10";
+            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> খরচ সেভ করুন`;
+        }
 
-        document.getElementById('cancel-edit-btn').classList.add('hidden');
-        generateVoucherId();
-    }
+        const cancelBtn = document.getElementById('cancel-edit-btn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+        window.generateVoucherId();
+    };
 
-    async function deleteExpense(id) {
+    window.deleteExpense = async function(id) {
         if (!confirm("আপনি কি নিশ্চিতভাবে এই খরচের ভাউচারটি মুছে ফেলতে চান?")) return;
 
         try {
@@ -648,10 +683,10 @@
             showToast("খরচের ভাউচারটি সফলভাবে মুছে ফেলা হয়েছে।", "success");
 
             if (document.getElementById('editing-expense-id').value === id) {
-                cancelExpenseEdit();
+                window.cancelExpenseEdit();
             }
 
-            await renderExpensesList();
+            await window.renderExpensesList();
 
             if (typeof updatePendingCount === 'function') {
                 await updatePendingCount();
@@ -660,13 +695,10 @@
         } catch (err) {
             console.error("মুছে ফেলতে ব্যর্থ:", err);
         }
-    }
+    };
 
-    // =========================================================
-    // ৪. ডেবিট ভাউচার জেনারেশন ও এ৫ প্রিন্ট লজিক
-    // =========================================================
-
-    function showVoucherModal(expense) {
+    // ৪. A5 ডেবিট ভাউচার রেন্ডার ও গ্লোবাল উইন্ডো বাইন্ডিং (কথায় রূপান্তর ইঞ্জিনসহ)
+    window.showVoucherModal = function(expense) {
         activePrintedExpense = expense;
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
@@ -675,15 +707,14 @@
         const logoUrl = localStorage.getItem('madrasah_logo') || '';
 
         const modalBody = document.getElementById('voucher-modal-body');
+        if (!modalBody) return;
         
-        // সংখ্যাকে চমৎকার বাংলা ভাষায় কনভার্ট করার প্রিমিয়াম ফাংশন
         const amtWords = amountToBanglaWords(expense.amount);
 
         modalBody.innerHTML = `
-            <!-- ভাউচার হেডার -->
             <div class="flex items-center justify-between border-b-2 border-rose-800 pb-3">
                 <div class="flex items-center gap-3">
-                    ${logoUrl ? `<img class="w-12 h-12 rounded-full object-cover border" src="${logoUrl}">` : '<div class="w-12 h-12 rounded-full bg-rose-50 text-rose-800 flex items-center justify-center text-xl font-extrabold font-sans">M</div>'}
+                    ${logoUrl ? `<img class="w-12 h-12 rounded-full object-cover border" src="${logoUrl}">` : '<div class="w-12 h-12 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center text-xl font-bold font-sans">M</div>'}
                     <div>
                         <h2 class="text-base font-bold text-rose-900">${madrasahName}</h2>
                         <p class="text-[10px] text-gray-500">${madrasahAddress}</p>
@@ -695,10 +726,7 @@
                 </div>
             </div>
 
-            <!-- ভাউচার বডি (A5 ফাস্ট কলাম) -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-4 text-xs">
-                
-                <!-- রসিদ ছবি প্রিভিউ (যদি ভাউচার ছবি থাকে) -->
                 <div class="md:col-span-1 flex flex-col items-center justify-start border-r border-gray-150 pr-2">
                     ${expense.voucher_url ? `<img class="w-24 h-24 rounded-lg object-cover border shadow-sm" src="${expense.voucher_url}">` : '<div class="w-24 h-24 rounded-lg bg-gray-100 border text-gray-400 flex flex-col items-center justify-center text-[9px] font-bold"><i class="fa-solid fa-receipt text-xl mb-1"></i><span>রসিদ নেই</span></div>'}
                     <div class="mt-2 text-center">
@@ -707,23 +735,21 @@
                     </div>
                 </div>
 
-                <!-- ভাউচার ডাটা -->
                 <div class="md:col-span-3 space-y-2.5 text-gray-700">
                     <div class="grid grid-cols-2 gap-2">
                         <div><span class="text-gray-400 block text-[9px] font-bold uppercase">শাখার নাম:</span> <strong>${expense.branch}</strong></div>
-                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">ব্যয়ের খাত (Category):</span> <strong>${expense.category}</strong></div>
+                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">ব্যয়ের খাত:</span> <strong>${expense.category}</strong></div>
                     </div>
-                    <div><span class="text-gray-400 block text-[9px] font-bold uppercase">টাকা গ্রহণকারী (Paid To):</span> <strong class="text-gray-900">${expense.paid_to}</strong></div>
+                    <div><span class="text-gray-400 block text-[9px] font-bold uppercase">টাকা গ্রহণকারী:</span> <strong class="text-gray-900">${expense.paid_to}</strong></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">ব্যয়ের পরিমাণ (৳):</span> <strong class="text-rose-800 font-en text-sm">৳ ${parseFloat(expense.amount).toLocaleString('bn-BD')}</strong></div>
-                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">পেমেন্ট মাধ্যম:</span> <strong>${expense.method}</strong></div>
+                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">ব্যয়ের পরিমাণ (৳):</span> <strong class="text-rose-800 font-en text-sm">৳ ${parseFloat(expense.amount || 0).toLocaleString('bn-BD')}</strong></div>
+                        <div><span class="text-gray-400 block text-[9px] font-bold uppercase">পেমেন্ট মাধ্যম:</span> <strong>${expense.method || 'ক্যাশ'}</strong></div>
                     </div>
-                    <div><span class="text-gray-400 block text-[9px] font-bold uppercase">কথায় (Amount in Words):</span> <strong class="text-rose-900 font-bold text-[11px]">${amtWords}</strong></div>
+                    <div><span class="text-gray-400 block text-[9px] font-bold uppercase">কথায়:</span> <strong class="text-rose-900 font-bold text-[11px]">${amtWords}</strong></div>
                     ${expense.description ? `<div><span class="text-gray-400 block text-[9px] font-bold uppercase">অতিরিক্ত বিবরণ:</span> <p class="text-gray-600 bg-gray-50 p-2 rounded-lg text-[10px] font-medium leading-relaxed">${expense.description}</p></div>` : ''}
                 </div>
             </div>
 
-            <!-- ভাউচার সিগনেচার সেকশন -->
             <div class="flex-1 flex flex-col justify-end pt-8">
                 <div class="flex justify-between items-center text-[10px] text-gray-500">
                     <div class="text-center w-28 border-t pt-1 border-gray-300">
@@ -739,38 +765,39 @@
             </div>
         `;
 
-        document.getElementById('voucher-modal').classList.remove('hidden');
-    }
+        const modal = document.getElementById('voucher-modal');
+        if (modal) modal.classList.remove('hidden');
+    };
 
-    async function showVoucherModalFromList(voucherId) {
+    window.showVoucherModalFromList = async function(voucherId) {
         const e = await db.expenses.get(voucherId);
         if (e) {
-            showVoucherModal(e);
+            window.showVoucherModal(e);
         }
-    }
+    };
 
-    function closeVoucherModal() {
-        document.getElementById('voucher-modal').classList.add('hidden');
+    window.closeVoucherModal = function() {
+        const modal = document.getElementById('voucher-modal');
+        if (modal) modal.classList.add('hidden');
         activePrintedExpense = null;
-    }
+    };
 
-    // =========================================================
-    // ৫. টাকা রূপান্তর করার ফিন্যান্সিয়াল ইঞ্জিন (Currency to Bangla Words)
-    // =========================================================
-
+    // ৫. ফিন্যান্সিয়াল বাংলা শব্দ কনভার্টার ইঞ্জিন
     function amountToBanglaWords(num) {
         if (num === 0) return "শূন্য টাকা মাত্র";
         let words = "";
         const units = ["", "এক", "দুই", "তিন", "চার", "পাঁচ", "ছয়", "সাত", "আট", "নয়", "দশ", "এগার", "বার", "তের", "চৌদ্দ", "পনের", "ষোল", "সতের", "আঠার", "উনিশ"];
-        const tens = ["", "", "বিশ", "ত্রিশ", "চল্লিশ", "পঞ্চাশ", "ষাট", "সত্তর", "আশি", "নব্বই"];
+        const tens_correct = ["", "", "বিশ", "ত্রিশ", "চল্লিশ", "পঞ্চাশ", "ষাট", "সত্তর", "আশি", "নব্বই"];
         
         function convert2Digit(n) {
             if (n < 20) return units[n];
             let t = Math.floor(n / 10);
             let u = n % 10;
-            return tens[t] + (u > 0 ? " " + units[u] : "");
+            return tens_correct[t] + (u > 0 ? " " + units[u] : "");
         }
         
+        let crore = Math.floor(num / 10000000);
+        num %= 10000000;
         let lakh = Math.floor(num / 100000);
         num %= 100000;
         let thousand = Math.floor(num / 1000);
@@ -779,6 +806,9 @@
         num %= 100;
         let remaining = num;
         
+        if (crore > 0) {
+            words += convert2Digit(crore) + " কোটি ";
+        }
         if (lakh > 0) {
             words += convert2Digit(lakh) + " লাখ ";
         }
@@ -786,11 +816,12 @@
             words += convert2Digit(thousand) + " হাজার ";
         }
         if (hundred > 0) {
-            words += convert2Digit(hundred) + "শত ";
+            words += convert2Digit(hundred) + " শত ";
         }
         if (remaining > 0) {
             words += convert2Digit(remaining) + " ";
         }
         return words.trim() + " টাকা মাত্র";
     }
+})();
 </script>

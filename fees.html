@@ -1,5 +1,4 @@
 <style>
-    /* Hind Siliguri এবং Inter ফন্টের মসৃণ সমন্বয় */
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
     #fees-container {
@@ -13,24 +12,26 @@
     }
 
     /* ========================================================= */
-    /* থার্মাল রোল পেপারের (58mm/80mm) জন্য ইউনিভার্সাল প্রিন্ট ফিক্স */
+    /* থার্মাল রোল পেপার (80mm/58mm standard) প্রিন্ট অপ্টিমাইজেশন */
     /* ========================================================= */
     @media print {
-        /* ব্রাউজারকে ব্ল্যাক অ্যান্ড হোয়াইট থার্মাল কালার অপ্টিমাইজড প্রিন্ট করতে বাধ্য করা */
         @page {
-            size: 80mm auto !important; /* স্ট্যান্ডার্ড ৮০মিমি রোল পেপার সাইজ */
+            size: 80mm auto !important; /* ৮০মিমি স্ট্যান্ডার্ড থার্মাল রোল */
             margin: 0 !important;
         }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        /* মূল অ্যাপ লেআউটের অন্য সব স্ক্রিন এলিমেন্ট সম্পূর্ণ হাইড */
-        #sidebar, header, .grid, .no-print, button, #receipt-modal > div > div:last-child {
-            display: none !important;
+        /* প্রিন্ট করার সময় মূল ব্যাকগ্রাউন্ড ও ন্যাভিগেশন সম্পূর্ণ হাইড */
+        body * {
+            visibility: hidden !important;
         }
-        /* overflow: hidden এর জন্য আসা সাদা পেজের সমস্যা আনলক করা */
-        html, body, .flex, .flex-1, main, #main-content, #admission-container, .grid-cols-1 {
+        #sidebar, header, #fees-container, .no-print, button, .border-t {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        html, body, main, #main-content {
             height: auto !important;
             min-height: 0 !important;
             overflow: visible !important;
@@ -41,32 +42,41 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* মডাল ব্যাকগ্রাউন্ড ক্লিনিং এবং থার্মাল উইডথ ফিক্স */
+        /* রসিদ এরিয়া ফুল পেজে ফিট করা */
         #receipt-modal {
+            visibility: visible !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 80mm !important;
             display: block !important;
             background: white !important;
-            box-shadow: none !important;
             border: none !important;
-            z-index: 999999 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         #receipt-print-area {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 2mm !important;
-            margin: 0 !important;
+            visibility: visible !important;
             width: 80mm !important;
             box-sizing: border-box !important;
+            padding: 4mm !important;
+            margin: 0 !important;
+            background: white !important;
+        }
+        #receipt-print-area * {
+            visibility: visible !important;
+        }
+        .no-print, button, .no-print * {
+            display: none !important;
+            visibility: hidden !important;
         }
     }
 </style>
 
 <div id="fees-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-300">
 
-    <!-- বেতন আদায় ফরম (১ ভাগ জায়গা নেবে) -->
+    <!-- বেতন আদায় ফরম -->
     <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-gray-100 h-fit relative">
         <h3 id="fee-form-title" class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2 border-b pb-3">
             <i class="fa-solid fa-money-bill-wave text-emerald-600 text-2xl"></i> নতুন বেতন কালেকশন
@@ -83,39 +93,39 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </span>
-                    <input type="text" id="student-search-input" oninput="searchStudentsForFee()" placeholder="নাম, রোল বা আইডি লিখে খুঁজুন..." autocomplete="off"
-                           class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-semibold">
+                    <input type="text" id="student-search-input" oninput="window.searchStudentsForFee()" placeholder="নাম, রোল, আইডি বা মোবাইল..."
+                           class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-semibold">
                 </div>
                 <!-- কাস্টম ড্রপডাউন রেজাল্ট লিস্ট -->
                 <div id="student-search-results" class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto hidden divide-y divide-gray-50"></div>
             </div>
 
-            <!-- শিক্ষার্থীর ডাইনামিক কুইক প্রোফাইল কার্ড (সিলেক্ট করার পর দেখাবে) -->
+            <!-- শিক্ষার্থীর ডাইনামিক কুইক প্রোফাইল কার্ড -->
             <div id="student-quick-info" class="hidden animate-fadeIn"></div>
 
-            <!-- বেতন, জরিমানা ও ছাড় এর ঘরসমূহ (বড় ফন্ট) -->
+            <!-- বেতন, জরিমানা ও ছাড় এর ঘরসমূহ -->
             <div class="grid grid-cols-3 gap-2">
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 mb-1">পরিমাণ (৳) *</label>
-                    <input type="number" id="fee-amount" required placeholder="যেমন: ৫০০" min="0" oninput="calculateTotal()"
-                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-gray-50 font-en">
+                    <input type="number" id="fee-amount" required placeholder="যেমন: ৫০০" min="0" oninput="window.calculateTotal()"
+                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-gray-50">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 mb-1">জরিমানা (+)</label>
-                    <input type="number" id="fee-fine" placeholder="০" min="0" value="0" oninput="calculateTotal()"
-                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white font-en">
+                    <input type="number" id="fee-fine" placeholder="০" min="0" value="0" oninput="window.calculateTotal()"
+                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 mb-1">বিশেষ ছাড় (-)</label>
-                    <input type="number" id="fee-discount" placeholder="০" min="0" value="0" oninput="calculateTotal()"
-                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white font-en">
+                    <input type="number" id="fee-discount" placeholder="০" min="0" value="0" oninput="window.calculateTotal()"
+                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white">
                 </div>
             </div>
 
-            <!-- স্বয়ংক্রিয়ভাবে হিসাবকৃত মোট টাকার ঘর (বড় ফন্ট) -->
+            <!-- স্বয়ংক্রিয়ভাবে হিসাবকৃত মোট টাকা -->
             <div class="bg-emerald-50/50 p-4 rounded-xl border border-dashed border-emerald-200 flex justify-between items-center shadow-sm">
                 <span class="text-sm font-bold text-emerald-900">সর্বমোট আদায়যোগ্য টাকা:</span>
-                <span class="text-lg font-extrabold text-emerald-800 font-en">৳ <span id="fee-total" class="font-en">0</span></span>
+                <span class="text-lg font-extrabold text-emerald-800 font-en">৳ <span id="fee-total">0</span></span>
             </div>
 
             <!-- মাস, তারিখ ও পেমেন্ট মাধ্যম -->
@@ -168,13 +178,13 @@
                 <i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন
             </button>
 
-            <button type="button" id="cancel-fee-edit-btn" onclick="cancelFeeEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2 text-sm border">
+            <button type="button" id="cancel-fee-edit-btn" onclick="window.cancelFeeEdit()" class="hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition duration-200 mt-2 text-sm border">
                 সংশোধন বাতিল করুন
             </button>
         </form>
     </div>
 
-    <!-- সাম্প্রতিক বেতন আদায়ের তালিকা (২ ভাগ জায়গা নেবে) -->
+    <!-- সাম্প্রতিক বেতন আদায়ের তালিকা -->
     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col no-print">
         <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
             <i class="fa-solid fa-receipt text-emerald-600 text-2xl"></i> সাম্প্রতিক বেতন আদায়ের তালিকা
@@ -186,11 +196,11 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="search-fee" oninput="filterFees()" placeholder="রসিদ নং বা ছাত্রের নাম দিয়ে খুঁজুন..."
+                <input type="text" id="search-fee" oninput="window.filterFees()" placeholder="রসিদ নং বা ছাত্রের নাম দিয়ে খুঁজুন..."
                        class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
             </div>
             <div class="w-full sm:w-44">
-                <select id="filter-fee-month" onchange="filterFees()"
+                <select id="filter-fee-month" onchange="window.filterFees()"
                         class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                     <option value="">সকল মাস</option>
                     <option value="জানুয়ারি">জানুয়ারি</option>
@@ -212,15 +222,15 @@
         <!-- রেসপনসিভ টেবিল কন্টেইনার -->
         <div class="overflow-x-auto flex-1 rounded-xl border border-gray-100 max-h-[500px] overflow-y-auto custom-scroll">
             <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 font-bold">
                 <tr>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">রসিদ ও তারিখ</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">নাম ও শ্রেণী</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মাস</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">হিসাব বিবরণী</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোট আদায়</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">রসিদ ও তারিখ</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">নাম ও শ্রেণী</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">মাস</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">হিসাব বিবরণী</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">মোট আদায়</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
                 </tr>
                 </thead>
                 <tbody id="fees-table-body" class="bg-white divide-y divide-gray-100 text-xs">
@@ -232,11 +242,11 @@
 </div>
 
 <!-- ============================================ -->
-<!-- থার্মাল স্লিপ প্রিন্ট মডাল পপআপ (corrected overflow print bug) -->
+<!-- থার্মাল স্লিপ প্রিন্ট মডাল পপআপ -->
 <!-- ============================================ -->
 <div id="receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative border border-gray-100 flex flex-col max-h-[90vh]">
-        <!-- রসিদ প্রিন্ট এরিয়া -->
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative border border-gray-150 flex flex-col max-h-[90vh]">
+        
          <div class="overflow-y-auto flex-1 custom-scroll pr-1">
              <div id="receipt-print-area" class="bg-white p-2 font-mono-receipt text-[11px] text-gray-800 space-y-3 leading-relaxed">
                  <!-- ডাইনামিক রসিদ ডাটা স্ক্রিপ্ট দিয়ে এখানে লোড হবে -->
@@ -244,13 +254,13 @@
          </div>
         
         <div class="flex gap-2 mt-5 border-t pt-4 no-print bg-white">
-            <button id="btn-wa-fee" onclick="sendFeeReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+            <button id="btn-wa-fee" onclick="window.sendFeeReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ
             </button>
             <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-print text-[11px]"></i> প্রিন্ট করুন
             </button>
-            <button onclick="closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition border">
+            <button onclick="window.closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition border">
                 বন্ধ করুন
             </button>
         </div>
@@ -258,10 +268,12 @@
 </div>
 
 <script>
+(function() {
     let allActiveStudents = [];
-    let activePrintedFee = null; // প্রিন্ট মডালের ডাটা ট্র্যাকিং
+    let activePrintedFee = null; 
 
-    async function initFees() {
+    // ১. গ্লোবাল উইন্ডো অবজেক্টে মূল ইনিশিয়ালাইজার বাইন্ডিং
+    window.initFees = async function() {
         document.getElementById('editing-receipt-id').value = "";
 
         const dateInput = document.getElementById('fee-date');
@@ -269,20 +281,17 @@
             dateInput.value = new Date().toISOString().split('T')[0];
         }
 
-        // ছাত্র ডাটাবেজ মেমরিতে লোড করা সার্চ পারফরম্যান্সের জন্য
         await loadActiveStudents();
-        await renderFeesList();
+        await window.renderFeesList();
 
-        // যদি ড্যাশবোর্ড বা রিপোর্ট থেকে সরাসরি পেমেন্টের জন্য আসা হয়
         if (window.preselectedStudentId) {
             const student = allActiveStudents.find(s => s.id === window.preselectedStudentId);
             if (student) {
-                selectStudentForFee(student.id, student.name, student.class, student.roll);
+                window.selectStudentForFee(student.id, student.name, student.class, student.roll);
             }
             window.preselectedStudentId = null;
         }
 
-        // কাস্টম সার্চ ক্লিক আউটসাইড ক্লোজ
         document.addEventListener('click', function(e) {
             const list = document.getElementById('student-search-results');
             const input = document.getElementById('student-search-input');
@@ -340,7 +349,7 @@
                     if (editReceiptId) {
                         await db.fees.update(editReceiptId, feeObj);
                         showToast("বেতন আদায়ের তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
-                        cancelFeeEdit();
+                        window.cancelFeeEdit();
                     } else {
                         const receiptId = 'R-' + Date.now();
                         receiptIdToPrint = receiptId;
@@ -357,10 +366,8 @@
                         }
                     }
 
-                    await renderFeesList();
-
-                    // সফলভাবে সেভ হলে সরাসরি রসিদ প্রিন্ট পপআপ দেখানো হবে
-                    showReceiptModal(receiptIdToPrint);
+                    await window.renderFeesList();
+                    window.showReceiptModal(receiptIdToPrint);
 
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
@@ -376,7 +383,7 @@
                 }
             };
         }
-    }
+    };
 
     async function loadActiveStudents() {
         try {
@@ -387,9 +394,13 @@
         }
     }
 
-    function searchStudentsForFee() {
-        const query = document.getElementById('student-search-input').value.toLowerCase().trim();
+    // ২. নিরাপদ ও ক্র্যাশ-মুক্ত শিক্ষার্থীর Autocomplete সার্চ (String safe-cast applied)
+    window.searchStudentsForFee = function() {
+        const queryInput = document.getElementById('student-search-input');
+        if (!queryInput) return;
+        const query = queryInput.value.toLowerCase().trim();
         const resultsContainer = document.getElementById('student-search-results');
+        if (!resultsContainer) return;
         
         if (!query) {
             resultsContainer.classList.add('hidden');
@@ -397,9 +408,9 @@
         }
 
         const filtered = allActiveStudents.filter(s => 
-            s.name.toLowerCase().includes(query) || 
-            s.roll.toString().includes(query) || 
-            s.id.toLowerCase().includes(query)
+            (s.name || '').toLowerCase().includes(query) || 
+            String(s.roll || '').includes(query) || // 🚀 রোল ফাকা থাকলেও এখন জাভাস্ক্রিপ্ট ক্র্যাশ করবে না
+            (s.id || '').toLowerCase().includes(query)
         );
 
         if (filtered.length === 0) {
@@ -411,17 +422,16 @@
         let html = '';
         filtered.slice(0, 10).forEach(s => {
             html += `
-                <div onclick="selectStudentForFee('${s.id}', '${s.name}', '${s.class}', '${s.roll}')" class="p-3 hover:bg-emerald-50/50 cursor-pointer text-xs transition duration-150 border-b">
+                <div onclick="window.selectStudentForFee('${s.id}', '${s.name}', '${s.class}', '${s.roll || ''}')" class="p-3 hover:bg-emerald-50/50 cursor-pointer text-xs transition duration-150 border-b">
                     <span class="font-bold text-emerald-950 text-sm">${s.name}</span> 
-                    <span class="text-gray-400 text-[11px] ml-1">(${s.class} | রোল: ${s.roll} | ID: ${s.id})</span>
+                    <span class="text-gray-400 text-[11px] ml-1">(${s.class} | রোল: ${s.roll || '-'} | ID: ${s.id})</span>
                 </div>`;
         });
 
         resultsContainer.innerHTML = html;
         resultsContainer.classList.remove('hidden');
-    }
+    };
 
-    // লোগো আপলোডের নাম্বার রিফাইন করাসহ স্ট্যান্ডার্ড মোবাইল ফরম্যাট
     function refinePhoneNumber(phone) {
         if (!phone) return "";
         let clean = phone.toString().replace(/\D/g, ''); 
@@ -434,16 +444,19 @@
         return clean; 
     }
 
-    // ২.০ ডাইনামিক বেতন গ্রুপ ডিটেকশন ও অটো-পপুলেট লজিক
-    async function selectStudentForFee(id, name, studentClass, roll) {
+    // ৩. বেতন গ্রুপ অনুযায়ী অটো-পপুলেশন মেকানিজম
+    window.selectStudentForFee = async function(id, name, studentClass, roll) {
         const student = allActiveStudents.find(s => s.id === id);
         if (!student) return;
 
-        document.getElementById('fee-student-id').value = id;
-        document.getElementById('student-search-input').value = `${name} (${studentClass} - রোল: ${roll})`;
-        document.getElementById('student-search-results').classList.add('hidden');
+        const sIdInput = document.getElementById('fee-student-id');
+        const sSearchInput = document.getElementById('student-search-input');
+        const sResults = document.getElementById('student-search-results');
 
-        // শিক্ষার্থীর পূর্ববর্তী পেমেন্ট রেকর্ড খুঁজে বের করা (মাসের সাজেশন পেতে)
+        if (sIdInput) sIdInput.value = id;
+        if (sSearchInput) sSearchInput.value = `${name} (${studentClass} - রোল: ${roll || '-'})`;
+        if (sResults) sResults.classList.add('hidden');
+
         const studentFees = await db.fees.where('student_id').equals(id).toArray();
         const activeFees = studentFees.filter(f => f.is_deleted !== 1);
         activeFees.sort((a, b) => b.payment_date.localeCompare(a.payment_date));
@@ -454,36 +467,36 @@
             lastPaidMonth = lastFee.month;
         }
 
-        // ডাইনামিক বেতন ও ফি গ্রুপ ডিটেকশন (ভর্তির সময় ধার্যকৃত ফি)
         const defaultAmount = student.monthly_fee || 500;
         const feeGroupName = student.fee_group_name || "সাধারণ বেতন";
 
-        // কুইক প্রোফাইল কার্ড রেন্ডার করা (বড় ফন্ট ও নতুন স্টাইল)
         const quickInfo = document.getElementById('student-quick-info');
-        quickInfo.innerHTML = `
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-4 text-sm space-y-2 text-emerald-950 mb-3 shadow-sm">
-                <div class="flex justify-between font-bold border-b pb-1.5 border-emerald-100/50">
-                    <span>${student.name}</span>
-                    <span class="font-en text-emerald-800">${student.id}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 pt-0.5">
-                    <div>শ্রেণী: <strong class="text-gray-800">${studentClass}</strong></div>
-                    <div>রোল নম্বর: <strong class="text-gray-800 font-en">${roll}</strong></div>
-                    <div>গ্রুপ: <strong class="text-gray-800">${student.group || '-'}</strong></div>
-                    <div>মোবাইল: <strong class="text-gray-800 font-en">${student.parent_phone}</strong></div>
-                </div>
-                <div class="flex justify-between text-xs pt-1.5 border-t border-emerald-100/50">
-                    <span>সর্বশেষ পরিশোধিত: <strong class="text-red-600">${lastPaidMonth}</strong></span>
-                    <span>ফি গ্রুপ: <strong class="text-emerald-700">${feeGroupName} (৳${defaultAmount})</strong></span>
-                </div>
-            </div>`;
-        quickInfo.classList.remove('hidden');
+        if (quickInfo) {
+            quickInfo.innerHTML = `
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-4 text-sm space-y-2 text-emerald-950 mb-3 shadow-sm">
+                    <div class="flex justify-between font-bold border-b pb-1.5 border-emerald-100/50">
+                        <span>${student.name}</span>
+                        <span class="font-en text-emerald-800">${student.id}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 pt-0.5">
+                        <div>শ্রেণী: <strong class="text-gray-800">${studentClass}</strong></div>
+                        <div>রোল নম্বর: <strong class="text-gray-800 font-en">${roll || '-'}</strong></div>
+                        <div>গ্রুপ: <strong class="text-gray-800">${student.group || '-'}</strong></div>
+                        <div>মোবাইল: <strong class="text-gray-800 font-en">${student.parent_phone || '-'}</strong></div>
+                    </div>
+                    <div class="flex justify-between text-xs pt-1.5 border-t border-emerald-100/50">
+                        <span>সর্বশেষ পরিশোধিত: <strong class="text-red-600">${lastPaidMonth}</strong></span>
+                        <span>ফি গ্রুপ: <strong class="text-emerald-700">${feeGroupName} (৳${defaultAmount})</strong></span>
+                    </div>
+                </div>`;
+            quickInfo.classList.remove('hidden');
+        }
 
-        // এডিটেবল ইনপুটের ঘরে স্বয়ংক্রিয়ভাবে তার নির্দিষ্ট ফি বসানো
-        document.getElementById('fee-amount').value = defaultAmount;
+        const amountInput = document.getElementById('fee-amount');
+        if (amountInput) amountInput.value = defaultAmount;
         suggestNextMonth(lastPaidMonth);
-        calculateTotal();
-    }
+        window.calculateTotal();
+    };
 
     function suggestNextMonth(lastPaidMonth) {
         const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
@@ -494,24 +507,28 @@
         } else {
             nextIndex = new Date().getMonth();
         }
-        document.getElementById('fee-month').value = bnMonths[nextIndex];
+        const monthSelect = document.getElementById('fee-month');
+        if (monthSelect) monthSelect.value = bnMonths[nextIndex];
     }
 
-    function calculateTotal() {
+    window.calculateTotal = function() {
         const amount = parseFloat(document.getElementById('fee-amount').value) || 0;
         const fine = parseFloat(document.getElementById('fee-fine').value) || 0;
         const discount = parseFloat(document.getElementById('fee-discount').value) || 0;
         const total = amount + fine - discount;
-        document.getElementById('fee-total').textContent = total.toLocaleString('bn-BD');
-    }
+        
+        const totalEl = document.getElementById('fee-total');
+        if (totalEl) totalEl.textContent = total.toLocaleString('bn-BD');
+    };
 
-    function filterFees() {
+    window.filterFees = function() {
         const searchQuery = document.getElementById('search-fee').value.toLowerCase().trim();
         const monthQuery = document.getElementById('filter-fee-month').value;
-        renderFeesList(searchQuery, monthQuery);
-    }
+        window.renderFeesList(searchQuery, monthQuery);
+    };
 
-    async function renderFeesList(searchQuery = '', monthQuery = '') {
+    // ৪. বেতন আদায়ের তালিকা রেন্ডারার
+    window.renderFeesList = async function(searchQuery = '', monthQuery = '') {
         const tableBody = document.getElementById('fees-table-body');
         if (!tableBody) return;
 
@@ -521,8 +538,8 @@
 
             if (searchQuery) {
                 fees = fees.filter(fee =>
-                    fee.receipt_id.toLowerCase().includes(searchQuery) ||
-                    fee.student_name.toLowerCase().includes(searchQuery)
+                    (fee.receipt_id || '').toLowerCase().includes(searchQuery) ||
+                    (fee.student_name || '').toLowerCase().includes(searchQuery)
                 );
             }
 
@@ -554,7 +571,6 @@
                     ? `<div class="text-[9px] text-gray-400 font-en">বেতন: ${fee.amount} ${fee.fine ? `+ জ: ${fee.fine}` : ''} ${fee.discount ? `- ছা: ${fee.discount}` : ''}</div>`
                     : '';
 
-                // ডাইনামিক পেমেন্ট মাধ্যম কালার কোডেড ট্যাগ
                 let methodBadge = '';
                 const method = fee.method || 'ক্যাশ';
                 if (method === 'বিকাশ') {
@@ -591,13 +607,13 @@
                         <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
                         <td class="px-4 py-3 text-xs">
                             <div class="flex gap-1.5">
-                                <button onclick="showReceiptModalFromList('${fee.receipt_id}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
+                                <button onclick="window.showReceiptModalFromList('${fee.receipt_id}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
                                     <i class="fa-solid fa-print"></i>
                                 </button>
-                                <button onclick="editFee('${fee.receipt_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                <button onclick="window.editFee('${fee.receipt_id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="deleteFee('${fee.receipt_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                <button onclick="window.deleteFee('${fee.receipt_id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -610,16 +626,16 @@
         } catch (err) {
             console.error("ফি আদায়ের তালিকা রেন্ডার করতে সমস্যা হয়েছে:", err);
         }
-    }
+    };
 
-    async function editFee(receiptId) {
+    window.editFee = async function(receiptId) {
         try {
             const fee = await db.fees.get(receiptId);
             if (!fee) return;
 
             document.getElementById('editing-receipt-id').value = fee.receipt_id;
             document.getElementById('fee-student-id').value = fee.student_id;
-            document.getElementById('student-search-input').value = `${fee.student_name} (${fee.student_class} - রোল: ${fee.student_roll})`;
+            document.getElementById('student-search-input').value = `${fee.student_name} (${fee.student_class} - রোল: ${fee.student_roll || '-'})`;
             document.getElementById('fee-amount').value = fee.amount;
             document.getElementById('fee-fine').value = fee.fine || 0;
             document.getElementById('fee-discount').value = fee.discount || 0;
@@ -628,26 +644,38 @@
             document.getElementById('fee-date').value = fee.payment_date;
             document.getElementById('fee-note').value = fee.note || '';
 
-            calculateTotal();
+            window.calculateTotal();
 
-            document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ফি আদায় সংশোধন`;
+            const title = document.getElementById('fee-form-title');
+            if (title) title.innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ফি আদায় সংশোধন`;
+            
             const submitBtn = document.getElementById('fee-submit-btn');
-            submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
-            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            if (submitBtn) {
+                submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            }
 
-            document.getElementById('cancel-fee-edit-btn').classList.remove('hidden');
-            document.getElementById('student-quick-info').classList.add('hidden');
+            const cancelBtn = document.getElementById('cancel-fee-edit-btn');
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
+            
+            const quickInfo = document.getElementById('student-quick-info');
+            if (quickInfo) quickInfo.classList.add('hidden');
 
         } catch (err) {
             console.error("সংশোধন মোডে রূপান্তর করতে সমস্যা:", err);
         }
-    }
+    };
 
-    function cancelFeeEdit() {
-        document.getElementById('fees-form').reset();
+    window.cancelFeeEdit = function() {
+        const form = document.getElementById('fees-form');
+        if (form) form.reset();
+        
         document.getElementById('editing-receipt-id').value = "";
         document.getElementById('fee-student-id').value = "";
-        document.getElementById('student-quick-info').classList.add('hidden');
+        
+        const quickInfo = document.getElementById('student-quick-info');
+        if (quickInfo) quickInfo.classList.add('hidden');
+        
         document.getElementById('fee-total').textContent = "0";
 
         const dateInput = document.getElementById('fee-date');
@@ -655,15 +683,20 @@
             dateInput.value = new Date().toISOString().split('T')[0];
         }
 
-        document.getElementById('fee-form-title').innerHTML = `<i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন`;
+        const title = document.getElementById('fee-form-title');
+        if (title) title.innerHTML = `<i class="fa-solid fa-money-bill-wave text-emerald-600"></i> নতুন বেতন কালেকশন`;
+        
         const submitBtn = document.getElementById('fee-submit-btn');
-        submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10";
-        submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন`;
+        if (submitBtn) {
+            submitBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10";
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> পেমেন্ট নিশ্চিত করুন`;
+        }
 
-        document.getElementById('cancel-fee-edit-btn').classList.add('hidden');
-    }
+        const cancelBtn = document.getElementById('cancel-fee-edit-btn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+    };
 
-    async function deleteFee(receiptId) {
+    window.deleteFee = async function(receiptId) {
         if (!confirm("আপনি কি নিশ্চিতভাবে এই রসিদ বা ফি আদায়ের তথ্যটি মুছে ফেলতে চান?")) return;
 
         try {
@@ -674,10 +707,10 @@
             showToast("ফি আদায়ের তথ্যটি সফলভাবে মুছে ফেলা হয়েছে।", "success");
 
             if (document.getElementById('editing-receipt-id').value === receiptId) {
-                cancelFeeEdit();
+                window.cancelFeeEdit();
             }
 
-            await renderFeesList();
+            await window.renderFeesList();
 
             if (typeof updatePendingCount === 'function') {
                 await updatePendingCount();
@@ -691,25 +724,22 @@
             console.error("মুছে ফেলার সময় সমস্যা হয়েছে:", err);
             showToast("তথ্যটি মুছে ফেলা সম্ভব হয়নি।", "error");
         }
-    }
+    };
 
-    // =========================================================
-    // ৫. থার্মাল স্লিপ প্রিন্ট মডাল ও হোয়াটসঅ্যাপ সিঙ্ক লজিক
-    // =========================================================
-
-    async function showReceiptModal(receiptId) {
+    // ৫. থার্মাল স্লিপ মেকানিজম উইন্ডো এক্সপোজ (৮০মিমি/৫৮মিমি পারফেক্ট রেন্ডারিং)
+    window.showReceiptModal = async function(receiptId) {
         const fee = await db.fees.get(receiptId);
         if (!fee) return;
 
-        activePrintedFee = fee; // হোয়াটসঅ্যাপের জন্য ডাটা ট্র্যাক করা
+        activePrintedFee = fee; 
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const madrasahAddress = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
         const madrasahPhone = localStorage.getItem('madrasah_phone') || '';
 
         const receiptArea = document.getElementById('receipt-print-area');
+        if (!receiptArea) return;
         
-        // ৫৮মিমি/৮০মিমি রোল কাগজের জন্য অপ্টিমাইজড থার্মাল রসিদ লেআউট
         receiptArea.innerHTML = `
             <div class="text-center font-bold text-xs border-b pb-2 mb-2">
                 <div class="text-emerald-800 text-sm mb-0.5">${madrasahName}</div>
@@ -757,24 +787,26 @@
             </div>
         `;
 
-        document.getElementById('receipt-modal').classList.remove('hidden');
-    }
+        const modal = document.getElementById('receipt-modal');
+        if (modal) modal.classList.remove('hidden');
+    };
 
-    function showReceiptModalFromList(receiptId) {
-        showReceiptModal(receiptId);
-    }
+    window.showReceiptModalFromList = function(receiptId) {
+        window.showReceiptModal(receiptId);
+    };
 
-    function closeReceiptModal() {
-        document.getElementById('receipt-modal').classList.add('hidden');
+    window.closeReceiptModal = function() {
+        const modal = document.getElementById('receipt-modal');
+        if (modal) modal.classList.add('hidden');
         activePrintedFee = null;
-    }
+    };
 
-    // অভিভাবককে হোয়াটসঅ্যাপে পেমেন্ট নিশ্চিতকরণ ডিজিটাল রসিদ পাঠানো
-    function sendFeeReceiptToWhatsApp() {
+    // ৬. হোয়াটসঅ্যাপ ডিজিটাল রসিদ মেসেজ ফরম্যাটার
+    window.sendFeeReceiptToWhatsApp = function() {
         if (!activePrintedFee) return;
 
         const phoneNum = activePrintedFee.parent_phone || "";
-        const refinedPhone = refinePhoneNumber(phoneNum); // মোবাইল নম্বর অটো রিফাইন
+        const refinedPhone = refinePhoneNumber(phoneNum); 
 
         let waNumber = refinedPhone;
         if (refinedPhone.startsWith('0')) {
@@ -783,7 +815,7 @@
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
 
-        const wpMessage = `প্রিয় অভিভাবক,
+        const wpMessage = `আসসালামু আলাইকুম।
 আপনার সন্তান ${activePrintedFee.student_name}-এর ${activePrintedFee.month} মাসের বেতন বাবদ সর্বমোট ৳${activePrintedFee.total || activePrintedFee.amount} ${activePrintedFee.method}-এর মাধ্যমে সফলভাবে গৃহীত হয়েছে।
 
 রসিদ নং: ${activePrintedFee.receipt_id}
@@ -792,5 +824,6 @@ ${madrasahName}`;
 
         const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
         window.open(wpUrl, '_blank');
-    }
+    };
+})();
 </script>

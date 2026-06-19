@@ -1,5 +1,4 @@
 <style>
-    /* Hind Siliguri এবং Inter ফন্টের মসৃণ সমন্বয় */
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
     #admission-container {
@@ -13,24 +12,26 @@
     }
     
     /* ========================================================= */
-    /* A5 সাইজের জন্য উন্নত এবং ইউনিভার্সাল প্রিন্টিং মিডিয়া কোয়েরি */
+    /* A5 পোর্ট্রেট প্রিন্টিং অপ্টিমাইজেশন মিডিয়া কোয়েরি */
     /* ========================================================= */
     @media print {
-        /* ব্রাউজারকে A5 পোর্ট্রেট সাইজে প্রিন্ট করতে বাধ্য করা */
         @page {
             size: A5 portrait !important;
-            margin: 4mm !important; /* চারপাশের মার্জিন */
+            margin: 0 !important; /* প্রিন্ট মার্জিন সম্পূর্ণ ব্রাউজার নিয়ন্ত্রিত */
         }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        /* অ্যাপের মূল উইন্ডো, হেডার, সাইডবার ও ফর্ম সম্পূর্ণ হাইড */
-        #sidebar, header, #admission-form, .bg-white.p-6.no-print, .no-print, button, .border-t, #print-receipt-modal > div > div:last-child {
-            display: none !important;
+        /* প্রিন্ট করার সময় মূল পেজের অন্য সব ব্যাকগ্রাউন্ড এলিমেন্ট হাইড */
+        body * {
+            visibility: hidden !important;
         }
-        /* overflow: hidden এর জন্য আসা সাদা পেজের সমস্যা আনলক করা */
-        html, body, .flex, .flex-1, main, #main-content, #admission-container {
+        #sidebar, header, #admission-form, .bg-white, .no-print, button, .border-t {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        html, body, main, #main-content, #admission-container {
             height: auto !important;
             min-height: 0 !important;
             overflow: visible !important;
@@ -41,8 +42,9 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* মডাল ব্যাকগ্রাউন্ড ক্লিনিং এবং A5 বাউণ্ডারি ফিক্স */
+        /* শুধুমাত্র প্রিন্ট রসিদটি ভিজিবল ও ফুল-পেজ ফিট করা */
         #print-receipt-modal {
+            visibility: visible !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
@@ -53,18 +55,26 @@
             box-shadow: none !important;
             border: none !important;
             z-index: 999999 !important;
-        }
-        /* A5 পেজে রসিদটির ভেতরের কন্টেন্ট ফিট করা */
-        #admission-receipt-print {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 4mm !important;
+            padding: 0 !important;
             margin: 0 !important;
+        }
+        #admission-receipt-print {
+            visibility: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
             width: 148mm !important;
             height: 210mm !important;
             box-sizing: border-box !important;
+            padding: 8mm !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            background: white !important;
         }
-        /* প্রিন্ট কপিতে টেক্সট সাইজ এবং ছবি A5 এর উপযোগী ছোট করা */
+        #admission-receipt-print * {
+            visibility: visible !important;
+        }
         #admission-receipt-print strong {
             font-size: 11px !important;
         }
@@ -72,15 +82,15 @@
             font-size: 9px !important;
         }
         #admission-receipt-print img {
-            width: 80px !important; /* A5 এর জন্য ছবি ছোট করা */
-            height: 80px !important;
+            width: 70px !important;
+            height: 70px !important;
         }
     }
 </style>
 
 <div id="admission-container" class="space-y-6">
 
-    <!-- ১. ছাত্র ভর্তি ফরম (উইন্ডোর উপরের দিকে থাকবে) -->
+    <!-- ১. ছাত্র ভর্তি ফরম -->
     <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-100">
         <h3 id="form-title" class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b pb-3">
             <i class="fa-solid fa-user-plus text-emerald-600 text-2xl"></i> নতুন ছাত্র ভর্তি ফরম
@@ -199,14 +209,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">অভিভাবকের মোবাইল নম্বর *</label>
-                        <input type="tel" id="student-phone" required placeholder="017XXXXXXXX" pattern="[0-9]{11}" oninput="syncWhatsapp()"
+                        <input type="tel" id="student-phone" required placeholder="017XXXXXXXX" pattern="[0-9]{11}" oninput="window.syncWhatsapp()"
                                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-en font-bold">
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="block text-sm font-bold text-gray-500">হোয়াটসঅ্যাপ নম্বর</label>
                             <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-emerald-700 font-bold">
-                                <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="toggleWhatsappSync()">
+                                <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="window.toggleWhatsappSync()">
                                 <span>একই নাম্বার</span>
                             </label>
                         </div>
@@ -217,7 +227,7 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-bold text-gray-700 mb-1">ছাত্রের ছবি লিংক (ইমেজ URL)</label>
                         <div class="flex gap-2">
-                            <input type="text" id="student-photo-url" oninput="updateStudentPhotoPreview()" placeholder="যেমন: https://i.ibb.co/..."
+                            <input type="text" id="student-photo-url" oninput="window.updateStudentPhotoPreview()" placeholder="যেমন: https://i.ibb.co/..."
                                    class="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-mono font-semibold bg-white">
                             
                             <a href="https://www.hmsharif.com/p/umage.html" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm shrink-0">
@@ -262,14 +272,14 @@
                 <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10">
                     <i class="fa-solid fa-circle-check text-base"></i> ভর্তি নিশ্চিত করুন
                 </button>
-                <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition duration-200 text-sm border">
+                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition duration-200 text-sm border">
                     বাতিল করুন
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- ২. ভর্তি হওয়া ছাত্রদের তালিকা (উইন্ডোর নিচের দিকে থাকবে) -->
+    <!-- ২. ভর্তি হওয়া ছাত্রদের তালিকা -->
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col no-print">
         <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
             <i class="fa-solid fa-list-ul text-emerald-600"></i> ভর্তি হওয়া ছাত্রদের তালিকা
@@ -281,11 +291,11 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="search-student" oninput="filterStudents()" placeholder="নাম, আইডি বা মোবাইল নম্বর দিয়ে খুঁজুন..."
+                <input type="text" id="search-student" oninput="window.filterStudents()" placeholder="নাম, আইডি বা মোবাইল নম্বর দিয়ে খুঁজুন..."
                        class="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
             </div>
             <div class="w-full sm:w-44">
-                <select id="filter-class" onchange="filterStudents()"
+                <select id="filter-class" onchange="window.filterStudents()"
                         class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                     <option value="">সকল শ্রেণী/জামাত</option>
                 </select>
@@ -313,12 +323,12 @@
 </div>
 
 <!-- ========================================================== -->
-<!-- ৩. A5 সাইজ ভর্তি রসিদ প্রিন্ট মডাল পপআপ (No-Print Bug Removed) -->
+<!-- ৩. A5 সাইজ ভর্তি রসিদ প্রিন্ট মডাল পপআপ -->
 <!-- ========================================================== -->
 <div id="print-receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-2xl p-4 max-w-lg w-full mx-4 shadow-2xl relative border border-gray-100 flex flex-col justify-between max-h-[95vh]">
         
-        <!-- রসিদ প্রিন্ট এরিয়া (A5 Size CSS optimized) -->
+        <!-- রসিদ প্রিন্ট এরিয়া -->
         <div class="overflow-y-auto flex-1 pr-1 custom-scroll">
             <div id="admission-receipt-print" class="bg-white p-4 rounded-xl border border-gray-50 space-y-4 text-gray-800 leading-relaxed font-sans max-w-[148mm] mx-auto min-h-[210mm] flex flex-col justify-between">
                 <!-- ডাইনামিক রসিদ ডাটা স্ক্রিপ্ট দিয়ে এখানে লোড হবে -->
@@ -327,13 +337,13 @@
 
         <!-- রসিদ মডাল অ্যাকশন বাটনসমূহ -->
         <div class="flex gap-2 mt-4 border-t pt-3 bg-white no-print">
-            <button id="btn-wa-send" onclick="sendReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+            <button id="btn-wa-send" onclick="window.sendReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ এ পাঠান
             </button>
             <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-print"></i> প্রিন্ট করুন (A5 Size)
             </button>
-            <button onclick="closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition border">
+            <button onclick="window.closeReceiptModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition border">
                 বন্ধ করুন
             </button>
         </div>
@@ -341,6 +351,7 @@
 </div>
 
 <script>
+(function() {
     let academicStructure = [];
     let feeGroups = [];
 
@@ -352,7 +363,8 @@
 
     let activePrintedStudent = null;
 
-    async function initAdmission() {
+    // ১. গ্লোবাল উইন্ডো অবজেক্টে প্রধান ইনিশিয়ালাইজার বাইন্ডিং
+    window.initAdmission = async function() {
         document.getElementById('editing-student-id').value = "";
         document.getElementById('student-id').readOnly = false;
 
@@ -455,20 +467,20 @@
                     if (editId) {
                         await db.students.update(editId, studentObj);
                         showToast("শিক্ষার্থীর তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
-                        cancelEdit();
+                        window.cancelEdit();
                     } else {
                         studentObj.admission_date = new Date().toISOString().split('T')[0];
                         await db.students.add(studentObj);
                         showToast("নতুন ছাত্র সফলভাবে ভর্তি করা হয়েছে।", "success");
                         form.reset();
-                        clearLogoUrl();
+                        window.clearLogoUrl();
                     }
 
                     await generateIdAndSerial();
                     await renderStudentsList();
 
                     // রসিদ পপআপ লোড করা
-                    showReceiptModal(studentObj);
+                    window.showReceiptModal(studentObj);
 
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
@@ -484,14 +496,12 @@
                 }
             };
         }
-    }
+    };
 
-    // =========================================================
-    // ১. ডাইনামিক নির্ভরশীল বাটন রেন্ডারিং (Dependent Academic Cascade)
-    // =========================================================
-
+    // ২. ডাইনামিক নির্ভরশীল বাটন রেন্ডারিং (Cascades)
     function renderDynamicAcademicFields() {
         const branchContainer = document.getElementById('dynamic-branches');
+        if (!branchContainer) return;
         if (academicStructure.length === 0) {
             branchContainer.innerHTML = `<div class="col-span-full py-4 text-center text-xs text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> দয়া করে প্রথমে সেটিংসে গিয়ে শাখা ও অ্যাকাডেমিক কাঠামো তৈরি করুন!</div>`;
             return;
@@ -502,7 +512,7 @@
             const isActive = selectedBranchId === branch.id;
             branchContainer.innerHTML += `
                 <label class="cursor-pointer">
-                    <input type="radio" name="academic-branch" value="${branch.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="onBranchChange('${branch.id}')">
+                    <input type="radio" name="academic-branch" value="${branch.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="window.onBranchChange('${branch.id}')">
                     <div class="text-center py-2.5 rounded-xl border ${isActive ? 'border-emerald-600 bg-emerald-500 text-white font-extrabold shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs md:text-sm transition duration-150">
                         <span>${branch.name}</span>
                     </div>
@@ -510,22 +520,27 @@
         });
     }
 
-    function onBranchChange(id) {
+    window.onBranchChange = function(id) {
         selectedBranchId = id;
         selectedDeptId = "";
         selectedClassId = "";
         selectedGroupId = "";
 
-        document.getElementById('dept-selector-container').classList.remove('hidden');
-        document.getElementById('class-selector-container').classList.add('hidden');
-        document.getElementById('group-selector-container').classList.add('hidden');
+        const deptS = document.getElementById('dept-selector-container');
+        const classS = document.getElementById('class-selector-container');
+        const groupS = document.getElementById('group-selector-container');
+
+        if (deptS) deptS.classList.remove('hidden');
+        if (classS) classS.classList.add('hidden');
+        if (groupS) groupS.classList.add('hidden');
 
         renderDynamicAcademicFields();
         renderDynamicDepartments();
-    }
+    };
 
     function renderDynamicDepartments() {
         const deptContainer = document.getElementById('dynamic-depts');
+        if (!deptContainer) return;
         const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
         if (!activeBranch) return;
 
@@ -541,7 +556,7 @@
             const isActive = selectedDeptId === dept.id;
             deptContainer.innerHTML += `
                 <label class="cursor-pointer">
-                    <input type="radio" name="academic-dept" value="${dept.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="onDeptChange('${dept.id}')">
+                    <input type="radio" name="academic-dept" value="${dept.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="window.onDeptChange('${dept.id}')">
                     <div class="text-center py-2.5 rounded-xl border ${isActive ? 'border-blue-600 bg-blue-500 text-white font-extrabold shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs md:text-sm transition duration-150">
                         <span>${dept.name}</span>
                     </div>
@@ -549,20 +564,24 @@
         });
     }
 
-    function onDeptChange(id) {
+    window.onDeptChange = function(id) {
         selectedDeptId = id;
         selectedClassId = "";
         selectedGroupId = "";
 
-        document.getElementById('class-selector-container').classList.remove('hidden');
-        document.getElementById('group-selector-container').classList.add('hidden');
+        const classS = document.getElementById('class-selector-container');
+        const groupS = document.getElementById('group-selector-container');
+
+        if (classS) classS.classList.remove('hidden');
+        if (groupS) groupS.classList.add('hidden');
 
         renderDynamicDepartments();
         renderDynamicClasses();
-    }
+    };
 
     function renderDynamicClasses() {
         const classContainer = document.getElementById('dynamic-classes');
+        if (!classContainer) return;
         const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
         const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
         if (!activeDept) return;
@@ -579,7 +598,7 @@
             const isActive = selectedClassId === cls.id;
             classContainer.innerHTML += `
                 <label class="cursor-pointer">
-                    <input type="radio" name="academic-class" value="${cls.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="onClassChange('${cls.id}')">
+                    <input type="radio" name="academic-class" value="${cls.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="window.onClassChange('${cls.id}')">
                     <div class="text-center py-2.5 rounded-xl border ${isActive ? 'border-amber-600 bg-amber-500 text-white font-extrabold shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs md:text-sm transition duration-150">
                         <span>${cls.name}</span>
                     </div>
@@ -587,18 +606,20 @@
         });
     }
 
-    function onClassChange(id) {
+    window.onClassChange = function(id) {
         selectedClassId = id;
         selectedGroupId = "";
 
-        document.getElementById('group-selector-container').classList.remove('hidden');
+        const groupS = document.getElementById('group-selector-container');
+        if (groupS) groupS.classList.remove('hidden');
 
         renderDynamicClasses();
         renderDynamicGroups();
-    }
+    };
 
     function renderDynamicGroups() {
         const groupContainer = document.getElementById('dynamic-groups');
+        if (!groupContainer) return;
         const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
         const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
         const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
@@ -608,7 +629,8 @@
         groupContainer.innerHTML = '';
 
         if (groups.length === 0) {
-            document.getElementById('group-selector-container').classList.add('hidden');
+            const groupS = document.getElementById('group-selector-container');
+            if (groupS) groupS.classList.add('hidden');
             return;
         }
 
@@ -616,7 +638,7 @@
             const isActive = selectedGroupId === grp;
             groupContainer.innerHTML += `
                 <label class="cursor-pointer">
-                    <input type="radio" name="academic-group" value="${grp}" class="sr-only" ${isActive ? 'checked' : ''} onchange="onGroupChange('${grp}')">
+                    <input type="radio" name="academic-group" value="${grp}" class="sr-only" ${isActive ? 'checked' : ''} onchange="window.onGroupChange('${grp}')">
                     <div class="text-center py-2.5 rounded-xl border ${isActive ? 'border-purple-600 bg-purple-500 text-white font-extrabold shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs md:text-sm transition duration-150">
                         <span>${grp}</span>
                     </div>
@@ -624,14 +646,14 @@
         });
     }
 
-    function onGroupChange(grp) {
+    window.onGroupChange = function(grp) {
         selectedGroupId = grp;
         renderDynamicGroups();
-    }
+    };
 
-    // ২.৫ বেতন বা ফিস গ্রুপ রেন্ডারিং
     function renderDynamicFeeGroups() {
         const container = document.getElementById('dynamic-fee-groups');
+        if (!container) return;
         if (feeGroups.length === 0) {
             container.innerHTML = `<div class="col-span-full py-4 text-center text-xs text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> দয়া করে প্রথমে সেটিংসে বেতন ও বোর্ডিং গ্রুপ তৈরি করুন!</div>`;
             return;
@@ -642,7 +664,7 @@
             const isActive = selectedFeeGroupId === grp.id;
             container.innerHTML += `
                 <label class="cursor-pointer">
-                    <input type="radio" name="fee-group" value="${grp.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="onFeeGroupChange('${grp.id}')">
+                    <input type="radio" name="fee-group" value="${grp.id}" required class="sr-only" ${isActive ? 'checked' : ''} onchange="window.onFeeGroupChange('${grp.id}')">
                     <div class="text-center py-2.5 rounded-xl border ${isActive ? 'border-emerald-600 bg-emerald-500 text-white font-extrabold shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs md:text-sm transition duration-150">
                         <div class="font-bold">${grp.name}</div>
                         <div class="text-[10px] ${isActive ? 'text-emerald-100' : 'text-gray-400'} font-en font-bold">৳ ${parseFloat(grp.amount).toLocaleString('bn-BD')}</div>
@@ -651,87 +673,92 @@
         });
     }
 
-    function onFeeGroupChange(id) {
+    window.onFeeGroupChange = function(id) {
         selectedFeeGroupId = id;
         renderDynamicFeeGroups();
-    }
+    };
 
-    // =========================================================
-    // ২. লোগো প্রিভিউ ও মোবাইল রিফাইন লজিক (Phone Sanitizer)
-    // =========================================================
-
-    function updateStudentPhotoPreview() {
-        const url = document.getElementById('student-photo-url').value.trim();
+    // ৩. লোগো এবং ফোন নাম্বার সিঙ্ক্রোনাইজেশন ও উইন্ডো এক্সপোজ
+    window.updateStudentPhotoPreview = function() {
+        const urlInput = document.getElementById('student-photo-url');
+        if (!urlInput) return;
+        const url = urlInput.value.trim();
         const previewContainer = document.getElementById('student-photo-preview-container');
         const previewImg = document.getElementById('student-photo-preview');
         
-        if (url) {
+        if (url && previewContainer && previewImg) {
             previewImg.src = url;
             previewContainer.classList.remove('hidden');
             previewImg.onerror = function() {
                 previewContainer.classList.add('hidden');
                 showToast("ভুল ইমেজ লিংক! লোড হচ্ছে না।", "error");
             };
-        } else {
+        } else if (previewContainer) {
             previewContainer.classList.add('hidden');
         }
-    }
+    };
 
-    function clearLogoUrl() {
-        document.getElementById('student-photo-url').value = '';
-        updateStudentPhotoPreview();
-    }
+    window.clearLogoUrl = function() {
+        const urlInput = document.getElementById('student-photo-url');
+        if (urlInput) {
+            urlInput.value = '';
+            window.updateStudentPhotoPreview();
+        }
+    };
 
-    // অভিভাবকের মোবাইল নাম্বারকে রিফাইন করার ফাংশন
     function refinePhoneNumber(phone) {
+        if (!phone) return "";
         let clean = phone.toString().replace(/\D/g, ''); 
-        
         if (clean.startsWith('8801')) {
             clean = clean.substring(2);
         }
-        
         if (!clean.startsWith('01') && clean.length === 10) {
             clean = '0' + clean;
         }
-        
         return clean; 
     }
 
-    function syncWhatsapp() {
+    window.syncWhatsapp = function() {
         const sameAsMobile = document.getElementById('same-as-mobile').checked;
         if (sameAsMobile) {
             const rawPhone = document.getElementById('student-phone').value;
             document.getElementById('student-whatsapp').value = refinePhoneNumber(rawPhone);
         }
-    }
+    };
 
-    function toggleWhatsappSync() {
+    window.toggleWhatsappSync = function() {
         const whatsappInput = document.getElementById('student-whatsapp');
         const sameAsMobile = document.getElementById('same-as-mobile').checked;
         if (sameAsMobile) {
-            syncWhatsapp();
-            whatsappInput.readOnly = true;
-            whatsappInput.classList.add('bg-gray-50');
-        } else {
+            window.syncWhatsapp();
+            if (whatsappInput) {
+                whatsappInput.readOnly = true;
+                whatsappInput.classList.add('bg-gray-50');
+            }
+        } else if (whatsappInput) {
             whatsappInput.readOnly = false;
             whatsappInput.classList.remove('bg-gray-50');
         }
-    }
+    };
 
-    // =========================================================
-    // ৩. আইডি জেনারেশন ও ফিল্টার তালিকা
-    // =========================================================
-
+    // ৪. ইউনিক আইডি ও সর্বোচ্চ সিরিয়াল নির্ধারণ (Bag-Free ID Generation)
     async function generateIdAndSerial() {
         try {
             const students = await db.students.toArray();
-            const activeStudents = students.filter(s => s.is_deleted !== 1);
-
-            const nextSerial = activeStudents.length + 1;
-            document.getElementById('student-serial').value = nextSerial;
-
-            const generatedId = "S-" + (10000 + nextSerial);
-            document.getElementById('student-id').value = generatedId;
+            
+            // ডাটাবেজের সর্বোচ্চ সিরিয়াল নম্বর অনুসন্ধান
+            const maxSerial = students.reduce((max, s) => ((s.serial_no || 0) > max ? s.serial_no : max), 0);
+            const nextSerial = maxSerial + 1;
+            
+            const sSerial = document.getElementById('student-serial');
+            const sId = document.getElementById('student-id');
+            
+            if (sSerial) sSerial.value = nextSerial;
+            
+            // ইউনিক অফলাইন-সেফ আইডি জেনারেশন (TIMESTAMP + RANDOM SUFFIX)
+            const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+            const generatedId = "S-" + (10000 + nextSerial) + "-" + randomSuffix;
+            if (sId) sId.value = generatedId;
         } catch (err) {
             console.error("আইডি ও সিরিয়াল নম্বর জেনারেট করতে ব্যর্থ:", err);
         }
@@ -739,6 +766,7 @@
 
     function populateClassFilterOptions() {
         const filterSelect = document.getElementById('filter-class');
+        if (!filterSelect) return;
         filterSelect.innerHTML = `<option value="">সকল জামাত/শ্রেণী</option>`;
         
         const classesSet = new Set();
@@ -755,12 +783,15 @@
         });
     }
 
-    function filterStudents() {
-        const searchQuery = document.getElementById('search-student').value.toLowerCase().trim();
-        const classQuery = document.getElementById('filter-class').value;
+    window.filterStudents = function() {
+        const searchInput = document.getElementById('search-student');
+        const classFilter = document.getElementById('filter-class');
+        const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const classQuery = classFilter ? classFilter.value : '';
         renderStudentsList(searchQuery, classQuery);
-    }
+    };
 
+    // ৫. ছাত্র তালিকা রেন্ডার করার নিরাপদ লজিক (Empty / Null-Check Added)
     async function renderStudentsList(searchQuery = '', classQuery = '') {
         const tableBody = document.getElementById('students-table-body');
         if (!tableBody) return;
@@ -771,9 +802,9 @@
 
             if (searchQuery) {
                 students = students.filter(student =>
-                    student.name.toLowerCase().includes(searchQuery) ||
-                    student.id.toLowerCase().includes(searchQuery) ||
-                    student.parent_phone.includes(searchQuery)
+                    (student.name || '').toLowerCase().includes(searchQuery) ||
+                    (student.id || '').toLowerCase().includes(searchQuery) ||
+                    (student.parent_phone || '').includes(searchQuery)
                 );
             }
 
@@ -806,14 +837,14 @@
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="px-4 py-3 text-xs text-gray-700 font-bold font-en">
-                            <div>রোল: ${student.roll}</div>
+                            <div>রোল: ${student.roll || '-'}</div>
                             <div class="text-[10px] text-gray-400 font-bold tracking-wider font-en">${student.id}</div>
                         </td>
                         <td class="px-4 py-3 text-xs">
                             <div class="flex items-center gap-2">
                                 ${student.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${student.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold font-en text-[10px]">St</div>'}
                                 <div>
-                                    <div class="font-bold text-gray-800 text-sm">${student.name}</div>
+                                    <div class="font-bold text-gray-800 text-sm">${student.name || 'অজানা'}</div>
                                     <div class="text-[10px] text-gray-400 font-bold">Sl: ${student.serial_no || '-'}</div>
                                 </div>
                             </div>
@@ -823,23 +854,23 @@
                             <div class="text-[10px] text-gray-500">মাতা: ${student.mother_name || '-'}</div>
                         </td>
                         <td class="px-4 py-3 text-xs text-gray-700 font-bold">
-                            <div class="text-emerald-950">${student.class} ${student.group && student.group !== '-' ? `(${student.group})` : ''}</div>
+                            <div class="text-emerald-950">${student.class || '-'} ${student.group && student.group !== '-' ? `(${student.group})` : ''}</div>
                             <div class="text-[10px] font-normal text-gray-400">${student.branch || 'অজানা'} | ${student.department || '-'}</div>
                         </td>
                         <td class="px-4 py-3 text-xs">
-                            <div class="font-en text-gray-600"><i class="fa-solid fa-phone text-emerald-600"></i> ${student.parent_phone}</div>
+                            <div class="font-en text-gray-600"><i class="fa-solid fa-phone text-emerald-600"></i> ${student.parent_phone || '-'}</div>
                             <div class="text-[10px] font-bold text-emerald-800">${student.fee_group_name || 'সাধারণ'}: ৳${student.monthly_fee || 0}</div>
                         </td>
                         <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
                         <td class="px-4 py-3 text-xs">
                             <div class="flex gap-1">
-                                <button onclick="showReceiptModalFromList('${student.id}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
+                                <button onclick="window.showReceiptModalFromList('${student.id}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
                                     <i class="fa-solid fa-receipt"></i>
                                 </button>
-                                <button onclick="editStudent('${student.id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
+                                <button onclick="window.editStudent('${student.id}')" class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition" title="সংশোধন">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
+                                <button onclick="window.deleteStudent('${student.id}')" class="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition" title="মুছে ফেলুন">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -854,7 +885,8 @@
         }
     }
 
-    async function editStudent(id) {
+    // ৬. শিক্ষার্থীর ডাটা এডিট মোডে রূপান্তর (উইন্ডো এক্সপোজ)
+    window.editStudent = async function(id) {
         try {
             const student = await db.students.get(id);
             if (!student) return;
@@ -864,15 +896,15 @@
             document.getElementById('student-id').readOnly = true;
 
             document.getElementById('student-serial').value = student.serial_no || '';
-            document.getElementById('student-name').value = student.name;
+            document.getElementById('student-name').value = student.name || '';
             document.getElementById('student-father-name').value = student.father_name || '';
             document.getElementById('student-mother-name').value = student.mother_name || '';
             document.getElementById('student-dob').value = student.dob || '';
             document.getElementById('student-blood-group').value = student.blood_group || '';
             document.getElementById('student-birth-reg').value = student.birth_reg || '';
-            document.getElementById('student-roll').value = student.roll;
+            document.getElementById('student-roll').value = student.roll || '';
             
-            // পৃথক ঠিকানা লোড করা
+            // পৃথক ঠিকানা উইজেট লোড
             if (student.village) {
                 document.getElementById('student-village').value = student.village;
                 document.getElementById('student-post').value = student.post;
@@ -882,31 +914,34 @@
                 document.getElementById('student-village').value = student.address;
             }
 
-            document.getElementById('student-phone').value = student.parent_phone;
+            document.getElementById('student-phone').value = student.parent_phone || '';
             document.getElementById('student-whatsapp').value = student.whatsapp_no || '';
             document.getElementById('student-photo-url').value = student.photo_url || '';
 
-            updateStudentPhotoPreview();
+            window.updateStudentPhotoPreview();
 
             // ডাইনামিক বাটনগুলোর সিলেকশন সচল করা
             const branchObj = academicStructure.find(b => b.name === student.branch);
             if (branchObj) {
                 selectedBranchId = branchObj.id;
-                document.getElementById('dept-selector-container').classList.remove('hidden');
+                const deptContainer = document.getElementById('dept-selector-container');
+                if (deptContainer) deptContainer.classList.remove('hidden');
                 renderDynamicDepartments();
 
                 const deptObj = branchObj.departments.find(d => d.name === student.department);
                 if (deptObj) {
                     selectedDeptId = deptObj.id;
-                    document.getElementById('class-selector-container').classList.remove('hidden');
+                    const classContainer = document.getElementById('class-selector-container');
+                    if (classContainer) classContainer.classList.remove('hidden');
                     renderDynamicClasses();
 
                     const classObj = deptObj.classes.find(c => c.name === student.class);
                     if (classObj) {
                         selectedClassId = classObj.id;
-                        document.getElementById('group-selector-container').classList.remove('hidden');
+                        const groupContainer = document.getElementById('group-selector-container');
+                        if (groupContainer) groupContainer.classList.remove('hidden');
                         renderDynamicGroups();
-                        selectedGroupId = student.group;
+                        selectedGroupId = student.group || "-";
                     }
                 }
             }
@@ -915,34 +950,47 @@
             renderDynamicAcademicFields();
             renderDynamicFeeGroups();
 
-            if (student.parent_phone === student.whatsapp_no) {
-                document.getElementById('same-as-mobile').checked = true;
-                toggleWhatsappSync();
-            } else {
-                document.getElementById('same-as-mobile').checked = false;
-                toggleWhatsappSync();
+            const sameAsMobileCheckbox = document.getElementById('same-as-mobile');
+            if (sameAsMobileCheckbox) {
+                if (student.parent_phone === student.whatsapp_no) {
+                    sameAsMobileCheckbox.checked = true;
+                    window.toggleWhatsappSync();
+                } else {
+                    sameAsMobileCheckbox.checked = false;
+                    window.toggleWhatsappSync();
+                }
             }
 
-            document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ছাত্র তথ্য সংশোধন`;
+            const title = document.getElementById('form-title');
+            if (title) title.innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> ছাত্র তথ্য সংশোধন`;
+            
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
-            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            if (submitBtn) {
+                submitBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm";
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+            }
 
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' }); 
 
         } catch (err) {
             console.error("সংশোধন মোডে রূপান্তর করতে সমস্যা:", err);
         }
-    }
+    };
 
-    function cancelEdit() {
-        document.getElementById('admission-form').reset();
+    window.cancelEdit = function() {
+        const form = document.getElementById('admission-form');
+        if (form) form.reset();
+        
         document.getElementById('editing-student-id').value = "";
         document.getElementById('student-id').readOnly = false;
-        document.getElementById('same-as-mobile').checked = false;
-        toggleWhatsappSync();
-        clearLogoUrl();
+        
+        const sameAsMobileCheckbox = document.getElementById('same-as-mobile');
+        if (sameAsMobileCheckbox) sameAsMobileCheckbox.checked = false;
+        
+        window.toggleWhatsappSync();
+        window.clearLogoUrl();
 
         selectedBranchId = "";
         selectedDeptId = "";
@@ -950,23 +998,32 @@
         selectedGroupId = "";
         selectedFeeGroupId = "";
 
-        document.getElementById('dept-selector-container').classList.add('hidden');
-        document.getElementById('class-selector-container').classList.add('hidden');
-        document.getElementById('group-selector-container').classList.add('hidden');
+        const deptContainer = document.getElementById('dept-selector-container');
+        const classContainer = document.getElementById('class-selector-container');
+        const groupContainer = document.getElementById('group-selector-container');
 
-        document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-user-plus text-emerald-600"></i> নতুন ছাত্র ভর্তি ফরম`;
+        if (deptContainer) deptContainer.classList.add('hidden');
+        if (classContainer) classContainer.classList.add('hidden');
+        if (groupContainer) groupContainer.classList.add('hidden');
+
+        const title = document.getElementById('form-title');
+        if (title) title.innerHTML = `<i class="fa-solid fa-user-plus text-emerald-600"></i> নতুন ছাত্র ভর্তি ফরম`;
+        
         const submitBtn = document.getElementById('submit-btn');
-        submitBtn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10";
-        submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ভর্তি নিশ্চিত করুন`;
+        if (submitBtn) {
+            submitBtn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10";
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ভর্তি নিশ্চিত করুন`;
+        }
 
-        document.getElementById('cancel-edit-btn').classList.add('hidden');
+        const cancelBtn = document.getElementById('cancel-edit-btn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
         
         renderDynamicAcademicFields();
         renderDynamicFeeGroups();
         generateIdAndSerial();
-    }
+    };
 
-    async function deleteStudent(id) {
+    window.deleteStudent = async function(id) {
         if (!confirm("আপনি কি নিশ্চিতভাবে এই শিক্ষার্থীর তথ্য মুছে ফেলতে চান?")) return;
 
         try {
@@ -977,7 +1034,7 @@
             showToast("শিক্ষার্থীর তথ্য সফলভাবে মুছে ফেলা হয়েছে।", "success");
 
             if (document.getElementById('editing-student-id').value === id) {
-                cancelEdit();
+                window.cancelEdit();
             }
 
             await renderStudentsList();
@@ -994,13 +1051,10 @@
             console.error("মুছে ফেলার সময় সমস্যা হয়েছে:", err);
             showToast("তথ্যটি মুছে ফেলা সম্ভব হয়নি।", "error");
         }
-    }
+    };
 
-    // =========================================================
-    // ৪. A4 ভর্তি রসিদ প্রিন্ট ও হোয়াটসঅ্যাপ মেসেজ লজিক
-    // =========================================================
-
-    async function showReceiptModal(student) {
+    // ৭. A5 পোর্ট্রেট প্রিন্ট রসিদ জেনারেটর (বডি হ্যাক রিমুভড, পারফেক্ট মার্জিনস)
+    window.showReceiptModal = function(student) {
         activePrintedStudent = student;
 
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
@@ -1011,125 +1065,108 @@
         const receiptPrintArea = document.getElementById('admission-receipt-print');
         
         receiptPrintArea.innerHTML = `
-            <!-- রসিদের উপরের অংশ -->
-            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-4">
-                <div class="flex items-center gap-4">
-                    ${logoUrl ? `<img class="w-16 h-16 rounded-full object-cover border" src="${logoUrl}">` : '<div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl font-bold font-sans">M</div>'}
+            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-3">
+                <div class="flex items-center gap-3">
+                    ${logoUrl ? `<img class="w-14 h-14 rounded-full object-cover border" src="${logoUrl}">` : '<div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-bold font-sans">M</div>'}
                     <div>
-                        <h2 class="text-xl md:text-2xl font-bold text-emerald-800">${madrasahName}</h2>
-                        <p class="text-xs text-gray-500">${madrasahAddress}</p>
-                        ${madrasahPhone ? `<p class="text-xs text-gray-500 font-en">হেল্পলাইন: ${madrasahPhone}</p>` : ''}
+                        <h2 class="text-base font-bold text-emerald-900">${madrasahName}</h2>
+                        <p class="text-[10px] text-gray-500">${madrasahAddress}</p>
+                        ${madrasahPhone ? `<p class="text-[9px] text-gray-500 font-en">হেল্পলাইন: ${madrasahPhone}</p>` : ''}
                     </div>
                 </div>
                 <div class="text-right">
-                    <h3 class="text-lg font-bold bg-emerald-800 text-white px-4 py-1.5 rounded-lg inline-block">ভর্তি রসিদ</h3>
-                    <p class="text-[10px] text-gray-400 mt-1 font-en">তারিখ: ${new Date().toLocaleDateString('bn-BD')}</p>
+                    <h3 class="text-sm font-bold bg-emerald-850 text-white px-3 py-1 rounded inline-block">ভর্তি রসিদ</h3>
+                    <p class="text-[9px] text-gray-400 mt-1 font-en">তারিখ: ${new Date().toLocaleDateString('bn-BD')}</p>
                 </div>
             </div>
 
-            <!-- রসিদের মূল ডাটা এরিয়া (A4 ২ কলাম গ্রিড) -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 py-6 border-b border-dashed">
-                
-                <!-- বাম কলামে শিক্ষার্থীর প্রোফাইল পিকচার -->
-                <div class="md:col-span-1 flex flex-col items-center justify-start border-r pr-4 border-gray-100">
-                    ${student.photo_url ? `<img class="w-32 h-32 rounded-xl object-cover border shadow-sm animate-fadeIn" src="${student.photo_url}">` : '<div class="w-32 h-32 rounded-xl bg-gray-100 border text-gray-400 flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-user text-3xl"></i><span class="text-[10px]">কোনো ছবি নেই</span></div>'}
-                    <div class="mt-4 text-center">
-                        <div class="text-xs text-gray-400">সিরিয়াল নং</div>
-                        <div class="font-bold text-base font-en text-gray-700">${student.serial_no}</div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-4 border-b border-dashed text-xs text-gray-700">
+                <div class="md:col-span-1 flex flex-col items-center justify-start border-r pr-2 border-gray-150">
+                    ${student.photo_url ? `<img class="w-24 h-24 rounded-lg object-cover border shadow-sm" src="${student.photo_url}">` : '<div class="w-24 h-24 rounded-lg bg-gray-100 border text-gray-400 flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-user text-xl"></i><span class="text-[9px]">ছবি নেই</span></div>'}
+                    <div class="mt-2 text-center">
+                        <div class="text-[10px] text-gray-400">সিরিয়াল নং</div>
+                        <strong class="font-en text-gray-700">${student.serial_no}</strong>
                     </div>
                 </div>
 
-                <!-- ডান কলামে বিস্তারিত তথ্য -->
-                <div class="md:col-span-3 grid grid-cols-2 gap-y-3.5 text-xs text-gray-700">
+                <div class="md:col-span-3 grid grid-cols-2 gap-y-2.5">
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">শিক্ষার্থীর আইডি</span>
-                        <strong class="text-sm text-emerald-950 font-en font-bold">${student.id}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">শিক্ষার্থীর আইডি</span>
+                        <strong class="text-emerald-950 font-en text-xs">${student.id}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">রোল নম্বর</span>
-                        <strong class="text-sm font-en font-bold">${student.roll}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">রোল নম্বর</span>
+                        <strong class="font-en text-xs">${student.roll}</strong>
                     </div>
                     <div class="col-span-2">
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">শিক্ষার্থীর নাম</span>
-                        <strong class="text-base text-gray-800">${student.name}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">শিক্ষার্থীর নাম</span>
+                        <strong class="text-sm text-gray-800">${student.name}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">পিতার নাম</span>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">পিতার নাম</span>
                         <strong>${student.father_name || '-'}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">মাতার নাম</span>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">মাতার নাম</span>
                         <strong>${student.mother_name || '-'}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">শাখা</span>
-                        <strong>${student.branch}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">শ্রেণী ও শাখা</span>
+                        <strong class="text-emerald-800">${student.class} (${student.branch})</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">বিভাগ</span>
-                        <strong>${student.department}</strong>
+                        <span class="text-gray-400 block text-[10px] uppercase font-bold">গ্রুপ ও ফি গ্রুপ</span>
+                        <strong>${student.group || '-'} | ${student.fee_group_name || 'সাধারণ'}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">শ্রেণী/জামাত</span>
-                        <strong class="text-emerald-800">${student.class}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">মাসিক ফিস (বেতন)</span>
+                        <strong class="font-en text-emerald-800">৳ ${parseFloat(student.monthly_fee || 0).toLocaleString('bn-BD')}</strong>
                     </div>
                     <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">গ্রুপ/সেকশন</span>
-                        <strong>${student.group}</strong>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">বেতন গ্রুপ</span>
-                        <strong class="text-emerald-800">${student.fee_group_name}</strong>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">মাসিক বেতন (ফি)</span>
-                        <strong class="font-en text-emerald-800">৳ ${parseFloat(student.monthly_fee).toLocaleString('bn-BD')}</strong>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">অভিভাবকের মোবাইল</span>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">মোবাইল নম্বর</span>
                         <strong class="font-en">${student.parent_phone}</strong>
                     </div>
                     <div class="col-span-2">
-                        <span class="text-gray-400 block text-[10px] uppercase font-bold">বর্তমান ঠিকানা</span>
-                        <strong>${student.address}</strong>
+                        <span class="text-gray-400 block text-[9px] font-bold uppercase">বর্তমান ঠিকানা</span>
+                        <strong>${student.address || '-'}</strong>
                     </div>
                 </div>
             </div>
 
-            <!-- রসিদের নিচের অংশ (অফিস সাইন ও নোট) -->
-            <div class="flex-1 flex flex-col justify-end pt-12">
-                <div class="flex justify-between items-center text-xs text-gray-500">
-                    <div class="text-center w-40 border-t pt-2 border-gray-300">
+            <div class="flex-1 flex flex-col justify-end pt-10">
+                <div class="flex justify-between items-center text-[10px] text-gray-500">
+                    <div class="text-center w-36 border-t pt-1 border-gray-300">
                         <p class="font-bold">অভিভাবকের স্বাক্ষর</p>
                     </div>
-                    <div class="text-center w-40 border-t pt-2 border-emerald-800 text-emerald-800">
-                        <p class="font-bold">অনুমোদনকারী কর্মকর্তার স্বাক্ষর</p>
+                    <div class="text-center w-36 border-t pt-1 border-emerald-800 text-emerald-800">
+                        <p class="font-bold">অনুমোদনকারীর স্বাক্ষর</p>
                     </div>
                 </div>
                 
-                <div class="text-center text-[10px] text-gray-400 pt-8 border-t border-dashed mt-8">
+                <div class="text-center text-[9px] text-gray-400 pt-6 border-t border-dashed mt-6">
                     জাজাকুমুল্লাহু খাইরান! আপনার সন্তানের শিক্ষাজীবন সাফল্যমণ্ডিত ও বরকতময় হোক।
                 </div>
             </div>
         `;
 
-        document.getElementById('print-receipt-modal').classList.remove('hidden');
-    }
+        const modal = document.getElementById('print-receipt-modal');
+        if (modal) modal.classList.remove('hidden');
+    };
 
-    async function showReceiptModalFromList(studentId) {
+    window.showReceiptModalFromList = async function(studentId) {
         const studentObj = await db.students.get(studentId);
         if (studentObj) {
-            showReceiptModal(studentObj);
+            window.showReceiptModal(studentObj);
         }
-    }
+    };
 
-    function closeReceiptModal() {
-        document.getElementById('print-receipt-modal').classList.add('hidden');
+    window.closeReceiptModal = function() {
+        const modal = document.getElementById('print-receipt-modal');
+        if (modal) modal.classList.add('hidden');
         activePrintedStudent = null;
-    }
+    };
 
-    // স্মার্ট নাম্বার রিফাইন করাসহ হোয়াটসঅ্যাপে রসিদ মেসেজ পাঠানো
-    function sendReceiptToWhatsApp() {
+    window.sendReceiptToWhatsApp = function() {
         if (!activePrintedStudent) return;
 
         const phoneNum = activePrintedStudent.parent_phone;
@@ -1153,5 +1190,6 @@ ${madrasahName} এ ভর্তি সম্পন্ন করা হয়েছ
 
         const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
         window.open(wpUrl, '_blank');
-    }
+    };
+})();
 </script>

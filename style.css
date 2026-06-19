@@ -1,1 +1,208 @@
-123
+/* =========================================================
+   Madrasah Management System - Global Stylesheet
+   Author: Senior Software Engineer & UI Designer
+   ========================================================= */
+
+/* @import রুল অবশ্যই স্টাইলশীটের একদম প্রথম লাইনে থাকতে হবে */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* --- গ্লোবাল রুট ভ্যারিয়েবলস --- */
+:root {
+    --primary-color: #059669; /* Emerald 600 */
+    --primary-hover: #047857; /* Emerald 700 */
+    --font-bangla: 'Hind Siliguri', 'Inter', sans-serif;
+    --font-english: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+    font-family: var(--font-bangla);
+    background-color: #f8fafc; /* Gray 50 */
+    color: #1e293b; /* Slate 800 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* --- ফন্ট এবং টাইপোগ্রাফি ইউটিলিটি --- */
+.font-en {
+    font-family: var(--font-english);
+}
+
+.font-mono-receipt {
+    font-family: var(--font-mono);
+}
+
+/* --- ব্রাউজার গ্লোবাল স্ক্রলবার ডিজাইন --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9; /* Slate 100 */
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Slate 300 */
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Slate 400 */
+}
+
+/* কাস্টম ইন-পেজ স্ক্রলবার */
+.custom-scroll::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* --- ট্রানজিশন এবং কাস্টম অ্যানিমেশনস --- */
+.hover-scale {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* পিন লক স্ক্রিন ভুল হলে ভাইব্রেশন অ্যানিমেশন */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+.animate-shake {
+    animation: shake 0.3s ease-in-out;
+}
+
+/* পিন কিপ্যাড গ্লাস-মরফিজম ইফেক্ট */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- ডাটা টেবিল ডিজাইন অপ্টিমাইজেশন --- */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    font-family: var(--font-bangla);
+    font-weight: 700 !important;
+    color: #64748b !important; /* Slate 500 */
+}
+
+/* =========================================================
+   ১০. গ্লোবাল প্রিন্টিং ওভাররাইড মিডিয়া কোয়েরি (A4, A5 & 80mm)
+   ========================================================= */
+@media print {
+    /* গ্লোবাল প্রিন্ট রুলস: ন্যাভিগেশন, সাইডবার ও বাটন হাইড */
+    .no-print, 
+    #sidebar, 
+    #sidebar-backdrop, 
+    header, 
+    button, 
+    .no-print *,
+    iframe {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    html, body, main, #main-content {
+        background: #ffffff !important;
+        color: #000000 !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    a[href]::after {
+        content: none !important;
+    }
+
+    /* ---------------------------------------------------------
+       ১. A4 রিপোর্ট এবং তালিকা প্রিন্টিং (student_list.html)
+       --------------------------------------------------------- */
+    #print-header {
+        display: block !important;
+        visibility: visible !important;
+        text-align: center !important;
+        border-bottom: 2px solid #000000 !important;
+        padding-bottom: 4mm !important;
+        margin-bottom: 6mm !important;
+    }
+
+    #student-list-table-container,
+    #student-list-table-container * {
+        visibility: visible !important;
+        display: block !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+    }
+
+    #student-list-table-container table {
+        width: 100% !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    #student-list-table-container th,
+    #student-list-table-container td {
+        visibility: visible !important;
+        border-bottom: 1px solid #cbd5e1 !important;
+        padding: 3mm 2mm !important;
+    }
+
+    /* ---------------------------------------------------------
+       ২. A5 পোর্ট্রেট প্রিন্টিং (Vouchers, Receipts, Biodata)
+       --------------------------------------------------------- */
+    #print-receipt-modal,
+    #receipt-modal,
+    #voucher-modal,
+    #profile-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* ---------------------------------------------------------
+       ৩. থার্মাল স্লিপ ৮মিমি পেপার প্রিন্ট অপ্টিমাইজেশন (fees.html)
+       --------------------------------------------------------- */
+    #receipt-print-area {
+        font-family: var(--font-mono) !important;
+        font-size: 10px !important;
+        line-height: 1.4 !important;
+        width: 80mm !important;
+        padding: 2mm !important;
+        box-sizing: border-box !important;
+    }
+}
