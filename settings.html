@@ -1,70 +1,224 @@
-<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row min-h-[500px]">
+<style>
+    /* Hind Siliguri এবং Inter ফন্টের মসৃণ সমন্বয় */
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    #settings-container {
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif;
+    }
+    .font-mono-receipt {
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+</style>
+
+<div id="settings-container" class="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col lg:flex-row min-h-[600px] transition-all duration-300">
 
     <!-- বাম পাশের ক্যাটাগরি মেনু (ট্যাব বাটনসমূহ) -->
-    <div class="md:w-60 border-b md:border-b-0 md:border-r border-gray-100 p-4 space-y-1 bg-gray-50/50 rounded-t-2xl md:rounded-r-none md:rounded-l-2xl">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-3">অ্যাপ সেটিংস</h3>
+    <div class="lg:w-64 border-b lg:border-b-0 lg:border-r border-gray-100 p-5 space-y-1 bg-gray-50/50 rounded-t-2xl lg:rounded-r-none lg:rounded-l-2xl no-print">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-4 flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders"></i> কন্ট্রোল প্যানেল
+        </h3>
         
-        <button onclick="switchTab('general')" id="tab-btn-general" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-emerald-700 bg-emerald-50/60 border-l-4 border-emerald-600">
+        <button type="button" onclick="switchTab('general')" id="tab-btn-general" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-emerald-700 bg-emerald-50/60 border-l-4 border-emerald-600">
             <i class="fa-solid fa-mosque"></i> সাধারণ সেটিংস
         </button>
-        <button onclick="switchTab('security')" id="tab-btn-security" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+        <button type="button" onclick="switchTab('academic')" id="tab-btn-academic" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-sitemap"></i> শাখা ও অ্যাকাডেমিক কাঠামো
+        </button>
+        <button type="button" onclick="switchTab('fees')" id="tab-btn-fees" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-wallet"></i> বেতন ও বোর্ডিং গ্রুপ
+        </button>
+        <button type="button" onclick="switchTab('security')" id="tab-btn-security" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
             <i class="fa-solid fa-shield-halved"></i> নিরাপত্তা ও পিন
         </button>
-        <button onclick="switchTab('fees')" id="tab-btn-fees" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-            <i class="fa-solid fa-money-bills"></i> ডিফল্ট মাসিক ফি
-        </button>
-        <button onclick="switchTab('sync')" id="tab-btn-sync" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-            <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও সংযোগ পরীক্ষা
+        <button type="button" onclick="switchTab('sync')" id="tab-btn-sync" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও ডায়াগনস্টিকস
         </button>
     </div>
 
     <!-- ডান পাশের মূল ফর্ম কন্টেন্ট এরিয়া -->
-    <div class="flex-1 p-6 md:p-8 flex flex-col justify-between">
+    <div class="flex-1 p-6 lg:p-8 flex flex-col justify-between">
         
         <form id="settings-form" class="space-y-6 flex-1">
             
             <!-- ট্যাব ১: সাধারণ সেটিংস -->
             <div id="tab-content-general" class="space-y-4">
                 <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-mosque"></i> সাধারণ তথ্য ও প্রোফাইল সেটিংস
+                    <i class="fa-solid fa-circle-info"></i> মাদরাসার মূল প্রোফাইল সেটিংস
                 </h4>
                 
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">মাদরাসার নাম *</label>
-                    <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">মাদরাসার নাম *</label>
+                        <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
+                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">হেল্পলাইন/মোবাইল নম্বর</label>
+                        <input type="tel" id="set-madrasah-phone" placeholder="যেমন: 017XXXXXXXX"
+                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold font-en">
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">মাদরাসার ঠিকানা</label>
                     <input type="text" id="set-madrasah-address" placeholder="যেমন: ঢাকা, বাংলাদেশ"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">হেল্পলাইন/মোবাইল নম্বর</label>
-                    <input type="tel" id="set-madrasah-phone" placeholder="যেমন: 017XXXXXXXX"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-en">
-                </div>
-
-                <!-- লোগো আপলোডার -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-gray-500">মাদরাসার লোগো (PNG/JPG)</label>
-                    <div class="flex items-center gap-4 border border-dashed border-gray-200 p-3 rounded-xl">
-                        <div id="logo-preview-container" class="hidden">
-                            <img id="logo-preview" class="w-12 h-12 rounded-full object-cover border bg-gray-50" src="" alt="Logo">
+                <!-- মাদরাসার লোগো লিংক এবং লাইভ প্রিভিউ উইন্ডো -->
+                <div class="space-y-2 border border-gray-150 p-4 rounded-xl bg-gray-50/30">
+                    <label class="block text-xs font-bold text-gray-500">মাদরাসার লোগো লিংক (Logo URL)</label>
+                    
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <!-- বামে: লোগো লিংক ইনপুট বক্স -->
+                        <div class="flex-1 space-y-1.5">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <i class="fa-solid fa-link text-xs"></i>
+                                </span>
+                                <input type="text" id="set-madrasah-logo-url" oninput="updateLogoPreview()" placeholder="অনলাইন ইমেজ লিংক (যেমন: https://i.ibb.co/logo.png)"
+                                       class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-[11px] font-mono">
+                            </div>
+                            <p class="text-[10px] text-gray-400">ইন্টারনেটে থাকা মাদরাসার যেকোনো লোগোর লিংক এখানে পেস্ট করুন। পেস্ট করার পর ডানের বক্সে প্রিভিউ দেখা যাবে [6]।</p>
                         </div>
-                        <div class="flex-1">
-                            <input type="file" id="logo-file-input" onchange="handleLogoUpload(event)" accept="image/*" class="hidden">
-                            <button type="button" onclick="document.getElementById('logo-file-input').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5">
-                                <i class="fa-solid fa-camera"></i> লোগো আপলোড করুন
-                            </button>
+
+                        <!-- ডানে: ইন্টারেক্টিভ প্রিভিউ উইন্ডো -->
+                        <div id="logo-preview-container" class="hidden shrink-0 flex items-center justify-center">
+                            <div class="relative group">
+                                <img id="logo-preview" class="w-16 h-14 rounded-full object-cover border-2 border-white shadow-md bg-gray-100" src="" alt="Logo">
+                                <button type="button" onclick="clearLogoUrl()" class="absolute -top-1.5 -right-1.5 bg-red-500 hover:bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] shadow-sm" title="লিংক ক্লিয়ার করুন">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ট্যাব ২: নিরাপত্তা ও লক সেটিংস -->
+            <!-- ট্যাব ২: শাখা ও অ্যাকাডেমিক কাঠামো -->
+            <div id="tab-content-academic" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap"></i> শাখা, বিভাগ, শ্রেণী ও গ্রুপ কাঠামো
+                </h4>
+                <p class="text-[11px] text-gray-400">মাদরাসার শাখা এবং প্রতিটি শাখার অন্তর্গত বিভাগ, শ্রেণী ও গ্রুপসমূহ নিচ থেকে সেট করুন। এগুলো ভর্তি ফরমে অটো-জেনারেট হবে।</p>
+
+                <!-- ডাইনামিক ক্যাস্কেড ম্যানেজার -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- শাখা কলাম -->
+                    <div class="bg-gray-50/80 p-3 rounded-xl border border-gray-100 flex flex-col h-72">
+                        <h5 class="text-xs font-bold text-emerald-850 mb-2 flex items-center justify-between">
+                            <span>১. শাখা সমূহ</span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full font-en" id="cnt-branches">0</span>
+                        </h5>
+                        <div id="branch-list" class="flex-1 overflow-y-auto space-y-1 mb-2 pr-1 custom-scroll"></div>
+                        <div class="flex gap-1">
+                            <input type="text" id="new-branch-name" placeholder="শাখার নাম..." class="flex-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:border-emerald-500 bg-white">
+                            <button type="button" onclick="addBranch()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 rounded-lg text-xs font-bold">+</button>
+                        </div>
+                    </div>
+
+                    <!-- বিভাগ কলাম (ডিপেন্ডেন্ট) -->
+                    <div class="bg-gray-50/80 p-3 rounded-xl border border-gray-100 flex flex-col h-72">
+                        <h5 class="text-xs font-bold text-blue-900 mb-2 flex items-center justify-between">
+                            <span>২. বিভাগ সমূহ</span>
+                            <span class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-en" id="cnt-depts">0</span>
+                        </h5>
+                        <div id="dept-list" class="flex-1 overflow-y-auto space-y-1 mb-2 pr-1 custom-scroll">
+                            <div class="text-center py-12 text-[10px] text-gray-400">প্রথমে শাখা সিলেক্ট করুন</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <input type="text" id="new-dept-name" placeholder="বিভাগের নাম..." class="flex-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:border-blue-500 bg-white" disabled>
+                            <button type="button" id="btn-add-dept" onclick="addDepartment()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 rounded-lg text-xs font-bold" disabled>+</button>
+                        </div>
+                    </div>
+
+                    <!-- শ্রেণী কলাম (ডিপেন্ডেন্ট) -->
+                    <div class="bg-gray-50/80 p-3 rounded-xl border border-gray-100 flex flex-col h-72">
+                        <h5 class="text-xs font-bold text-amber-900 mb-2 flex items-center justify-between">
+                            <span>৩. শ্রেণী সমূহ</span>
+                            <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-en" id="cnt-classes">0</span>
+                        </h5>
+                        <div id="class-list" class="flex-1 overflow-y-auto space-y-1 mb-2 pr-1 custom-scroll">
+                            <div class="text-center py-12 text-[10px] text-gray-400">প্রথমে বিভাগ সিলেক্ট করুন</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <input type="text" id="new-class-name" placeholder="শ্রেণীর নাম..." class="flex-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:border-amber-500 bg-white" disabled>
+                            <button type="button" id="btn-add-class" onclick="addClass()" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 rounded-lg text-xs font-bold" disabled>+</button>
+                        </div>
+                    </div>
+
+                    <!-- গ্রুপ কলাম (ডিপেন্ডেন্ট) -->
+                    <div class="bg-gray-50/80 p-3 rounded-xl border border-gray-100 flex flex-col h-72">
+                        <h5 class="text-xs font-bold text-purple-900 mb-2 flex items-center justify-between">
+                            <span>৪. গ্রুপ/সেকশন</span>
+                            <span class="text-[9px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded-full font-en" id="cnt-groups">0</span>
+                        </h5>
+                        <div id="group-list" class="flex-1 overflow-y-auto space-y-1 mb-2 pr-1 custom-scroll">
+                            <div class="text-center py-12 text-[10px] text-gray-400">প্রথমে শ্রেণী সিলেক্ট করুন</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <input type="text" id="new-group-name" placeholder="যেমন: ক গ্রুপ, খ গ্রুপ" class="flex-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:border-purple-500 bg-white" disabled>
+                            <button type="button" id="btn-add-group" onclick="addGroup()" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 rounded-lg text-xs font-bold" disabled>+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ট্যাব ৩: বেতন ও বোর্ডিং গ্রুপ -->
+            <div id="tab-content-fees" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bills"></i> বেতন ও বোর্ডিং ফিস কনফিগারেশন
+                </h4>
+                <p class="text-[11px] text-gray-400 mb-3">মাদরাসার বেতন ও বোর্ডিং সংক্রান্ত গ্রুপ (যেমন: বাড়ি, বোর্ডিং, বিশেষ বোর্ডিং ইত্যাদি) এবং তাদের প্রমিত ফি এখান থেকে তৈরি ও পরিবর্তন করুন।</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- নতুন ফি গ্রুপ তৈরি ফরম -->
+                    <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-150 space-y-3 h-fit">
+                        <h5 class="text-xs font-bold text-gray-700">নতুন ফি গ্রুপ যোগ করুন</h5>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 mb-1">গ্রুপের নাম *</label>
+                            <input type="text" id="fee-group-name" placeholder="যেমন: সাধারণ বোর্ডিং" class="w-full px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 mb-1">মাসিক ফিস (৳) *</label>
+                            <input type="number" id="fee-group-amount" placeholder="যেমন: ১৫০০" min="0" class="w-full px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-emerald-500 font-bold font-en">
+                        </div>
+                        <button type="button" onclick="addFeeGroup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition">
+                            তালিকায় যোগ করুন
+                        </button>
+                    </div>
+
+                    <!-- ফি গ্রুপ সমূহের তালিকা -->
+                    <div class="md:col-span-2 border border-gray-150 rounded-xl overflow-hidden flex flex-col">
+                        <table class="min-w-full divide-y divide-gray-100">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">গ্রুপের নাম</th>
+                                    <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">মাসিক ফিস (৳)</th>
+                                    <th class="px-4 py-2.5 text-right text-[11px] font-bold text-gray-400 uppercase">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fee-groups-table" class="bg-white divide-y divide-gray-50 text-xs">
+                                <tr>
+                                    <td colspan="3" class="px-4 py-8 text-center text-gray-400">কোনো ফি গ্রুপ তৈরি করা হয়নি</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ট্যাব ৪: নিরাপত্তা ও লক সেটিংস -->
             <div id="tab-content-security" class="space-y-4 hidden">
                 <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-shield-halved"></i> নিরাপত্তা ও স্ক্রিন লক সেটিংস
@@ -74,12 +228,12 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">লক স্ক্রিন পিন কোড (৪ সংখ্যার) *</label>
                         <input type="password" id="set-madrasah-pin" required maxlength="4" pattern="[0-9]{4}" placeholder="যেমন: 1234"
-                               class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs tracking-widest font-bold font-en text-center">
+                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs tracking-widest font-bold font-en text-center">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">অটো-লক টাইমআউট (Auto Lock)</label>
                         <select id="set-lock-timeout"
-                                class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
+                                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white font-semibold text-gray-700">
                             <option value="0">কখনো নয় (Never Lock)</option>
                             <option value="1">১ মিনিট নিষ্ক্রিয় থাকলে</option>
                             <option value="3">৩ মিনিট নিষ্ক্রিয় থাকলে</option>
@@ -88,46 +242,9 @@
                         </select>
                     </div>
                 </div>
-                <p class="text-[11px] text-gray-400">নিরাপত্তার স্বার্থে পিন কোডটি অবশ্যই মনে রাখবেন এবং ৪ সংখ্যার সঠিক সংখ্যা দিন।</p>
             </div>
 
-            <!-- ট্যাব ৩: ডিফল্ট ফি বা বেতনের হার -->
-            <div id="tab-content-fees" class="space-y-4 hidden">
-                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-money-bills"></i> শ্রেণী-ভিত্তিক প্রমিত মাসিক ফি কনফিগারেশন
-                </h4>
-                <p class="text-[11px] text-gray-400 mb-3">এখানে নির্ধারিত ফি-গুলো বেতন আদায় ফরম ও ছাত্র ভর্তি ফরমের ডিফল্ট ফি হিসেবে স্বয়ংক্রিয়ভাবে সাজেস্ট হবে।</p>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">হিফজ শ্রেণী (৳)</label>
-                        <input type="number" id="fee-hifz" placeholder="৫০০" min="0"
-                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">নাজেরা শ্রেণী (৳)</label>
-                        <input type="number" id="fee-nazera" placeholder="৪০০" min="0"
-                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">নূরানী শ্রেণী (৳)</label>
-                        <input type="number" id="fee-noorani" placeholder="৩০০" min="0"
-                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">প্রথম শ্রেণী (৳)</label>
-                        <input type="number" id="fee-class1" placeholder="৩০০" min="0"
-                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">দ্বিতীয় শ্রেণী (৳)</label>
-                        <input type="number" id="fee-class2" placeholder="৩৫০" min="0"
-                               class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
-                    </div>
-                </div>
-            </div>
-
-            <!-- ট্যাব ৪: ক্লাউড সিঙ্ক ও ডায়াগনস্টিকস -->
+            <!-- ট্যাব ৫: সিঙ্ক ও ডায়াগনস্টিকস -->
             <div id="tab-content-sync" class="space-y-4 hidden">
                 <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও ডেটাবেজ ডায়াগনস্টিকস
@@ -145,7 +262,6 @@
                     </button>
                 </div>
 
-                <!-- লোকাল ডাটাবেজ ডায়াগনস্টিকস -->
                 <div class="pt-4 border-t space-y-2">
                     <h5 class="text-xs font-bold text-gray-500">লোকাল ডেটাবেজ স্ট্যাটাস:</h5>
                     <div class="grid grid-cols-2 gap-3 text-xs bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -154,7 +270,6 @@
                     </div>
                 </div>
 
-                <!-- ডেঞ্জার জোন (Reset Database) -->
                 <div class="pt-4 border-t border-red-100">
                     <h5 class="text-xs font-bold text-red-500 mb-1.5">ডেঞ্জার জোন (Danger Zone):</h5>
                     <button type="button" onclick="resetDatabase()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 border border-red-200">
@@ -177,9 +292,18 @@
 </div>
 
 <script>
+    // ডাইনামিক ডেটা অবজেক্ট স্ট্রাকচার
+    let academicStructure = []; // [{id, name, departments: [{id, name, classes: [{id, name, groups: []}]}]}]
+    let feeGroups = [];        // [{id, name, amount}]
+
+    // ট্র্যাক করার জন্য গ্লোবাল ভ্যারিয়েবলস
+    let selectedBranchId = null;
+    let selectedDeptId = null;
+    let selectedClassId = null;
+
     // ট্যাব পরিবর্তন করার লজিক
     function switchTab(tabName) {
-        const tabs = ['general', 'security', 'fees', 'sync'];
+        const tabs = ['general', 'academic', 'fees', 'security', 'sync'];
         tabs.forEach(tab => {
             const btn = document.getElementById(`tab-btn-${tab}`);
             const content = document.getElementById(`tab-content-${tab}`);
@@ -195,24 +319,394 @@
         });
     }
 
-    // লগো আপলোড এবং প্রিভিউ প্রসেসিং (Base64)
-    function handleLogoUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    // =========================================================
+    // ১. ছবির লাইভ লিংক এবং প্রিভিউ লজিক (Logo Link & Preview Only)
+    // =========================================================
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const base64Data = e.target.result;
-            // এটি সাময়িকভাবে লোকালে রেখে দেওয়া হচ্ছে, ফর্ম সেভ হলে সম্পূর্ণ সেভ হবে
-            localStorage.setItem('madrasah_logo_temp', base64Data);
-            document.getElementById('logo-preview').src = base64Data;
-            document.getElementById('logo-preview-container').classList.remove('hidden');
-            showToast("লোগো আপলোড হয়েছে! স্থায়ীভাবে সেভ করতে নিচের সেভ বাটনে ক্লিক করুন।", "info");
-        };
-        reader.readAsDataURL(file);
+    // ছবির ইনপুট টাইপ বা পেস্ট হলে লাইভ প্রিভিউ প্রদর্শন
+    function updateLogoPreview() {
+        const url = document.getElementById('set-madrasah-logo-url').value.trim();
+        const previewContainer = document.getElementById('logo-preview-container');
+        const previewImg = document.getElementById('logo-preview');
+        
+        if (url) {
+            previewImg.src = url;
+            previewContainer.classList.remove('hidden');
+            
+            // যদি ভুল লিংক প্রদান করা হয় এবং ইমেজ লোড না হয়
+            previewImg.onerror = function() {
+                previewContainer.classList.add('hidden');
+                showToast("ভুল লোগো লিংক! ছবিটি লোড করা যাচ্ছে না।", "error");
+            };
+        } else {
+            previewContainer.classList.add('hidden');
+        }
     }
 
-    // গুগল শিটের সাথে সংযোগ পরীক্ষা (Live Ping Test)
+    // লিংক ক্লিয়ার ও প্রিভিউ হাইড করা
+    function clearLogoUrl() {
+        document.getElementById('set-madrasah-logo-url').value = '';
+        updateLogoPreview();
+    }
+
+    // =========================================================
+    // ২. শাখা ও অ্যাকাডেমিক কাঠামো নিয়ন্ত্রণ লজিক (Academic Structure)
+    // =========================================================
+
+    function generateUniqueId() {
+        return 'id-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function renderAcademicStructure() {
+        renderBranches();
+        renderDepartments();
+        renderClasses();
+        renderGroups();
+    }
+
+    // ২.১ শাখা কন্ট্রোল
+    function renderBranches() {
+        const list = document.getElementById('branch-list');
+        document.getElementById('cnt-branches').textContent = academicStructure.length;
+        list.innerHTML = '';
+        
+        academicStructure.forEach(branch => {
+            const isActive = selectedBranchId === branch.id;
+            const item = document.createElement('div');
+            item.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition text-xs font-semibold ${isActive ? 'bg-emerald-50 border border-emerald-200 text-emerald-950 font-bold' : 'hover:bg-gray-100 text-gray-700'}`;
+            item.onclick = () => selectBranch(branch.id);
+            item.innerHTML = `
+                <span class="truncate">${branch.name}</span>
+                <button type="button" onclick="event.stopPropagation(); deleteBranch('${branch.id}')" class="text-red-500 hover:text-red-700 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function selectBranch(id) {
+        selectedBranchId = id;
+        selectedDeptId = null;
+        selectedClassId = null;
+        
+        document.getElementById('new-dept-name').disabled = false;
+        document.getElementById('btn-add-dept').disabled = false;
+        
+        document.getElementById('new-class-name').disabled = true;
+        document.getElementById('btn-add-class').disabled = true;
+        document.getElementById('new-group-name').disabled = true;
+        document.getElementById('btn-add-group').disabled = true;
+
+        renderAcademicStructure();
+    }
+
+    function addBranch() {
+        const input = document.getElementById('new-branch-name');
+        const name = input.value.trim();
+        if (!name) return;
+
+        academicStructure.push({
+            id: generateUniqueId(),
+            name: name,
+            departments: []
+        });
+
+        input.value = '';
+        renderAcademicStructure();
+    }
+
+    function deleteBranch(id) {
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই শাখা এবং এর সমস্ত উপ-কাঠামো (বিভাগ, শ্রেণী) মুছে ফেলতে চান?")) return;
+        academicStructure = academicStructure.filter(b => b.id !== id);
+        if (selectedBranchId === id) {
+            selectedBranchId = null;
+            selectedDeptId = null;
+            selectedClassId = null;
+        }
+        renderAcademicStructure();
+    }
+
+    // ২.২ বিভাগ কন্ট্রোল
+    function renderDepartments() {
+        const list = document.getElementById('dept-list');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        
+        if (!activeBranch) {
+            document.getElementById('cnt-depts').textContent = 0;
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">প্রথমে শাখা সিলেক্ট করুন</div>`;
+            return;
+        }
+
+        const depts = activeBranch.departments || [];
+        document.getElementById('cnt-depts').textContent = depts.length;
+        list.innerHTML = '';
+
+        if (depts.length === 0) {
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">কোনো বিভাগ নেই</div>`;
+            return;
+        }
+
+        depts.forEach(dept => {
+            const isActive = selectedDeptId === dept.id;
+            const item = document.createElement('div');
+            item.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition text-xs font-semibold ${isActive ? 'bg-blue-50 border border-blue-200 text-blue-950 font-bold' : 'hover:bg-gray-100 text-gray-700'}`;
+            item.onclick = () => selectDept(dept.id);
+            item.innerHTML = `
+                <span class="truncate">${dept.name}</span>
+                <button type="button" onclick="event.stopPropagation(); deleteDepartment('${dept.id}')" class="text-red-500 hover:text-red-700 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function selectDept(id) {
+        selectedDeptId = id;
+        selectedClassId = null;
+
+        document.getElementById('new-class-name').disabled = false;
+        document.getElementById('btn-add-class').disabled = false;
+        document.getElementById('new-group-name').disabled = true;
+        document.getElementById('btn-add-group').disabled = true;
+
+        renderAcademicStructure();
+    }
+
+    function addDepartment() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        if (!activeBranch) return;
+
+        const input = document.getElementById('new-dept-name');
+        const name = input.value.trim();
+        if (!name) return;
+
+        activeBranch.departments.push({
+            id: generateUniqueId(),
+            name: name,
+            classes: []
+        });
+
+        input.value = '';
+        renderAcademicStructure();
+    }
+
+    function deleteDepartment(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        if (!activeBranch) return;
+
+        if (!confirm("আপনি কি বিভাগটি মুছে ফেলতে চান?")) return;
+        activeBranch.departments = activeBranch.departments.filter(d => d.id !== id);
+        if (selectedDeptId === id) {
+            selectedDeptId = null;
+            selectedClassId = null;
+        }
+        renderAcademicStructure();
+    }
+
+    // ২.৩ শ্রেণী কন্ট্রোল
+    function renderClasses() {
+        const list = document.getElementById('class-list');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+
+        if (!activeDept) {
+            document.getElementById('cnt-classes').textContent = 0;
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">প্রথমে বিভাগ সিলেক্ট করুন</div>`;
+            return;
+        }
+
+        const classes = activeDept.classes || [];
+        document.getElementById('cnt-classes').textContent = classes.length;
+        list.innerHTML = '';
+
+        if (classes.length === 0) {
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">কোনো শ্রেণী নেই</div>`;
+            return;
+        }
+
+        classes.forEach(cls => {
+            const isActive = selectedClassId === cls.id;
+            const item = document.createElement('div');
+            item.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition text-xs font-semibold ${isActive ? 'bg-amber-50 border border-amber-200 text-amber-950 font-bold' : 'hover:bg-gray-100 text-gray-700'}`;
+            item.onclick = () => selectClass(cls.id);
+            item.innerHTML = `
+                <span class="truncate">${cls.name}</span>
+                <button type="button" onclick="event.stopPropagation(); deleteClass('${cls.id}')" class="text-red-500 hover:text-red-700 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function selectClass(id) {
+        selectedClassId = id;
+        document.getElementById('new-group-name').disabled = false;
+        document.getElementById('btn-add-group').disabled = false;
+        renderAcademicStructure();
+    }
+
+    function addClass() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        if (!activeDept) return;
+
+        const input = document.getElementById('new-class-name');
+        const name = input.value.trim();
+        if (!name) return;
+
+        activeDept.classes.push({
+            id: generateUniqueId(),
+            name: name,
+            groups: []
+        });
+
+        input.value = '';
+        renderAcademicStructure();
+    }
+
+    function deleteClass(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        if (!activeDept) return;
+
+        if (!confirm("আপনি কি শ্রেণীটি মুছে ফেলতে চান?")) return;
+        activeDept.classes = activeDept.classes.filter(c => c.id !== id);
+        if (selectedClassId === id) {
+            selectedClassId = null;
+        }
+        renderAcademicStructure();
+    }
+
+    // ২.৪ গ্রুপ কন্ট্রোল
+    function renderGroups() {
+        const list = document.getElementById('group-list');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+
+        if (!activeClass) {
+            document.getElementById('cnt-groups').textContent = 0;
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">প্রথমে শ্রেণী সিলেক্ট করুন</div>`;
+            return;
+        }
+
+        const groups = activeClass.groups || [];
+        document.getElementById('cnt-groups').textContent = groups.length;
+        list.innerHTML = '';
+
+        if (groups.length === 0) {
+            list.innerHTML = `<div class="text-center py-12 text-[10px] text-gray-400">কোনো গ্রুপ নেই</div>`;
+            return;
+        }
+
+        groups.forEach((grp, index) => {
+            const item = document.createElement('div');
+            item.className = "flex items-center justify-between p-2 rounded-lg bg-white border text-xs font-semibold text-gray-700 hover:bg-gray-50";
+            item.innerHTML = `
+                <span class="truncate">${grp}</span>
+                <button type="button" onclick="deleteGroup(${index})" class="text-red-500 hover:text-red-700 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function addGroup() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        if (!activeClass) return;
+
+        const input = document.getElementById('new-group-name');
+        const name = input.value.trim();
+        if (!name) return;
+
+        if (activeClass.groups.includes(name)) {
+            showToast("এই গ্রুপটি ইতিমধ্যে যুক্ত আছে।", "error");
+            return;
+        }
+
+        activeClass.groups.push(name);
+        input.value = '';
+        renderAcademicStructure();
+    }
+
+    function deleteGroup(index) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        if (!activeClass) return;
+
+        if (!confirm("আপনি কি গ্রুপটি মুছে ফেলতে চান?")) return;
+        activeClass.groups.splice(index, 1);
+        renderAcademicStructure();
+    }
+
+    // =========================================================
+    // ৩. বেতন ও বোর্ডিং গ্রুপ নিয়ন্ত্রণ লজিক (Fee Configurations)
+    // =========================================================
+
+    function renderFeeGroups() {
+        const tbody = document.getElementById('fee-groups-table');
+        if (feeGroups.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="px-4 py-8 text-center text-gray-400 font-semibold">কোনো বেতন/বোর্ডিং গ্রুপ তৈরি করা হয়নি</td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        feeGroups.forEach(grp => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 border-b border-gray-100 transition";
+            tr.innerHTML = `
+                <td class="px-4 py-3 font-bold text-gray-800">${grp.name}</td>
+                <td class="px-4 py-3 font-bold font-en text-emerald-800">৳ ${parseFloat(grp.amount).toLocaleString('bn-BD')}</td>
+                <td class="px-4 py-3 text-right">
+                    <button type="button" onclick="deleteFeeGroup('${grp.id}')" class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">
+                        <i class="fa-solid fa-trash-can"></i> মুছুন
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function addFeeGroup() {
+        const nameInput = document.getElementById('fee-group-name');
+        const amountInput = document.getElementById('fee-group-amount');
+
+        const name = nameInput.value.trim();
+        const amount = parseFloat(amountInput.value);
+
+        if (!name || isNaN(amount) || amount < 0) {
+            showToast("গ্রুপের নাম ও সঠিক মাসিক বেতন উল্লেখ করুন।", "error");
+            return;
+        }
+
+        if (feeGroups.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+            showToast("এই নামে ইতিমধ্যে একটি গ্রুপ তৈরি করা আছে।", "error");
+            return;
+        }
+
+        feeGroups.push({
+            id: generateUniqueId(),
+            name: name,
+            amount: amount
+        });
+
+        nameInput.value = '';
+        amountInput.value = '';
+        renderFeeGroups();
+    }
+
+    function deleteFeeGroup(id) {
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই ফি গ্রুপটি মুছে ফেলতে চান?")) return;
+        feeGroups = feeGroups.filter(g => g.id !== id);
+        renderFeeGroups();
+    }
+
+    // =========================================================
+    // ৪. সিঙ্ক, ডায়াগনস্টিকস ও মূল ইনিশিয়ালাইজেশন
+    // =========================================================
+
     async function testConnection() {
         const url = document.getElementById('set-madrasah-url').value.trim();
         if (!url) {
@@ -243,7 +737,6 @@
         }
     }
 
-    // ডায়াগনস্টিক তথ্য লোড (Stats)
     async function loadDbStats() {
         try {
             const totalStudents = await db.students.filter(s => s.is_deleted !== 1).count();
@@ -258,32 +751,34 @@
     // সেটিংস ইনিশিয়ালাইজেশন
     async function initSettings() {
         try {
+            // Dexie থেকে গ্লোবাল কনফিগারেশন ব্লক লোড
+            const config = await db.settings.get('madrasah_config_block') || {};
+
             // ১. সাধারণ সেটিংস ভ্যালু সেট
-            document.getElementById('set-madrasah-name').value = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
-            document.getElementById('set-madrasah-address').value = localStorage.getItem('madrasah_address') || '';
-            document.getElementById('set-madrasah-phone').value = localStorage.getItem('madrasah_phone') || '';
-            document.getElementById('set-madrasah-pin').value = localStorage.getItem('madrasah_pin') || '1234';
-            document.getElementById('set-lock-timeout').value = localStorage.getItem('madrasah_lock_timeout') || '0';
-            document.getElementById('set-madrasah-url').value = localStorage.getItem('madrasah_script_url') || '';
+            document.getElementById('set-madrasah-name').value = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            document.getElementById('set-madrasah-address').value = config.madrasah_address || localStorage.getItem('madrasah_address') || '';
+            document.getElementById('set-madrasah-phone').value = config.madrasah_phone || localStorage.getItem('madrasah_phone') || '';
+            document.getElementById('set-madrasah-pin').value = config.madrasah_pin || localStorage.getItem('madrasah_pin') || '1234';
+            document.getElementById('set-lock-timeout').value = config.madrasah_lock_timeout || localStorage.getItem('madrasah_lock_timeout') || '0';
+            document.getElementById('set-madrasah-url').value = config.madrasah_script_url || localStorage.getItem('madrasah_script_url') || '';
 
-            // ২. লোগো প্রিভিউ লোড
-            const savedLogo = localStorage.getItem('madrasah_logo');
-            if (savedLogo) {
-                document.getElementById('logo-preview').src = savedLogo;
-                document.getElementById('logo-preview-container').classList.remove('hidden');
-            }
+            // ২. লোগো ইউআরএল টেক্সট বক্সে লোড করা এবং প্রিভিউ সচল করা
+            const savedLogoUrl = config.madrasah_logo || localStorage.getItem('madrasah_logo') || '';
+            document.getElementById('set-madrasah-logo-url').value = savedLogoUrl;
+            updateLogoPreview(); // লোড হওয়া লিংকের লাইভ প্রিভিউ
 
-            // ৩. ক্লাস-ভিত্তিক ডিফল্ট বেতন লোড
-            document.getElementById('fee-hifz').value = localStorage.getItem('fee_hifz') || '500';
-            document.getElementById('fee-nazera').value = localStorage.getItem('fee_nazera') || '400';
-            document.getElementById('fee-noorani').value = localStorage.getItem('fee_noorani') || '300';
-            document.getElementById('fee-class1').value = localStorage.getItem('fee_class1') || '300';
-            document.getElementById('fee-class2').value = localStorage.getItem('fee_class2') || '350';
+            // ৩. ডাইনামিক শাখা, বিভাগ ও ক্লাস রেন্ডারিং
+            academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+            renderAcademicStructure();
 
-            // ৪. ডেটাবেজ স্ট্যাটাস আপডেট
+            // ৪. ডাইনামিক বেতন গ্রুপ রেন্ডারিং
+            feeGroups = config.fee_groups ? JSON.parse(config.fee_groups) : [];
+            renderFeeGroups();
+
+            // ৫. ডেটাবেজ স্ট্যাটাস আপডেট
             await loadDbStats();
 
-            // ৫. সেটিংস ফর্ম সাবমিট হ্যান্ডলার
+            // ৬. সেটিংস ফর্ম সাবমিট হ্যান্ডলার
             const form = document.getElementById('settings-form');
             if (form) {
                 form.onsubmit = async function(e) {
@@ -295,42 +790,27 @@
                     const pin = document.getElementById('set-madrasah-pin').value.trim();
                     const lockTimeout = document.getElementById('set-lock-timeout').value;
                     const url = document.getElementById('set-madrasah-url').value.trim();
-
-                    // ডিফল্ট বেতন সেভ
-                    const feeHifz = document.getElementById('fee-hifz').value;
-                    const feeNazera = document.getElementById('fee-nazera').value;
-                    const feeNoorani = document.getElementById('fee-noorani').value;
-                    const feeClass1 = document.getElementById('fee-class1').value;
-                    const feeClass2 = document.getElementById('fee-class2').value;
+                    
+                    // ইনপুট লিংক থেকে ছবি সংগ্রহ ও সংরক্ষণ
+                    const logoUrl = document.getElementById('set-madrasah-logo-url').value.trim();
 
                     if (pin.length !== 4 || isNaN(pin)) {
                         showToast("পিন কোডটি অবশ্যই ৪ সংখ্যার হতে হবে!", "error");
                         return;
                     }
 
-                    // অস্থায়ী লোগো স্থায়ী লোগো হিসেবে সেভ করা
-                    const tempLogo = localStorage.getItem('madrasah_logo_temp');
-                    if (tempLogo) {
-                        localStorage.setItem('madrasah_logo', tempLogo);
-                        localStorage.removeItem('madrasah_logo_temp');
-                    }
-
-                    // LocalStorage-এ সংরক্ষণ
+                    // LocalStorage ব্যাকআপ রাইট
                     localStorage.setItem('madrasah_name', name);
                     localStorage.setItem('madrasah_address', address);
                     localStorage.setItem('madrasah_phone', phone);
                     localStorage.setItem('madrasah_pin', pin);
                     localStorage.setItem('madrasah_lock_timeout', lockTimeout);
                     localStorage.setItem('madrasah_script_url', url);
-
-                    localStorage.setItem('fee_hifz', feeHifz);
-                    localStorage.setItem('fee_nazera', feeNazera);
-                    localStorage.setItem('fee_noorani', feeNoorani);
-                    localStorage.setItem('fee_class1', feeClass1);
-                    localStorage.setItem('fee_class2', feeClass2);
+                    localStorage.setItem('madrasah_logo', logoUrl);
 
                     try {
-                        // লোকাল ডেটাবেজে (Dexie) ক্লাউড সিঙ্ক কিউ হিসেবে সেটিংস আপডেট
+                        // লোকাল ডেটাবেজে (Dexie) ক্লাউড সিঙ্ক কিউ হিসেবে সম্পূর্ণ সেটিংস আপডেট
+                        // নতুন ‘madrasah_logo’ কলামটি গুগল শিটে রিয়্যাল লিংক আকারে সুন্দরভাবে সংরক্ষণ হবে
                         await db.settings.put({
                             id: 'madrasah_config_block',
                             madrasah_name: name,
@@ -339,11 +819,9 @@
                             madrasah_pin: pin,
                             madrasah_lock_timeout: lockTimeout,
                             madrasah_script_url: url,
-                            fee_hifz: feeHifz,
-                            fee_nazera: feeNazera,
-                            fee_noorani: feeNoorani,
-                            fee_class1: feeClass1,
-                            fee_class2: feeClass2,
+                            madrasah_logo: logoUrl, // ছবির রিয়েল ক্লাউড লিংক
+                            academic_structure: JSON.stringify(academicStructure),
+                            fee_groups: JSON.stringify(feeGroups),
                             is_synced: 0,
                             is_deleted: 0
                         });
@@ -354,6 +832,7 @@
                             window.applyGlobalSettings();
                         }
 
+                        // অনলাইন থাকলে রিয়্যালটাইমে অটো-সিঙ্ক ট্রিগার
                         if (typeof triggerAutoSync === 'function' && navigator.onLine) {
                             await triggerAutoSync();
                         }
@@ -373,7 +852,7 @@
         }
     }
 
-    // সম্পূর্ণ ডাটাবেজ রিসেট লজিক (Danger Zone)
+    // সম্পূর্ণ লোকাল ডাটাবেজ ক্লিয়ার ও ব্রাউজার রিসেট
     async function resetDatabase() {
         if (!confirm("সতর্কতা: এটি করলে লোকাল ডেটাবেজের সকল ডাটা এবং সেটিংস সম্পূর্ণ মুছে যাবে! আপনি কি নিশ্চিতভাবে ডাটাবেজ রিসেট করতে চান?")) {
             return;

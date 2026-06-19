@@ -1,0 +1,511 @@
+<style>
+    /* ফন্ট মসৃণকরণ */
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    #attendance-container {
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #f1f5f9;
+        border-radius: 4px;
+    }
+</style>
+
+<div id="attendance-container" class="space-y-6 transition-all duration-300">
+
+    <!-- ১. হাজিরার রিয়্যাল-টাইম পরিসংখ্যান উইজেটসমূহ -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-4 rounded-xl border border-emerald-100 flex items-center justify-between shadow-sm">
+            <div>
+                <p class="text-xs text-emerald-800 font-bold uppercase">আজকের মোট উপস্থিত</p>
+                <h4 class="text-2xl font-extrabold text-emerald-950 mt-1 font-en" id="stat-present-count">0</h4>
+            </div>
+            <div class="bg-emerald-600 text-white p-3 rounded-full">
+                <i class="fa-solid fa-clipboard-user text-lg"></i>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-4 rounded-xl border border-rose-100 flex items-center justify-between shadow-sm">
+            <div>
+                <p class="text-xs text-rose-800 font-bold uppercase">আজকের মোট অনুপস্থিত</p>
+                <h4 class="text-2xl font-extrabold text-rose-950 mt-1 font-en" id="stat-absent-count">0</h4>
+            </div>
+            <div class="bg-rose-600 text-white p-3 rounded-full">
+                <i class="fa-solid fa-user-slash text-lg"></i>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 p-4 rounded-xl border border-amber-100 flex items-center justify-between shadow-sm">
+            <div>
+                <p class="text-xs text-amber-800 font-bold uppercase">আজকের বিলম্ব (Late)</p>
+                <h4 class="text-2xl font-extrabold text-amber-950 mt-1 font-en" id="stat-late-count">0</h4>
+            </div>
+            <div class="bg-amber-600 text-white p-3 rounded-full">
+                <i class="fa-solid fa-user-clock text-lg"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-gray-150 flex flex-col justify-center shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+                <p class="text-xs text-gray-500 font-bold uppercase">আজকের হাজিরা হার</p>
+                <span id="stat-attendance-rate" class="text-sm font-extrabold text-emerald-700 font-en">0%</span>
+            </div>
+            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                <div id="stat-rate-bar" class="bg-emerald-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ২. ডাইনামিক ফিল্টার এবং তারিখ সিলেকশন প্যানেল -->
+    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-3">
+            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check text-emerald-600 text-lg"></i> দৈনিক হাজিরা খাতা (Daily Attendance)
+            </h3>
+            
+            <!-- কুইক বাল্ক উপস্থিত করার বাটন -->
+            <button type="button" id="btn-bulk-present" onclick="markAllAsPresent()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-emerald-500/10">
+                <i class="fa-solid fa-users-viewfinder"></i> সবাইকে উপস্থিত করুন
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- তারিখ সিলেকশন (তারিখ অটো সিলেক্ট থাকবে) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">হাজিরার তারিখ *</label>
+                <input type="date" id="attendance-date" onchange="onDateOrFilterChange()"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en">
+            </div>
+
+            <!-- ডাইনামিক শাখা ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">শাখা (Branch) *</label>
+                <select id="attendance-branch-filter" onchange="onDateOrFilterChange()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                    <option value="">শাখা নির্বাচন করুন</option>
+                </select>
+            </div>
+
+            <!-- ডাইনামিক শ্রেণী ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী/জামাত *</label>
+                <select id="attendance-class-filter" onchange="onDateOrFilterChange()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                    <option value="">শ্রেণী নির্বাচন করুন</option>
+                </select>
+            </div>
+
+            <!-- গ্রুপ/সেকশন ফিল্টার (ঐচ্ছিক) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">গ্রুপ/সেকশন</label>
+                <select id="attendance-group-filter" onchange="onDateOrFilterChange()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                    <option value="">সকল গ্রুপ</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ৩. হাজিরা দেওয়ার মূল টেবিল এলাকা -->
+    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+        <div class="overflow-x-auto rounded-xl border border-gray-150 max-h-[500px] overflow-y-auto custom-scroll">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">রোল ও আইডি</th>
+                    <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">শিক্ষার্থীর পরিচিতি</th>
+                    <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">হাজিরা পরিসংখ্যান (হিস্ট্রি)</th>
+                    <th class="px-4 py-3 text-center font-bold text-gray-400 uppercase tracking-wider w-64">হাজিরা স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider w-48">হাজিরা মন্তব্য/নোট</th>
+                    <th class="px-4 py-3 text-right font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                </tr>
+                </thead>
+                <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-100 text-xs">
+                    <tr>
+                        <td colspan="6" class="px-4 py-12 text-center text-gray-400 font-bold">অনুগ্রহ করে উপর থেকে শাখা ও শ্রেণী সিলেক্ট করুন</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let academicStructure = [];
+    let studentsInClass = []; // সিলেক্টেড ক্লাসের বর্তমান শিক্ষার্থীরা
+    let attendanceMap = {};    // { studentId: { status, note, id } }
+    
+    // সিঙ্ক বাফারিং টাইমার ট্র্যাকিং ভ্যারিয়েবল
+    let syncTimeout = null; 
+
+    async function initAttendance() {
+        // ১. হাজিরার তারিখ অটো-সিলেক্ট করা (আজকের তারিখ)
+        document.getElementById('attendance-date').value = new Date().toISOString().split('T')[0];
+
+        // ২. Dexie DB-তে ডাইনামিক উপায়ে Attendance টেবিল ইনজেক্ট করা (সেফগার্ড সহ)
+        if (!db.attendance) {
+            db.close();
+            db.version(4).stores({
+                attendance: 'attendance_id, student_id, date, status, is_synced, is_deleted'
+            });
+            await db.open();
+        }
+
+        // ৩. সেটিংস থেকে ডাইনামিক ফিল্টার পপুলেট করা
+        const config = await db.settings.get('madrasah_config_block') || {};
+        academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+        populateAttendanceFilters();
+
+        await onDateOrFilterChange();
+    }
+
+    // ফিল্টার ড্রপডাউন জেনারেটর
+    function populateAttendanceFilters() {
+        const branchSelect = document.getElementById('attendance-branch-filter');
+        const classSelect = document.getElementById('attendance-class-filter');
+        const groupSelect = document.getElementById('attendance-group-filter');
+
+        branchSelect.innerHTML = `<option value="">শাখা নির্বাচন করুন</option>`;
+        classSelect.innerHTML = `<option value="">শ্রেণী নির্বাচন করুন</option>`;
+        groupSelect.innerHTML = `<option value="">সকল গ্রুপ</option>`;
+
+        const classesSet = new Set();
+        const groupsSet = new Set();
+
+        academicStructure.forEach(branch => {
+            branchSelect.innerHTML += `<option value="${branch.name}">${branch.name}</option>`;
+            branch.departments.forEach(dept => {
+                dept.classes.forEach(cls => {
+                    classesSet.add(cls.name);
+                    cls.groups.forEach(g => groupsSet.add(g));
+                });
+            });
+        });
+
+        classesSet.forEach(cls => {
+            classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+        });
+        groupsSet.forEach(g => {
+            groupSelect.innerHTML += `<option value="${g}">${g}</option>`;
+        });
+    }
+
+    // ফিল্টার বা ডেট চেঞ্জ হলে হাজিরা খাতা এবং হিস্ট্রি রেন্ডার করা
+    async function onDateOrFilterChange() {
+        const date = document.getElementById('attendance-date').value;
+        const branch = document.getElementById('attendance-branch-filter').value;
+        const className = document.getElementById('attendance-class-filter').value;
+        const group = document.getElementById('attendance-group-filter').value;
+
+        const tableBody = document.getElementById('attendance-table-body');
+        if (!tableBody) return;
+
+        if (!branch || !className) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-4 py-12 text-center text-gray-400 font-bold">হাজিরা খাতা লোড করতে প্রথমে শাখা ও শ্রেণী সিলেক্ট করুন</td>
+                </tr>`;
+            resetStats();
+            return;
+        }
+
+        try {
+            // ১. ওই ক্লাসের সকল সক্রিয় শিক্ষার্থীদের ফিল্টার করা
+            let students = await db.students.reverse().toArray();
+            students = students.filter(s => s.is_deleted !== 1 && s.branch === branch && s.class === className);
+            if (group) {
+                students = students.filter(s => s.group === group);
+            }
+
+            students.sort((a, b) => (a.roll || 0) - (b.roll || 0));
+            studentsInClass = students;
+
+            // ২. সিলেক্টেড ডেট-এর জন্য ইতিপূর্বে সেভ করা হাজিরা ডাটা লোড করা
+            const savedAttendance = await db.attendance.where('date').equals(date).toArray();
+            attendanceMap = {};
+            savedAttendance.forEach(att => {
+                if (att.is_deleted !== 1) {
+                    attendanceMap[att.student_id] = {
+                        status: att.status,
+                        note: att.note || "",
+                        attendance_id: att.attendance_id
+                    };
+                }
+            });
+
+            // ৩. প্রতি শিক্ষার্থীর লাইভ আজীবন পরিসংখ্যান ও টেবিল রেন্ডারিং
+            await renderAttendanceTable();
+
+        } catch (err) {
+            console.error("হাজিরা ডাটা লোডে সমস্যা:", err);
+        }
+    }
+
+    // হাজিরার মূল টেবিল ও পরিসংখ্যান রেন্ডারার
+    async function renderAttendanceTable() {
+        const tableBody = document.getElementById('attendance-table-body');
+        if (studentsInClass.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-gray-500 font-medium">এই শাখা ও শ্রেণীতে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।</td>
+                </tr>`;
+            resetStats();
+            return;
+        }
+
+        let html = '';
+        
+        // রিয়্যাল-টাইম পরিসংখ্যান ট্র্যাকিং
+        let presentCount = 0;
+        let absentCount = 0;
+        let lateCount = 0;
+
+        for (let i = 0; i < studentsInClass.length; i++) {
+            const s = studentsInClass[i];
+            const att = attendanceMap[s.id] || { status: "", note: "" };
+
+            if (att.status === 'Present') presentCount++;
+            else if (att.status === 'Absent') absentCount++;
+            else if (att.status === 'Late') lateCount++;
+
+            // ডাইনামিক লাইভ আজীবন হাজিরা পরিসংখ্যান (হিস্ট্রি ট্র্যাক)
+            const history = await getStudentAttendanceStats(s.id);
+
+            html += `
+                <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
+                    <!-- রোল ও আইডি -->
+                    <td class="px-4 py-3 text-xs font-bold font-en text-gray-700">
+                        <div>রোল: ${s.roll}</div>
+                        <div class="text-[10px] text-gray-400 font-bold">${s.id}</div>
+                    </td>
+                    <!-- শিক্ষার্থীর পরিচিতি -->
+                    <td class="px-4 py-3 text-xs">
+                        <div class="flex items-center gap-2">
+                            ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold font-en text-[10px]">St</div>'}
+                            <div>
+                                <div class="font-bold text-gray-800 text-sm">${s.name}</div>
+                                <div class="text-[9px] text-gray-400 font-bold">Sl: ${s.serial_no || '-'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <!-- লাইভ আজীবন হাজিরা পরিসংখ্যান উইজেট -->
+                    <td class="px-4 py-3 text-[10px] text-gray-500">
+                        <div class="flex gap-2">
+                            <span class="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded-full font-bold">উপস্থিত: ${history.present} দিন</span>
+                            <span class="bg-rose-50 text-rose-800 px-1.5 py-0.5 rounded-full font-bold">অনুপস্থিত: ${history.absent} দিন</span>
+                            <span class="bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">বিলম্ব: ${history.late} দিন</span>
+                        </div>
+                        <div class="text-gray-400 font-bold mt-1">উপস্থিতির হার: <strong class="text-emerald-700 font-en font-bold">${history.rate}%</strong></div>
+                    </td>
+                    <!-- কালার কোডেড স্ট্যাটাস বাটন গ্রিড (Real-time Instant Save) -->
+                    <td class="px-4 py-3 text-center">
+                        <div class="inline-flex rounded-xl p-1 bg-gray-100 border gap-1">
+                            <button type="button" onclick="setAttendanceStatus('${s.id}', 'Present')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
+                            <button type="button" onclick="setAttendanceStatus('${s.id}', 'Absent')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
+                            <button type="button" onclick="setAttendanceStatus('${s.id}', 'Late')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
+                        </div>
+                    </td>
+                    <!-- মন্তব্য/নোট লেখার এডিটেবল বক্স -->
+                    <td class="px-4 py-3">
+                        <input type="text" value="${att.note}" onchange="setAttendanceNote('${s.id}', this.value)" placeholder="যেমন: অসুস্থতা..."
+                               class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:border-emerald-500 bg-white">
+                    </td>
+                    <!-- অনুপস্থিত শিক্ষার্থীর জন্য হোয়াটসঅ্যাপ নোটিশ বাটন -->
+                    <td class="px-4 py-3 text-right">
+                        ${att.status === 'Absent' ? `
+                            <button type="button" onclick="sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-200 font-bold px-2 py-1 rounded-lg text-[10px] flex items-center justify-center gap-1.5 transition ml-auto shadow-sm animate-fadeIn" title="অনুপস্থিতি নোটিশ পাঠান">
+                                <i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ
+                            </button>` : '-'}
+                    </td>
+                </tr>`;
+        }
+
+        tableBody.innerHTML = html;
+        updateGlobalStats(presentCount, absentCount, lateCount);
+    }
+
+    // হাজিরার বৈশ্বিক পরিসংখ্যান উইজেট আপডেট
+    function updateGlobalStats(p, a, l) {
+        document.getElementById('stat-present-count').textContent = p;
+        document.getElementById('stat-absent-count').textContent = a;
+        document.getElementById('stat-late-count').textContent = l;
+
+        const total = p + a + l;
+        const rate = total > 0 ? Math.round((p / total) * 100) : 0;
+        document.getElementById('stat-attendance-rate').textContent = rate + "%";
+        document.getElementById('stat-rate-bar').style.width = rate + "%";
+    }
+
+    function resetStats() {
+        updateGlobalStats(0, 0, 0);
+    }
+
+    // =========================================================
+    // ৫. ১০ সেকেন্ড ডিবান্সড অটো-সিঙ্ক মেকানিজম (Debounced Sync)
+    // =========================================================
+
+    async function triggerDebouncedSync() {
+        // পূর্বের পেন্ডিং টাইমারটি ক্লিয়ার করা হচ্ছে
+        if (syncTimeout) {
+            clearTimeout(syncTimeout);
+        }
+
+        // ১০ সেকেন্ডের (১০০০০ মিলি-সেকেন্ড) নতুন টাইমার সেট করা হচ্ছে
+        syncTimeout = setTimeout(async () => {
+            if (navigator.onLine && typeof triggerAutoSync === 'function') {
+                console.log("Debounced Auto-Sync: সকল ক্লিক শেষে একবারে ক্লাউড সিঙ্ক হচ্ছে...");
+                await triggerAutoSync();
+            }
+        }, 10000); // শেষ ক্লিকের পর ১০ সেকেন্ড বিরতি পেলে তবেই সিঙ্ক হবে
+    }
+
+    // ১-ক্লিক বাল্ক অ্যাকশন (Mark All as Present - Optimized via bulkPut)
+    async function markAllAsPresent() {
+        const date = document.getElementById('attendance-date').value;
+        if (studentsInClass.length === 0) {
+            showToast("প্রথমে একটি ক্লাসের তালিকা ফিল্টার করুন!", "error");
+            return;
+        }
+
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই ক্লাসের উপস্থিত না থাকা সকল ছাত্রকে উপস্থিত করতে চান?")) return;
+
+        const bulkData = [];
+
+        for (let s of studentsInClass) {
+            const compoundKey = `${s.id}_${date}`;
+            const att = attendanceMap[s.id] || { status: "", note: "" };
+            
+            // যারা ইতিমধ্যে উপস্থিত নন, তাদের রিয়্যাল-টাইম ডাটা আপডেট
+            if (att.status !== 'Present') {
+                bulkData.push({
+                    attendance_id: compoundKey,
+                    student_id: s.id,
+                    date: date,
+                    status: 'Present',
+                    note: att.note || "",
+                    is_synced: 0,
+                    is_deleted: 0
+                });
+                attendanceMap[s.id] = { status: 'Present', note: att.note || "", attendance_id: compoundKey };
+            }
+        }
+
+        if (bulkData.length > 0) {
+            try {
+                // এক ট্রানজেকশনে বাল্ক রাইট
+                await db.attendance.bulkPut(bulkData);
+                showToast("সকল শিক্ষার্থীকে উপস্থিত করা হয়েছে!", "success");
+                await onDateOrFilterChange();
+                
+                // বাল্ক সেভের পর টাইমার ট্রিগার
+                triggerDebouncedSync(); 
+            } catch (err) {
+                console.error("বাল্ক হাজিরার সময় ত্রুটি:", err);
+                showToast("হাজিরা সংরক্ষণ করা সম্ভব হয়নি।", "error");
+            }
+        } else {
+            showToast("সবাই ইতিমধ্যে উপস্থিত আছেন।", "info");
+        }
+    }
+
+    // রিয়্যাল-টাইম স্ট্যাটাস সেভ
+    async function setAttendanceStatus(studentId, status) {
+        const att = attendanceMap[studentId] || { status: "", note: "" };
+        await saveAttendanceToDb(studentId, status, att.note);
+        await onDateOrFilterChange(); // রি-রেন্ডার
+    }
+
+    // রিয়্যাল-টাইম নোট সেভ
+    async function setAttendanceNote(studentId, noteVal) {
+        const att = attendanceMap[studentId] || { status: "", note: "" };
+        await saveAttendanceToDb(studentId, att.status || 'Present', noteVal);
+        await onDateOrFilterChange();
+    }
+
+    // ডাটাবেজে রিয়্যালটাইম রাইট লজিক
+    async function saveAttendanceToDb(studentId, status, note) {
+        const date = document.getElementById('attendance-date').value;
+        const compoundKey = `${studentId}_${date}`;
+
+        try {
+            await db.attendance.put({
+                attendance_id: compoundKey,
+                student_id: studentId,
+                date: date,
+                status: status,
+                note: note || "",
+                is_synced: 0,
+                is_deleted: 0
+            });
+            attendanceMap[studentId] = { status: status, note: note, attendance_id: compoundKey };
+            
+            // সিঙ্ক টাইমার ডিস্ট্রিবিউটর কল করা হলো
+            triggerDebouncedSync(); 
+
+        } catch (err) {
+            console.error("হাজিরা রাইট ফেইলড:", err);
+            showToast("হাজিরা সেভ করা যায়নি।", "error");
+        }
+    }
+
+    // আজীবন হাজিরা পরিসংখ্যান হিস্ট্রি ট্র্যাক
+    async function getStudentAttendanceStats(studentId) {
+        try {
+            const list = await db.attendance.where('student_id').equals(studentId).toArray();
+            const activeList = list.filter(a => a.is_deleted !== 1);
+
+            const p = activeList.filter(a => a.status === 'Present').length;
+            const a = activeList.filter(a => a.status === 'Absent').length;
+            const l = activeList.filter(a => a.status === 'Late').length;
+
+            const total = p + a + l;
+            const rate = total > 0 ? Math.round((p / total) * 100) : 100;
+
+            return { present: p, absent: a, late: l, rate: rate };
+        } catch (err) {
+            return { present: 0, absent: 0, late: 0, rate: 100 };
+        }
+    }
+
+    // মোবাইল নাম্বার রিফাইন করাসহ স্ট্যান্ডার্ড বাংলা মোবাইল ফরম্যাট
+    function refinePhoneNumber(phone) {
+        if (!phone) return "";
+        let clean = phone.toString().replace(/\D/g, ''); 
+        if (clean.startsWith('8801')) {
+            clean = clean.substring(2);
+        }
+        if (!clean.startsWith('01') && clean.length === 10) {
+            clean = '0' + clean;
+        }
+        return clean; 
+    }
+
+    // অনুপস্থিত শিক্ষার্থীর অভিভাবককে হোয়াটসঅ্যাপে এলার্ট নোটিশ
+    async function sendAbsentAlertToWhatsApp(studentId) {
+        const student = studentsInClass.find(s => s.id === studentId);
+        if (!student) return;
+
+        const rawPhone = student.parent_phone;
+        const refinedPhone = refinePhoneNumber(rawPhone);
+
+        let waNumber = refinedPhone;
+        if (refinedPhone.startsWith('0')) {
+            waNumber = '88' + refinedPhone;
+        }
+
+        const date = document.getElementById('attendance-date').value;
+        const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+
+        const wpMessage = `প্রিয় অভিভাবক,
+আজ ${date} তারিখে আপনার সন্তান ${student.name} ${madrasahName}-এ অনুপস্থিত রয়েছে। অনুগ্রহ করে কারণ দর্শান। ধন্যবাদ।`;
+
+        const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
+        window.open(wpUrl, '_blank');
+    }
+</script>

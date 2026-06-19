@@ -1,304 +1,335 @@
+<style>
+    /* ফন্ট ইম্পোর্ট অবশ্যই স্টাইল শিটের প্রথম লাইনে থাকতে হবে (কমেন্টেরও আগে) */
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-<div class="space-y-6">
-    <!-- স্বাগতম ব্যানার -->
-    <div class="bg-gradient-to-r from-emerald-900 via-emerald-850 to-teal-800 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
-        <div class="relative z-10">
-            <h3 class="text-xl md:text-2xl font-bold mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-mosque text-emerald-300"></i> আসসালামু আলাইকুম, এডমিন!
-            </h3>
-            <p class="text-emerald-100 text-xs md:text-sm">মাদরাসাতুল মদিনা ড্যাশবোর্ডে আপনাকে স্বাগত। এখান থেকে ছাত্র ভর্তি ও বেতন কালেকশন সহজে পরিচালনা করুন।</p>
-        </div>
-        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-white">
-            <i class="fa-solid fa-mosque"></i>
-        </div>
-    </div>
+    #dashboard-container {
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif;
+    }
+    .font-mono-receipt {
+        font-family: 'JetBrains Mono', monospace;
+    }
+</style>
 
-    <!-- ৪টি তথ্যবহুল স্ট্যাটাস কার্ডসমূহ -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <!-- মোট বর্তমান ছাত্র -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">মোট বর্তমান ছাত্র</p>
-                <h4 class="text-2xl font-bold text-gray-800 mt-1 font-en" id="dash-total-students">0</h4>
-            </div>
-            <div class="bg-blue-50 text-blue-600 p-3 rounded-full">
-                <i class="fa-solid fa-graduation-cap text-lg"></i>
-            </div>
-        </div>
+<div id="dashboard-container" class="space-y-6 transition-all duration-300">
 
-        <!-- মোট আদায়কৃত ফি -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">মোট আদায়কৃত ফি</p>
-                <h4 class="text-2xl font-bold text-emerald-600 mt-1 font-en">৳ <span id="dash-total-fees">0</span></h4>
-            </div>
-            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-full">
-                <i class="fa-solid fa-wallet text-lg"></i>
-            </div>
-        </div>
-
-        <!-- আজকের ফি আদায় -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">আজকের ফি আদায়</p>
-                <h4 class="text-2xl font-bold text-amber-600 mt-1 font-en">৳ <span id="dash-today-fees">0</span></h4>
-            </div>
-            <div class="bg-amber-50 text-amber-600 p-3 rounded-full">
-                <i class="fa-solid fa-calendar-day text-lg"></i>
-            </div>
-        </div>
-
-        <!-- চলতি মাসের বকেয়া ছাত্র সংখ্যা (আইডি ফিক্সড) -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">চলতি মাসে বকেয়া ছাত্র</p>
-                <h4 class="text-2xl font-bold text-rose-600 mt-1 font-en" id="dash-due-students">0</h4>
-            </div>
-            <div class="bg-rose-50 text-rose-600 p-3 rounded-full">
-                <i class="fa-solid fa-circle-exclamation text-lg"></i>
-            </div>
+    <!-- ১. ডাইনামিক শাখা ফিল্টার বাটন প্যানেল (সকল শাখা + অনন্য শাখা সমূহ) [6] -->
+    <div class="no-print">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">শাখা নির্বাচন করুন (Branch Filter)</p>
+        <div id="branch-filter-buttons" class="flex flex-wrap gap-2">
+            <!-- ডাইনামিক শাখা বাটনগুলো এখানে স্ক্রিপ্ট দিয়ে রেন্ডার হবে -->
         </div>
     </div>
 
-    <!-- ভিজুয়াল অ্যানালিটিক্স চার্ট প্যানেল (নতুন পাই ও কলাম চার্ট সেকশন) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-        <!-- পাই চার্ট (আদায় বনাম বকেয়া ছাত্র অনুপাত) -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <h4 class="text-sm font-bold text-gray-800 mb-4 self-start flex items-center gap-1.5">
-                <i class="fa-solid fa-chart-pie text-emerald-600"></i> চলতি মাসের আদায় বনাম বকেয়া ছাত্র (অনুপাত)
-            </h4>
-            <div class="w-full h-56 flex items-center justify-center">
-                <canvas id="collectionPieChart" class="max-w-[220px] max-h-[220px]"></canvas>
+    <!-- ২. রঙিন ও তথ্যবহুল ৪টি মূল পরিসংখ্যান কার্ডসমূহ (উইজেট) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- মোট বর্তমান ছাত্র (ক্লিক করলে ছাত্র তালিকায় যাবে) -->
+        <div onclick="loadModule('student_list')" class="cursor-pointer group bg-white p-5 rounded-2xl shadow-sm border border-gray-150 hover:border-emerald-300 hover:shadow-md transition duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider group-hover:text-emerald-800 transition">মোট বর্তমান ছাত্র</p>
+                <h4 class="text-3xl font-extrabold text-gray-800 mt-1 font-en" id="dash-total-students">0</h4>
+                <span class="text-[10px] text-gray-400 font-bold">ছাত্রদের তালিকা দেখতে ক্লিক করুন ➔</span>
+            </div>
+            <div class="bg-blue-50 text-blue-600 p-4 rounded-full group-hover:bg-blue-600 group-hover:text-white transition duration-200 shadow-sm">
+                <i class="fa-solid fa-graduation-cap text-xl"></i>
             </div>
         </div>
 
-        <!-- কলাম চার্ট (শ্রেণী-ভিত্তিক ছাত্র বণ্টন) -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <h4 class="text-sm font-bold text-gray-800 mb-4 self-start flex items-center gap-1.5">
-                <i class="fa-solid fa-chart-column text-emerald-600"></i> শ্রেণী-ভিত্তিক মোট ছাত্র সংখ্যা (কলাম চার্ট)
-            </h4>
-            <div class="w-full h-56">
-                <canvas id="classBarChart"></canvas>
+        <!-- মোট আদায়কৃত ফি (ক্লিক করলে বেতন কালেকশনে যাবে) -->
+        <div onclick="loadModule('fees')" class="cursor-pointer group bg-white p-5 rounded-2xl shadow-sm border border-gray-150 hover:border-emerald-300 hover:shadow-md transition duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider group-hover:text-emerald-800 transition">মোট আদায়কৃত ফিস</p>
+                <h4 class="text-3xl font-extrabold text-emerald-600 mt-1 font-en">৳ <span id="dash-total-fees">0</span></h4>
+                <span class="text-[10px] text-gray-400 font-bold">বেতন কালেকশন দেখতে ক্লিক করুন ➔</span>
+            </div>
+            <div class="bg-emerald-50 text-emerald-600 p-4 rounded-full group-hover:bg-emerald-600 group-hover:text-white transition duration-200 shadow-sm">
+                <i class="fa-solid fa-wallet text-xl"></i>
+            </div>
+        </div>
+
+        <!-- মোট খরচ ও তহবিল উত্তোলন (ক্লিক করলে খরচ তালিকায় যাবে) -->
+        <div onclick="loadModule('expense')" class="cursor-pointer group bg-white p-5 rounded-2xl shadow-sm border border-gray-150 hover:border-rose-300 hover:shadow-md transition duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider group-hover:text-rose-800 transition">মোট ব্যয় ও উত্তোলন</p>
+                <h4 class="text-3xl font-extrabold text-rose-600 mt-1 font-en">৳ <span id="dash-total-expenses">0</span></h4>
+                <span class="text-[10px] text-gray-400 font-bold" id="dash-total-withdrawals">তহবিল উত্তোলন: ৳ ০</span>
+            </div>
+            <div class="bg-rose-50 text-rose-600 p-4 rounded-full group-hover:bg-rose-600 group-hover:text-white transition duration-200 shadow-sm">
+                <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+            </div>
+        </div>
+
+        <!-- হাতে নগদ ক্যাশ তহবিল (মোট আদায় - মোট ব্যয়) -->
+        <div onclick="loadModule('expense')" class="cursor-pointer group bg-gradient-to-br from-emerald-800 to-teal-900 text-white p-5 rounded-2xl shadow-md flex items-center justify-between hover:scale-[1.01] transition duration-200">
+            <div>
+                <p class="text-xs text-emerald-200 font-bold uppercase tracking-wider">হাতে নগদ ক্যাশ তহবিল</p>
+                <h4 class="text-3xl font-extrabold mt-1 font-en">৳ <span id="dash-net-cash">0</span></h4>
+                <span class="text-[10px] text-emerald-200 font-bold">ব্যয়ের খাতা ও ভাউচার দেখতে ক্লিক করুন ➔</span>
+            </div>
+            <div class="bg-white/10 text-white p-4 rounded-full shadow-sm">
+                <i class="fa-solid fa-vault text-xl"></i>
             </div>
         </div>
     </div>
 
-    <!-- কুইক অ্যাকশন প্যানেল -->
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-        <h4 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-1.5">
-            <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> কুইক অ্যাকশন (Quick Actions)
-        </h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button onclick="loadModule('admission')" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-emerald-50 rounded-2xl border border-dashed border-gray-200 hover:border-emerald-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-emerald-100 text-emerald-700 rounded-xl shadow-sm transition mb-2">
-                    <i class="fa-solid fa-user-plus text-base"></i>
-                </div>
-                <span class="text-xs font-bold text-gray-700 group-hover:text-emerald-800">নতুন ছাত্র ভর্তি</span>
-            </button>
-
-            <button onclick="loadModule('fees')" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-blue-50 rounded-2xl border border-dashed border-gray-200 hover:border-blue-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-blue-100 text-blue-700 rounded-xl shadow-sm transition mb-2">
-                    <i class="fa-solid fa-money-bill-wave text-base"></i>
-                </div>
-                <span class="text-xs font-bold text-gray-700 group-hover:text-blue-800">বেতন আদায় করুন</span>
-            </button>
-
-            <button onclick="exportBackup()" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-purple-50 rounded-2xl border border-dashed border-gray-200 hover:border-purple-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-purple-100 text-purple-700 rounded-xl shadow-sm transition mb-2">
-                    <i class="fa-solid fa-file-export text-base"></i>
-                </div>
-                <span class="text-xs font-bold text-gray-700 group-hover:text-purple-800">ডাটা ব্যাকআপ নিন</span>
-            </button>
-
-            <input type="file" id="backup-file-input" onchange="importBackup(event)" class="hidden" accept=".json">
-            <button onclick="document.getElementById('backup-file-input').click()" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 hover:bg-amber-50 rounded-2xl border border-dashed border-gray-200 hover:border-amber-300 transition group text-center">
-                <div class="p-3 bg-white group-hover:bg-amber-100 text-amber-700 rounded-xl shadow-sm transition mb-2">
-                    <i class="fa-solid fa-file-import text-base"></i>
-                </div>
-                <span class="text-xs font-bold text-gray-700 group-hover:text-amber-800">ডাটা রিস্টোর করুন</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- মূল ডাটা উইজেটস (বকেয়া তালিকা এবং সাম্প্রতিক আদায়সমূহ) -->
+    <!-- ৩. প্রিমিয়াম ভিজ্যুয়াল চার্ট এনালাইসিস প্যানেল (ক্লিক রেসপনসিভ) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- বাম পাশে: চলতি মাসের বকেয়া (২ ভাগ জায়গা নেবে) -->
-        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-            <h4 class="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-circle-exclamation text-red-500 animate-pulse"></i>
-                চলতি মাসের বকেয়া বেতন তালিকা (<span id="due-current-month"></span>)
+        <!-- চার্ট ১: ডোনাট চার্ট (মোট আয় বনাম মোট ব্যয় অনুপাত) -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col items-center justify-between h-80">
+            <h4 class="text-sm font-bold text-gray-800 self-start flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-pie text-emerald-600"></i> মাদরাসার আয় বনাম ব্যয় অনুপাত
             </h4>
-            <p class="text-[10px] text-gray-400 mb-4">যেসব ছাত্র চলতি মাসের বেতন এখনো পরিশোধ করেনি, তাদের তালিকা নিচে দেওয়া হলো।</p>
-
-            <div class="overflow-x-auto max-h-80 overflow-y-auto rounded-xl border border-gray-50">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">রোল</th>
-                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">নাম</th>
-                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">শ্রেণী</th>
-                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোবাইল</th>
-                        <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
-                    </tr>
-                    </thead>
-                    <tbody id="due-students-table-body" class="bg-white divide-y divide-gray-50">
-                    </tbody>
-                </table>
+            <div class="w-full h-56 flex items-center justify-center">
+                <canvas id="incomeExpenseChart" class="max-w-[200px] max-h-[200px]"></canvas>
             </div>
         </div>
 
-        <!-- ডান পাশে: সাম্প্রতিক আদায়কৃত বেতনসমূহ (১ ভাগ জায়গা নেবে) -->
-        <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-            <h4 class="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1.5">
-                <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> সাম্প্রতিক আদায়সমূহ
+        <!-- চার্ট ২: দৈনিক ট্রেন্ড গ্রাফ (চলতি মাসের দৈনিক আয় ও ব্যয়ের তুলনা) -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col justify-between h-80">
+            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-emerald-600"></i> চলতি মাসের দৈনিক আয় ও ব্যয়ের গতিধারা (Trend Line)
             </h4>
-            <p class="text-[10px] text-gray-400 mb-4">মাদরাসায় সর্বশেষ গৃহীত ৫টি বেতনের রসিদ বিবরণী।</p>
+            <div class="w-full h-60">
+                <canvas id="dailyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
 
-            <div id="recent-fees-container" class="space-y-3 overflow-y-auto max-h-80 pr-1 divide-y divide-gray-50">
-                <!-- ডাইনামিক ডেটা লোড হবে -->
+    <!-- ৪. নিচের সেকশন: শ্রেণীভিত্তিক কলাম চার্ট এবং আজকের হাজিরার তথ্য -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- চার্ট ৩: বার চার্ট (শ্রেণী-ভিত্তিক মোট ছাত্র বণ্টন) -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col justify-between h-80">
+            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-column text-emerald-600"></i> জামাত বা শ্রেণী-ভিত্তিক মোট ছাত্র সংখ্যা
+            </h4>
+            <div class="w-full h-60">
+                <canvas id="classStudentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- আজকের ডাইনামিক হাজিরার তথ্য কার্ড (ক্লিক করলে হাজিরার পাতায় যাবে) -->
+        <div onclick="loadModule('attendance')" class="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col justify-between h-80 group hover:border-emerald-300 hover:shadow-md transition duration-200">
+            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-clipboard-user text-emerald-600"></i> আজকের হাজিরা ও উপস্থিতি পরিসংখ্যান
+            </h4>
+            
+            <div class="flex-1 flex flex-col justify-center items-center space-y-3">
+                <div class="bg-emerald-50 text-emerald-700 w-16 h-16 rounded-full flex items-center justify-center font-extrabold text-xl font-en shadow-inner" id="dash-attendance-rate">0%</div>
+                <div class="text-center">
+                    <p class="text-sm font-bold text-gray-800">আজকের হাজিরার গড় হার</p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">মোট উপস্থিত: <span id="dash-present-count" class="font-bold text-emerald-700">০</span> | মোট অনুপস্থিত: <span id="dash-absent-count" class="font-bold text-rose-600">০</span></p>
+                </div>
+            </div>
+
+            <div class="border-t pt-3 flex justify-between items-center text-xs font-bold text-gray-500 group-hover:text-emerald-700">
+                <span>আজকের হাজিরা খাতা খুলুন ➔</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let collectionPieChart = null;
-    let classBarChart = null;
+    // চার্টগুলোর গ্লোবাল অবজেক্ট হ্যান্ডলার (পুনরায় চার্ট রেন্ডারিংয়ের সময় ক্র্যাশ বন্ধ করতে)
+    let incomeExpenseChart = null;
+    let dailyTrendChart = null;
+    let classStudentChart = null;
+
+    let activeBranchFilter = "all"; // ডিফল্ট সিলেকশন: সকল শাখা
+
+    // মাদরাসার মূল ডেটাবেজ অবজেক্ট
+    let masterStudents = [];
+    let masterFees = [];
+    let masterExpenses = [];
+    let masterAttendance = [];
 
     async function initDashboard() {
         try {
-            const students = await db.students.toArray();
-            const activeStudents = students.filter(student => student.is_deleted !== 1);
-            document.getElementById('dash-total-students').textContent = activeStudents.length;
+            // ১. ডেটাবেজ থেকে ডাটা সংগ্রহ
+            masterStudents = await db.students.toArray();
+            masterStudents = masterStudents.filter(s => s.is_deleted !== 1);
 
-            const fees = await db.fees.toArray();
-            const activeFees = fees.filter(fee => fee.is_deleted !== 1);
+            masterFees = await db.fees.toArray();
+            masterFees = masterFees.filter(f => f.is_deleted !== 1);
 
-            let totalFeesAmount = 0;
-            let todayFeesAmount = 0;
+            // খরচ ও হাজিরা টেবিল ডেটাবেজে আছে কি না চেক (সেফগার্ড সহ)
+            masterExpenses = db.expenses ? await db.expenses.toArray() : [];
+            masterExpenses = masterExpenses.filter(e => e.is_deleted !== 1);
 
-            // টাইমজোন স্বাধীন লোকাল তারিখ ফরম্যাট নির্ধারণ (যেমন: YYYY-MM-DD)
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${yyyy}-${mm}-${dd}`;
+            masterAttendance = db.attendance ? await db.attendance.toArray() : [];
+            masterAttendance = masterAttendance.filter(a => a.is_deleted !== 1);
 
-            activeFees.forEach(fee => {
-                const amount = parseFloat(fee.total || fee.amount) || 0;
-                totalFeesAmount += amount;
+            // ২. ডাইনামিক শাখা বাটনগুলো রেন্ডার করা [6]
+            const config = await db.settings.get('madrasah_config_block') || {};
+            const academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+            renderBranchFilterButtons(academicStructure);
 
-                if (fee.payment_date === todayStr) {
-                    todayFeesAmount += amount;
-                }
-            });
-
-            document.getElementById('dash-total-fees').textContent = totalFeesAmount.toLocaleString('bn-BD');
-            document.getElementById('dash-today-fees').textContent = todayFeesAmount.toLocaleString('bn-BD');
-
-            await renderDueStudentsList(activeStudents, activeFees);
-            await renderRecentFees(activeFees);
+            // ৩. ড্যাশবোর্ড ডাটা প্রসেস ও রেন্ডার
+            calculateAndRenderDashboard();
 
         } catch (err) {
             console.error("ড্যাশবোর্ড ডাটা লোড করতে সমস্যা হয়েছে:", err);
         }
     }
 
-    async function renderDueStudentsList(activeStudents, activeFees) {
-        const tableBody = document.getElementById('due-students-table-body');
-        const monthLabel = document.getElementById('due-current-month');
-        if (!tableBody || !monthLabel) return;
+    // ডাইনামিক শাখা ফিল্টার বাটন জেনারেটর [6]
+    function renderBranchFilterButtons(academicStructure) {
+        const container = document.getElementById('branch-filter-buttons');
+        if (!container) return;
 
-        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
-        const currentMonthName = bnMonths[new Date().getMonth()];
-        monthLabel.textContent = currentMonthName;
+        container.innerHTML = '';
 
-        try {
-            const paidStudentIds = new Set(
-                activeFees
-                    .filter(fee => fee.month === currentMonthName)
-                    .map(fee => fee.student_id)
-            );
+        // "সকল শাখা" বাটন (ডিফল্ট অ্যাক্টিভ)
+        const allActive = activeBranchFilter === "all";
+        container.innerHTML += `
+            <button type="button" onclick="selectDashboardBranch('all')" class="px-4 py-2 rounded-xl text-xs font-bold border transition ${allActive ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-250'}">
+                সকল শাখা
+            </button>`;
 
-            const dueStudents = activeStudents.filter(student => !paidStudentIds.has(student.id));
-            
-            // আইডি মিসম্যাচ সংশোধন করা হয়েছে (dash-due থেকে dash-due-students)
-            document.getElementById('dash-due-students').textContent = dueStudents.length;
-
-            // চার্ট রেন্ডার করার ফাংশনটি কল করা (আদায় বনাম বকেয়া সংখ্যা এবং ক্লাসের বণ্টন)
-            renderDashboardCharts(activeStudents.length - dueStudents.length, dueStudents.length, activeStudents);
-
-            if (dueStudents.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-xs text-emerald-600 font-bold bg-emerald-50/50">
-                            <i class="fa-solid fa-circle-check"></i> আলহামদুলিল্লাহ্‌, চলতি মাসের কোনো বকেয়া বেতন নেই!
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            let htmlContent = '';
-            dueStudents.forEach(student => {
-                const sName = student.name || "অজানা";
-                const sRoll = student.roll || "-";
-                const sClass = student.class || "-";
-                const sPhone = student.parent_phone || "";
-                const sWhatsapp = student.whatsapp_no || "";
-
-                const formattedNumber = formatWhatsAppNumber(sWhatsapp || sPhone || "");
-                const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${currentMonthName} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
-                const wpUrl = `https://wa.me/${formattedNumber}?text=${encodeURIComponent(wpMessage)}`;
-
-                htmlContent += `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-2.5 text-xs text-gray-700 font-bold font-en">${sRoll}</td>
-                        <td class="px-4 py-2.5 text-xs text-gray-800 font-semibold">${sName}</td>
-                        <td class="px-4 py-2.5 text-xs text-gray-600">${sClass}</td>
-                        <td class="px-4 py-2.5 text-[11px] text-gray-600 font-en">${sPhone}</td>
-                        <td class="px-4 py-2.5 text-xs">
-                            <div class="flex gap-1">
-                                <button onclick="collectFeeFor('${student.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-lg border border-emerald-100 transition flex items-center gap-1 text-[10px]">
-                                    ৳ বেতন নিন
-                                </button>
-                                <a href="${wpUrl}" target="_blank" class="bg-green-50 hover:bg-green-100 text-green-600 px-2 py-1 rounded-lg border border-green-100 transition flex items-center justify-center text-[10px]" title="হোয়াটসঅ্যাপ রিমাইন্ডার">
-                                    <i class="fa-brands fa-whatsapp"></i> রিমাইন্ডার
-                                </a>
-                            </div>
-                        </td>
-                    </tr>`;
-            });
-
-            tableBody.innerHTML = htmlContent;
-
-        } catch (err) {
-            console.error("বকেয়া তালিকা প্রস্তুত করতে ত্রুটি:", err);
-        }
+        academicStructure.forEach(branch => {
+            const isSelected = activeBranchFilter === branch.name;
+            container.innerHTML += `
+                <button type="button" onclick="selectDashboardBranch('${branch.name}')" class="px-4 py-2 rounded-xl text-xs font-bold border transition ${isSelected ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-250'}">
+                    ${branch.name}
+                </button>`;
+        });
     }
 
-    // চার্ট আঁকার ডাইনামিক স্ক্রিপ্ট (Chart.js Integration)
-    function renderDashboardCharts(paidCount, dueCount, activeStudents) {
-        if (typeof Chart === 'undefined') {
-            console.warn("Chart.js লাইব্রেরিটি পাওয়া যায়নি। index.html-এ স্ক্রিপ্ট যুক্ত করুন।");
-            return;
+    function selectDashboardBranch(branchName) {
+        activeBranchFilter = branchName;
+        
+        // বাটনগুলোর অ্যাক্টিভ ক্লাস রি-রেন্ডার করা
+        db.settings.get('madrasah_config_block').then(config => {
+            const academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+            renderBranchFilterButtons(academicStructure);
+        });
+
+        // ড্যাশবোর্ডের ডাটা রি-ক্যালকুলেট ও চার্ট রি-ড্র করা
+        calculateAndRenderDashboard();
+    }
+
+    // =========================================================
+    // মূল ড্যাশবোর্ড ডাটা ক্যালকুলেশন ও রেন্ডারিং (ডাইনামিক ফিল্টারড)
+    // =========================================================
+    function calculateAndRenderDashboard() {
+        // ১. শাখা ফিল্টারের ওপর ভিত্তি করে ডাটা ফিল্টারিং
+        let filteredStudents = masterStudents;
+        let filteredExpenses = masterExpenses;
+
+        if (activeBranchFilter !== "all") {
+            filteredStudents = masterStudents.filter(s => s.branch === activeBranchFilter);
+            filteredExpenses = masterExpenses.filter(e => e.branch === activeBranchFilter);
         }
 
-        // পূর্বে আঁকা চার্ট অবজেক্ট ডিলিট করা (যেন রি-সিঙ্ক বা আপডেটের সময় ক্যানভাস ওভারল্যাপ না করে)
-        if (collectionPieChart) collectionPieChart.destroy();
-        if (classBarChart) classBarChart.destroy();
 
-        // ১. পাই/ডোনাট চার্ট (চলতি মাসের আদায় বনাম বকেয়া ছাত্র অনুপাত)
-        const ctxPie = document.getElementById('collectionPieChart').getContext('2d');
-        collectionPieChart = new Chart(ctxPie, {
+// চলতি মাসের বকেয়া ছাত্র সংখ্যা নির্ধারণ (ডাইনামিক ফিল্টারড)
+        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        const curMonthName = bnMonths[new Date().getMonth()];
+        const paidStudentIds = new Set(
+            filteredFees
+                .filter(fee => fee.month === curMonthName)
+                .map(fee => fee.student_id)
+        );
+        const dueStudentsCount = filteredStudents.filter(student => !paidStudentIds.has(student.id)).length;
+        document.getElementById('dash-due-students').textContent = dueStudentsCount.toLocaleString('bn-BD');
+		
+		
+        // ফি এর সাথে স্টুডেন্টের রিলেশনশিপ ম্যাপ করে শাখা ফিল্টারিং করা হচ্ছে
+        const studentBranchMap = {};
+        masterStudents.forEach(s => { studentBranchMap[s.id] = s.branch; });
+
+        let filteredFees = masterFees;
+        if (activeBranchFilter !== "all") {
+            filteredFees = masterFees.filter(f => studentBranchMap[f.student_id] === activeBranchFilter);
+        }
+
+        // ২. মোট ছাত্র সংখ্যা উইজেট
+        document.getElementById('dash-total-students').textContent = filteredStudents.length.toLocaleString('bn-BD');
+
+        // ৩. মোট আদায়কৃত ফি উইজেট
+        let totalFees = 0;
+        filteredFees.forEach(f => {
+            totalFees += parseFloat(f.total || f.amount || 0);
+        });
+        document.getElementById('dash-total-fees').textContent = totalFees.toLocaleString('bn-BD');
+
+        // ৪. মোট খরচ ও তহবিল উত্তোলন উইজেট
+        let totalExpenses = 0;
+        let totalWithdrawals = 0; // উত্তোলন হিসাব
+        filteredExpenses.forEach(e => {
+            const amt = parseFloat(e.amount || 0);
+            totalExpenses += amt;
+            if (e.category === "উত্তোলন" || e.category === "তহবিল উত্তোলন") {
+                totalWithdrawals += amt;
+            }
+        });
+        document.getElementById('dash-total-expenses').textContent = totalExpenses.toLocaleString('bn-BD');
+        document.getElementById('dash-total-withdrawals').textContent = `তহবিল উত্তোলন: ৳ ${totalWithdrawals.toLocaleString('bn-BD')}`;
+
+        // ৫. হাতে নগদ ক্যাশ তহবিল উইজেট (আদায়ের মোট টাকা - খরচের মোট টাকা)
+        const netCash = totalFees - totalExpenses;
+        document.getElementById('dash-net-cash').textContent = netCash.toLocaleString('bn-BD');
+
+        // ৬. আজকের হাজিরার কুইক উইজেট হিসাব করা
+        calculateAndRenderTodayAttendance(filteredStudents);
+
+        // ৭. চার্ট রেন্ডারিং (Chart.js জাদুকরি ইঞ্জিন)
+        renderDashboardCharts(totalFees, totalExpenses, filteredStudents, filteredFees, filteredExpenses);
+    }
+
+    // আজকের হাজিরার গ্লোবাল হিসাব
+    function calculateAndRenderTodayAttendance(filteredStudents) {
+        const studentIds = new Set(filteredStudents.map(s => s.id));
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // আজকের হাজিরা ফিল্টার
+        const todayAttendance = masterAttendance.filter(a => a.date === todayStr && studentIds.has(a.student_id));
+
+        let present = 0;
+        let absent = 0;
+        let late = 0;
+
+        todayAttendance.forEach(a => {
+            if (a.status === 'Present') present++;
+            else if (a.status === 'Absent') absent++;
+            else if (a.status === 'Late') late++;
+        });
+
+        const total = present + absent + late;
+        const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+        document.getElementById('dash-attendance-rate').textContent = rate + "%";
+        document.getElementById('dash-present-count').textContent = present.toLocaleString('bn-BD');
+        document.getElementById('dash-absent-count').textContent = absent.toLocaleString('bn-BD');
+    }
+
+    // =========================================================
+    // ৫. চার্ট জেনারেটর (Doughnut, Bar and Line Area Trend Charts)
+    // =========================================================
+    function renderDashboardCharts(feesAmt, expAmt, filteredStudents, filteredFees, filteredExpenses) {
+        if (typeof Chart === 'undefined') return;
+
+        // ৫.১ চার্ট ডিলিশন (ওভারল্যাপ মেমরি বাগ ফিক্স)
+        if (incomeExpenseChart) incomeExpenseChart.destroy();
+        if (dailyTrendChart) dailyTrendChart.destroy();
+        if (classStudentChart) classStudentChart.destroy();
+
+        // চার্ট ১: আয় বনাম ব্যয় অনুপাত (ডোনাট চার্ট)
+        const ctxPie = document.getElementById('incomeExpenseChart').getContext('2d');
+        incomeExpenseChart = new Chart(ctxPie, {
             type: 'doughnut',
             data: {
-                labels: ['পরিশোধিত শিক্ষার্থী', 'বকেয়া শিক্ষার্থী'],
+                labels: ['মোট আদায় (আয়)', 'মোট ব্যয় (খরচ)'],
                 datasets: [{
-                    data: [paidCount, dueCount],
+                    data: [feesAmt, expAmt],
                     backgroundColor: ['#10b981', '#f43f5e'],
-                    hoverOffset: 4,
-                    borderWidth: 0
+                    borderWidth: 0,
+                    hoverOffset: 6
                 }]
             },
             options: {
@@ -309,190 +340,123 @@
                         position: 'bottom',
                         labels: {
                             boxWidth: 10,
-                            font: { family: 'Hind Siliguri', size: 10 }
+                            font: { family: 'Hind Siliguri', size: 11 }
                         }
                     }
                 }
             }
         });
 
-        // ২. কলাম/বার চার্ট হিসাব (শ্রেণী-ভিত্তিক মোট ছাত্র বণ্টন)
-        const classCounts = { 'হিফজ': 0, 'নাজেরা': 0, 'নূরানী': 0, 'প্রথম শ্রেণী': 0, 'দ্বিতীয় শ্রেণী': 0 };
-        activeStudents.forEach(s => {
-            if (s.class && classCounts[s.class] !== undefined) {
-                classCounts[s.class]++;
+        // চার্ট ২: শ্রেণী-ভিত্তিক মোট ছাত্র সংখ্যা (কলাম চার্ট)
+        const classCountMap = {};
+        filteredStudents.forEach(s => {
+            if (s.class) {
+                classCountMap[s.class] = (classCountMap[s.class] || 0) + 1;
             }
         });
 
-        const ctxBar = document.getElementById('classBarChart').getContext('2d');
-        classBarChart = new Chart(ctxBar, {
+        const classLabels = Object.keys(classCountMap);
+        const classData = Object.values(classCountMap);
+
+        const ctxBar = document.getElementById('classStudentChart').getContext('2d');
+        classStudentChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: ['হিফজ', 'নাজেরা', 'নূরানী', '১ম শ্রেণী', '২য় শ্রেণী'],
+                labels: classLabels.length > 0 ? classLabels : ['হিফজ', 'নাজেরা', 'নূরানী'],
                 datasets: [{
                     label: 'মোট ছাত্র সংখ্যা',
-                    data: [
-                        classCounts['হিফজ'],
-                        classCounts['নাজেরা'],
-                        classCounts['নূরানী'],
-                        classCounts['প্রথম শ্রেণী'],
-                        classCounts['দ্বিতীয় শ্রেণী']
-                    ],
+                    data: classData.length > 0 ? classData : [0, 0, 0],
                     backgroundColor: '#0284c7',
                     borderRadius: 8,
-                    maxBarThickness: 28
+                    maxBarThickness: 32
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0 },
+                        grid: { color: '#f3f4f6' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // চার্ট ৩: চলতি মাসের দৈনিক আয়-ব্যয় গতিধারা (লাইন এরিয়া চার্ট)
+        const daysInMonth = new Date().getDate(); // আজ কত তারিখ
+        const daysArray = Array.from({ length: daysInMonth }, (_, i) => String(i + 1).padStart(2, '0')); 
+        const currentMonthPrefix = new Date().toISOString().substring(0, 7); // "YYYY-MM"
+
+        const dailyIncome = Array(daysInMonth).fill(0);
+        const dailyExpense = Array(daysInMonth).fill(0);
+
+        // দৈনিক ফি আদায়ের টোটাল হিসাব
+        filteredFees.forEach(f => {
+            if (f.payment_date && f.payment_date.startsWith(currentMonthPrefix)) {
+                const day = parseInt(f.payment_date.split('-')[2]) - 1;
+                if (day < daysInMonth) {
+                    dailyIncome[day] += parseFloat(f.total || f.amount || 0);
+                }
+            }
+        });
+
+        // দৈনিক ব্যয়ের টোটাল হিসাব
+        filteredExpenses.forEach(e => {
+            if (e.date && e.date.startsWith(currentMonthPrefix)) {
+                const day = parseInt(e.date.split('-')[2]) - 1;
+                if (day < daysInMonth) {
+                    dailyExpense[day] += parseFloat(e.amount || 0);
+                }
+            }
+        });
+
+        const ctxLine = document.getElementById('dailyTrendChart').getContext('2d');
+        dailyTrendChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: daysArray,
+                datasets: [
+                    {
+                        label: 'দৈনিক আদায় (আয়)',
+                        data: dailyIncome,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'দৈনিক ব্যয় (খরচ)',
+                        data: dailyExpense,
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        position: 'top',
+                        labels: { font: { family: 'Hind Siliguri', size: 10 } }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            precision: 0,
-                            font: { family: 'Inter' }
-                        },
                         grid: { color: '#f3f4f6' }
                     },
-                    x: {
-                        ticks: { font: { family: 'Hind Siliguri', size: 10 } },
-                        grid: { display: false }
-                    }
+                    x: { grid: { display: false } }
                 }
             }
         });
-    }
-
-    async function renderRecentFees(activeFees) {
-        const container = document.getElementById('recent-fees-container');
-        if (!container) return;
-
-        try {
-            const sorted = [...activeFees].sort((a, b) => b.receipt_id.localeCompare(a.receipt_id));
-            const recent = sorted.slice(0, 5);
-
-            if (recent.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-xs text-gray-400 font-medium">
-                        কোনো আদায়ের তথ্য পাওয়া যায়নি।
-                    </div>`;
-                return;
-            }
-
-            let html = '';
-            recent.forEach(fee => {
-                html += `
-                    <div class="flex justify-between items-start pt-2.5 first:pt-0">
-                        <div class="space-y-0.5">
-                            <h5 class="text-xs font-bold text-gray-800">${fee.student_name}</h5>
-                            <p class="text-[9px] text-gray-400 font-en">রসিদ: ${fee.receipt_id} | ${fee.month}</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs font-bold text-emerald-700 font-en">৳ ${fee.total || fee.amount}</div>
-                            <span class="inline-block text-[8px] bg-gray-150 text-gray-600 px-1 py-0.5 rounded-full font-bold">${fee.method || 'ক্যাশ'}</span>
-                        </div>
-                    </div>`;
-            });
-
-            container.innerHTML = html;
-
-        } catch (err) {
-            console.error("সাম্প্রতিক লেনদেন রেন্ডার করতে সমস্যা:", err);
-        }
-    }
-
-    function formatWhatsAppNumber(phone) {
-        if (!phone) return "";
-        let clean = phone.toString().replace(/\D/g, '');
-        if (clean.startsWith('0')) {
-            clean = '88' + clean;
-        }
-        return clean;
-    }
-
-    function collectFeeFor(studentId) {
-        window.preselectedStudentId = studentId;
-        loadModule('fees');
-    }
-
-    async function exportBackup() {
-        try {
-            const students = await db.students.toArray();
-            const fees = await db.fees.toArray();
-
-            const backupData = {
-                app: "MadrasahManagementSystem",
-                timestamp: new Date().toISOString(),
-                students: students,
-                fees: fees
-            };
-
-            const jsonString = JSON.stringify(backupData, null, 2);
-            const blob = new Blob([jsonString], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement('a');
-            a.href = url;
-            const dateStr = new Date().toISOString().split('T')[0];
-            a.download = `madrasah_backup_${dateStr}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showToast("ডাটা ব্যাকআপ ফাইল সফলভাবে ডাউনলোড করা হয়েছে।", "success");
-
-        } catch (err) {
-            console.error("ব্যাকআপ ফাইলে সমস্যা:", err);
-            showToast("ব্যাকআপ ফাইল তৈরি করা সম্ভব হয়নি।", "error");
-        }
-    }
-
-    async function importBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-
-                if (!data.students || !data.fees) {
-                    throw new Error("ভুল ফাইল ফরম্যাট");
-                }
-
-                if (confirm("সতর্কতা: এই ব্যাকআপ ফাইলটি ইম্পোর্ট করলে বর্তমান লোকাল ডাটাবেজের সকল ডাটা মুছে যাবে। আপনি কি ডাটা রিস্টোর করতে চান?")) {
-                    await db.students.clear();
-                    await db.fees.clear();
-
-                    if (data.students.length > 0) {
-                        await db.students.bulkAdd(data.students);
-                    }
-                    if (data.fees.length > 0) {
-                        await db.fees.bulkAdd(data.fees);
-                    }
-
-                    showToast("ডাটাবেজ সফলভাবে রিস্টোর বা পুনরুদ্ধার করা হয়েছে।", "success");
-
-                    await initDashboard();
-
-                    if (typeof updatePendingCount === 'function') {
-                        await updatePendingCount();
-                    }
-                }
-
-            } catch (err) {
-                console.error("ডাটা রিস্টোর করতে ত্রুটি:", err);
-                showToast("রিস্টোর করা যায়নি। দয়া করে একটি সঠিক ব্যাকআপ ফাইল নির্বাচন করুন।", "error");
-            }
-        };
-
-        reader.readAsText(file);
-        event.target.value = "";
     }
 </script>

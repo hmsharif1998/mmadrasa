@@ -1,7 +1,7 @@
 // ============================================
 // ১. গুগল অ্যাপস স্ক্রিপ্ট লিংক
 // ============================================
-const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbxx3TWOrsGec3OuCRykm6GVhAH4pj-R4zBW6G5p-LOVp4f6nZIbANfiU0GunVWJAXjxAQ/exec';
+const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbwsHbZD2dPeNt1959Au1CD-te7egM6aRVNjG7_F2_bY0lrtgLPZxzu_PNKNskJG3yW3Xg/exec';
 
 // ============================================
 // ২. Dexie.js লোকাল ডাটাবেজ টেবিল স্কিমা
@@ -10,7 +10,9 @@ const db = new Dexie("MadrasahDB");
 db.version(2).stores({
     students: 'id, name, class, roll, parent_phone, admission_date, is_synced, is_deleted',
     fees: 'receipt_id, student_id, student_name, amount, month, payment_date, is_synced, is_deleted',
-    settings: 'id, madrasah_name, madrasah_address, madrasah_phone, madrasah_pin, madrasah_script_url, is_synced, is_deleted'
+    settings: 'id, madrasah_name, madrasah_address, madrasah_phone, madrasah_pin, madrasah_script_url, is_synced, is_deleted',
+    expenses: 'expense_id, branch, category, amount, date, is_synced, is_deleted',
+    attendance: 'attendance_id, student_id, date, status, is_synced, is_deleted'
 });
 
 let isSyncing = false;
@@ -48,13 +50,15 @@ function loadModule(moduleName) {
             const mainContent = document.getElementById('main-content');
             mainContent.innerHTML = html;
 
-            const titles = {
-                'dashboard': 'ড্যাশবোর্ড',
-                'admission': 'ছাত্র ভর্তি',
-                'fees': 'বেতন কালেকশন',
-                'student_list': 'ছাত্রদের তালিকা ও রিপোর্ট', // নতুন টাইটেল যুক্ত
-                'settings': 'সেটিংস'
-            };
+const titles = {
+    'dashboard': 'ড্যাশবোর্ড',
+    'admission': 'ছাত্র ভর্তি',
+    'fees': 'বেতন কালেকশন',
+    'student_list': 'ছাত্রদের তালিকা ও রিপোর্ট',
+    'expense': 'খরচ এন্ট্রি ও রিপোর্ট', // নতুন যুক্ত
+    'attendance': 'দৈনিক হাজিরা খাতা',    // নতুন যুক্ত
+    'settings': 'সেটিংস'
+};
             document.getElementById('page-title').textContent = titles[moduleName] || 'ম্যানেজমেন্ট';
 
             executeInlineScripts(mainContent);
@@ -86,7 +90,7 @@ function executeInlineScripts(container) {
 }
 
 function updateNavStyles(activeModule) {
-    const modules = ['dashboard', 'admission', 'fees', 'student_list', 'settings']; // মডিউল লিস্টে 'student_list' যুক্ত
+const modules = ['dashboard', 'admission', 'fees', 'student_list', 'expense', 'attendance', 'settings'];
     modules.forEach(mod => {
         const el = document.getElementById(`nav-${mod}`);
         if (el) {
@@ -124,6 +128,8 @@ async function updatePendingCount() {
         const unsyncedStudents = await db.students.where('is_synced').equals(0).count();
         const unsyncedFees = await db.fees.where('is_synced').equals(0).count();
         const unsyncedSettings = await db.settings.where('is_synced').equals(0).count();
+        const unsyncedExpenses = await db.expenses.where('is_synced').equals(0).count(); // নতুন
+        const unsyncedAttendance = await db.attendance.where('is_synced').equals(0).count(); // নতুন
         const total = unsyncedStudents + unsyncedFees + unsyncedSettings;
         document.getElementById('pending-sync-count').textContent = total;
         return total;
@@ -211,6 +217,20 @@ async function pushLocalData() {
             await updateLocalSyncStatus('settings', unsyncedSettings);
         }
     }
+	 // নতুন: খরচের ডাটা পুশ
+    const unsyncedExpenses = await db.expenses.where('is_synced').equals(0).toArray();
+    if (unsyncedExpenses.length > 0) {
+        const success = await pushToSheet('Expenses', unsyncedExpenses);
+        if (success) await updateLocalSyncStatus('expenses', unsyncedExpenses);
+    }
+
+    // নতুন: হাজিরার ডাটা পুশ
+    const unsyncedAttendance = await db.attendance.where('is_synced').equals(0).toArray();
+    if (unsyncedAttendance.length > 0) {
+        const success = await pushToSheet('Attendance', unsyncedAttendance);
+        if (success) await updateLocalSyncStatus('attendance', unsyncedAttendance);
+    }
+	
 }
 
 // ============================================
@@ -258,31 +278,29 @@ async function pushToSheet(sheetName, data) {
 // ============================================
 async function updateLocalSyncStatus(type, items) {
     if (type === 'students') {
-        for (let student of items) {
-            const isDeleted = parseInt(student.is_deleted) || 0;
-            if (isDeleted === 1) {
-                await db.students.delete(student.id);
-            } else {
-                await db.students.update(student.id, { is_synced: 1 });
-            }
+        for (let s of items) {
+            if (parseInt(s.is_deleted) === 1) await db.students.delete(s.id);
+            else await db.students.update(s.id, { is_synced: 1 });
         }
     } else if (type === 'fees') {
-        for (let fee of items) {
-            const isDeleted = parseInt(fee.is_deleted) || 0;
-            if (isDeleted === 1) {
-                await db.fees.delete(fee.receipt_id);
-            } else {
-                await db.fees.update(fee.receipt_id, { is_synced: 1 });
-            }
+        for (let f of items) {
+            if (parseInt(f.is_deleted) === 1) await db.fees.delete(f.receipt_id);
+            else await db.fees.update(f.receipt_id, { is_synced: 1 });
         }
     } else if (type === 'settings') {
         for (let set of items) {
-            const isDeleted = parseInt(set.is_deleted) || 0;
-            if (isDeleted === 1) {
-                await db.settings.delete(set.id);
-            } else {
-                await db.settings.update(set.id, { is_synced: 1 });
-            }
+            if (parseInt(set.is_deleted) === 1) await db.settings.delete(set.id);
+            else await db.settings.update(set.id, { is_synced: 1 });
+        }
+    } else if (type === 'expenses') { // নতুন
+        for (let exp of items) {
+            if (parseInt(exp.is_deleted) === 1) await db.expenses.delete(exp.expense_id);
+            else await db.expenses.update(exp.expense_id, { is_synced: 1 });
+        }
+    } else if (type === 'attendance') { // নতুন
+        for (let att of items) {
+            if (parseInt(att.is_deleted) === 1) await db.attendance.delete(att.attendance_id);
+            else await db.attendance.update(att.attendance_id, { is_synced: 1 });
         }
     }
 }
@@ -292,29 +310,18 @@ async function updateLocalSyncStatus(type, items) {
 // ============================================
 async function pullServerData() {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'GET',
-            mode: 'cors'
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        const response = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
 
         if (data.status === 'success') {
-            if (data.students) {
-                await syncStudentsFromServer(data.students);
-            }
-            if (data.fees) {
-                await syncFeesFromServer(data.fees);
-            }
-            if (data.settings) {
-                await syncSettingsFromServer(data.settings);
-            }
+            if (data.students) await syncStudentsFromServer(data.students);
+            if (data.fees) await syncFeesFromServer(data.fees);
+            if (data.settings) await syncSettingsFromServer(data.settings);
+            if (data.expenses) await syncExpensesFromServer(data.expenses);     // নতুন যুক্ত
+            if (data.attendance) await syncAttendanceFromServer(data.attendance); // নতুন যুক্ত
         }
-
     } catch (error) {
         console.error('Pull failed:', error);
         throw error;
@@ -492,3 +499,56 @@ window.lockApp = function() {
         updatePinDots();
     }
 };
+
+async function syncExpensesFromServer(serverExpenses) {
+    const serverIds = new Set(serverExpenses.map(e => e.expense_id));
+    const localExpenses = await db.expenses.toArray();
+
+    for (let local of localExpenses) {
+        if (local.is_synced === 1 && !serverIds.has(local.expense_id)) {
+            await db.expenses.delete(local.expense_id);
+        }
+    }
+
+    for (let exp of serverExpenses) {
+        const isDeleted = parseInt(exp.is_deleted) || 0;
+        if (isDeleted === 1) {
+            const existing = await db.expenses.get(exp.expense_id);
+            if (existing) await db.expenses.delete(exp.expense_id);
+            continue;
+        }
+        const expObj = {
+            ...exp,
+            amount: parseFloat(exp.amount) || 0,
+            is_synced: 1,
+            is_deleted: 0
+        };
+        await db.expenses.put(expObj);
+    }
+}
+
+async function syncAttendanceFromServer(serverAttendance) {
+    const serverIds = new Set(serverAttendance.map(a => a.attendance_id));
+    const localAttendance = await db.attendance.toArray();
+
+    for (let local of localAttendance) {
+        if (local.is_synced === 1 && !serverIds.has(local.attendance_id)) {
+            await db.attendance.delete(local.attendance_id);
+        }
+    }
+
+    for (let att of serverAttendance) {
+        const isDeleted = parseInt(att.is_deleted) || 0;
+        if (isDeleted === 1) {
+            const existing = await db.attendance.get(att.attendance_id);
+            if (existing) await db.attendance.delete(att.attendance_id);
+            continue;
+        }
+        const attObj = {
+            ...att,
+            is_synced: 1,
+            is_deleted: 0
+        };
+        await db.attendance.put(attObj);
+    }
+}

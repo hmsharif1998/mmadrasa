@@ -1,124 +1,250 @@
-
 <style>
-    /* প্রিন্ট মোডে সাইডবার, হেডার এবং কন্ট্রোল প্যানেল লুকিয়ে ফেলার সিএসএস */
+    /* ফন্ট ইম্পোর্ট অবশ্যই স্টাইল শিটের প্রথম লাইনে থাকতে হবে (কমেন্টেরও আগে) */
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    #student-list-container, #profile-modal {
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif;
+    }
+    .font-mono-receipt {
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    /* ========================================================= */
+    /* A5 ও A4 প্রিন্টিং এর জন্য উন্নত এবং বাগ-ফ্রি মিডিয়া কোয়েরি */
+    /* ========================================================= */
     @media print {
-        #sidebar, header, .no-print, #student-list-table-body td:last-child, th:last-child {
-            display: none !important;
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
-        main {
-            padding: 0 !important;
+
+        /* --------------------------------------------------------- */
+        /* মোড ১: সাধারণ রিপোর্ট প্রিন্ট করার সিএসএস (A4 Size) */
+        /* --------------------------------------------------------- */
+        html, body, .flex, .flex-1, main, #main-content, #student-list-container {
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            display: block !important;
+            background: white !important;
+            border: none !important;
+            box-shadow: none !important;
             margin: 0 !important;
-            background: white !important;
+            padding: 0 !important;
         }
-        body {
-            background: white !important;
-            font-size: 11px !important;
+        body * {
+            visibility: hidden;
         }
-        /* প্রিন্ট হেডার */
+        #print-header, #print-header *, #student-list-table-container, #student-list-table-container * {
+            visibility: visible !important;
+        }
         #print-header {
             display: block !important;
+        }
+        #student-list-table-container {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        .no-print, button, .border-b, #column-chooser-wrapper, #profile-modal {
+            display: none !important;
+        }
+
+        /* --------------------------------------------------------- */
+        /* মোড ২: শুধুমাত্র একক শিক্ষার্থীর বায়োডাটা প্রিন্ট (A5 Portrait) */
+        /* --------------------------------------------------------- */
+        body.print-single-biodata {
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
+        }
+        body.print-single-biodata @page {
+            size: A5 portrait !important;
+            margin: 4mm !important;
+        }
+        /* বায়োডাটা প্রিন্টের সময় পেছনের মূল পেজ সম্পূর্ণ হাইড */
+        body.print-single-biodata #student-list-container,
+        body.print-single-biodata #sidebar,
+        body.print-single-biodata header,
+        body.print-single-biodata #print-header {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        /* বায়োডাটা মডালটিকে সম্পূর্ণ পেজে মেলানো */
+        body.print-single-biodata #profile-modal {
+            display: block !important;
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 148mm !important; /* A5 standard width */
+            height: 210mm !important; /* A5 standard height */
+            background: white !important;
+            z-index: 999999 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        body.print-single-biodata #profile-modal * {
+            visibility: visible !important;
+        }
+        body.print-single-biodata #profile-modal-body {
+            width: 148mm !important;
+            height: 210mm !important;
+            box-sizing: border-box !important;
+            padding: 5mm !important;
+            display: block !important;
+        }
+        /* বায়োডাটা প্রিন্টে বাটন হাইড */
+        body.print-single-biodata #profile-modal .mt-6,
+        body.print-single-biodata #profile-modal button {
+            display: none !important;
+        }
+        body.print-single-biodata #profile-modal-body strong {
+            font-size: 11px !important;
+        }
+        body.print-single-biodata #profile-modal-body span {
+            font-size: 9px !important;
+        }
+        body.print-single-biodata #profile-modal-body img {
+            width: 80px !important;
+            height: 80px !important;
         }
     }
 </style>
 
-<!-- প্রিন্ট করার সময় রিপোর্টের শিরোনাম দেখানোর জন্য হেডার (এমনিতে লুকানো থাকবে) -->
+<!-- প্রিন্ট করার সময় রিপোর্টের শিরোনাম দেখানোর জন্য হেডার (A4) -->
 <div id="print-header" class="hidden text-center border-b pb-4 mb-5">
-    <h2 id="print-madrasah-name" class="text-xl font-bold text-emerald-800">মাদরাসাতুল মদিনা</h2>
+    <h2 id="print-madrasah-name" class="text-2xl font-bold text-emerald-800">মাদরাসাতুল মদিনা</h2>
     <p id="print-madrasah-address" class="text-xs text-gray-500">ঢাকা, বাংলাদেশ</p>
     <h3 class="text-sm font-bold mt-2 text-gray-700">ফিল্টারকৃত শিক্ষার্থীদের রিপোর্ট তালিকা (<span id="print-report-month"></span>)</h3>
 </div>
 
-<div class="space-y-6">
+<div id="student-list-container" class="space-y-6">
 
-    <!-- পরিসংখ্যান ও প্রগ্রেসবার প্যানেল -->
+    <!-- পরিসংখ্যান ও প্রগ্রেসবার প্যানেল (রঙিন ও বড় টেক্সট) -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
-        <!-- ফিল্টারকৃত মোট ছাত্র -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+        <!-- মোট ছাত্র -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-2xl shadow-sm border border-blue-100 flex items-center justify-between">
             <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ফিল্টারকৃত মোট ছাত্র</p>
-                <h4 class="text-2xl font-bold text-gray-800 mt-1 font-en" id="stat-total">0</h4>
+                <p class="text-xs text-blue-800 font-bold uppercase tracking-wider">ফিল্টারকৃত মোট ছাত্র</p>
+                <h4 class="text-3xl font-extrabold text-blue-950 mt-1 font-en" id="stat-total">0</h4>
             </div>
-            <div class="bg-blue-50 text-blue-600 p-3 rounded-full">
-                <i class="fa-solid fa-graduation-cap text-lg"></i>
+            <div class="bg-blue-600 text-white p-3.5 rounded-full shadow-md shadow-blue-500/10">
+                <i class="fa-solid fa-graduation-cap text-xl"></i>
             </div>
         </div>
         <!-- বেতন পরিশোধিত -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-5 rounded-2xl shadow-sm border border-emerald-100 flex items-center justify-between">
             <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">বেতন পরিশোধ করেছে</p>
-                <h4 class="text-2xl font-bold text-emerald-600 mt-1 font-en" id="stat-paid">0</h4>
+                <p class="text-xs text-emerald-800 font-bold uppercase tracking-wider">বেতন পরিশোধ করেছে</p>
+                <h4 class="text-3xl font-extrabold text-emerald-950 mt-1 font-en" id="stat-paid">0</h4>
             </div>
-            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-full">
-                <i class="fa-solid fa-circle-check text-lg"></i>
+            <div class="bg-emerald-600 text-white p-3.5 rounded-full shadow-md shadow-emerald-500/10">
+                <i class="fa-solid fa-circle-check text-xl"></i>
             </div>
         </div>
         <!-- বকেয়া আছে -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-5 rounded-2xl shadow-sm border border-rose-100 flex items-center justify-between">
             <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">বেতন বকেয়া আছে</p>
-                <h4 class="text-2xl font-bold text-red-600 mt-1 font-en" id="stat-due">0</h4>
+                <p class="text-xs text-rose-800 font-bold uppercase tracking-wider">বেতন বকেয়া আছে</p>
+                <h4 class="text-3xl font-extrabold text-rose-950 mt-1 font-en" id="stat-due">0</h4>
             </div>
-            <div class="bg-red-50 text-red-600 p-3 rounded-full">
-                <i class="fa-solid fa-circle-xmark text-lg"></i>
+            <div class="bg-rose-600 text-white p-3.5 rounded-full shadow-md shadow-rose-500/10">
+                <i class="fa-solid fa-circle-xmark text-xl"></i>
             </div>
         </div>
         <!-- আদায় হার এবং প্রগ্রেসবার -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
             <div class="flex justify-between items-center mb-2">
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">আদায়ের হার (চলতি মাসে)</p>
-                <span id="stat-ratio" class="text-xs font-bold text-emerald-700 font-en">0%</span>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">আদায়ের হার (চলতি মাসে)</p>
+                <span id="stat-ratio" class="text-sm font-extrabold text-emerald-700 font-en">0%</span>
             </div>
-            <!-- প্রোগ্রেস বার -->
-            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div id="stat-progress-bar" class="bg-emerald-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
     <!-- ফিল্টারিং ও সার্চ কন্টেইনার -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 no-print">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                <i class="fa-solid fa-filter text-emerald-600"></i> ফিল্টারিং ও সার্চ অপশন
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 no-print space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-filter text-emerald-600 text-lg"></i> ফিল্টারিং ও কলাম কাস্টমাইজেশন
             </h3>
-            <!-- প্রিন্ট রিপোর্ট বাটন -->
-            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-print"></i> অফিশিয়াল তালিকা প্রিন্ট করুন
-            </button>
+            
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- কলাম বাছাইকরণ বাটন ও ড্রপডাউন ম্যানু [6] -->
+                <div class="relative inline-block text-left" id="column-chooser-wrapper">
+                    <button type="button" onclick="toggleColumnMenu()" class="bg-gray-150 hover:bg-gray-200 text-gray-700 px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-gray-200 shadow-sm">
+                        <i class="fa-solid fa-table-columns text-gray-500"></i> কলাম কাস্টমাইজ করুন
+                    </button>
+                    <!-- কলাম সিলেক্টর চেকবক্স লিস্ট -->
+                    <div id="column-chooser-menu" class="hidden absolute right-0 mt-2 bg-white border border-gray-150 rounded-xl shadow-xl p-4 z-30 w-48 space-y-2 text-xs">
+                        <h5 class="font-bold border-b pb-1.5 mb-2 text-gray-400">কলাম প্রদর্শন সেট করুন</h5>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-roll-id" checked onchange="toggleColumn('col-roll-id')" class="rounded text-emerald-600"> রোল ও আইডি</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-student" checked onchange="toggleColumn('col-student')" class="rounded text-emerald-600"> শিক্ষার্থীর পরিচিতি</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-parents" checked onchange="toggleColumn('col-parents')" class="rounded text-emerald-600"> পিতা ও মাতা</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-academic" checked onchange="toggleColumn('col-academic')" class="rounded text-emerald-600"> শাখা ও জামাত</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-contact" checked onchange="toggleColumn('col-contact')" class="rounded text-emerald-600"> যোগাযোগ ও ফিস</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-status" checked onchange="toggleColumn('col-status')" class="rounded text-emerald-600"> বেতন স্ট্যাটাস</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-actions" checked onchange="toggleColumn('col-actions')" class="rounded text-emerald-600"> অ্যাকশন</label>
+                    </div>
+                </div>
+
+                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-700/10">
+                    <i class="fa-solid fa-print"></i> অফিশিয়াল তালিকা প্রিন্ট করুন
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- নাম, আইডি বা মোবাইল সার্চ -->
             <div>
-                <label class="block text-[11px] font-bold text-gray-500 mb-1">ছাত্র খুঁজুন</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্র খুঁজুন</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </span>
                     <input type="text" id="search-student-list" oninput="renderFilteredStudents()" placeholder="নাম, রোল, আইডি বা মোবাইল..."
-                           class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs">
+                           class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold bg-gray-50/50">
                 </div>
             </div>
 
-            <!-- শ্রেণী ফিল্টার -->
+            <!-- ডাইনামিক শাখা ফিল্টার -->
             <div>
-                <label class="block text-[11px] font-bold text-gray-500 mb-1">শ্রেণী</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">শাখা (Branch)</label>
+                <select id="filter-branch-list" onchange="renderFilteredStudents()"
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                    <option value="">সকল শাখা</option>
+                </select>
+            </div>
+
+            <!-- ডাইনামিক শ্রেণী ফিল্টার -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী/জামাত</label>
                 <select id="filter-class-list" onchange="renderFilteredStudents()"
-                        class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-semibold">
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
                     <option value="">সকল শ্রেণী</option>
-                    <option value="হিফজ">হিফজ</option>
-                    <option value="নাজেরা">নাজেরা</option>
-                    <option value="নূরানী">নূরানী</option>
-                    <option value="প্রথম শ্রেণী">প্রথম শ্রেণী</option>
-                    <option value="দ্বিতীয় শ্রেণী">দ্বিতীয় শ্রেণী</option>
                 </select>
             </div>
 
             <!-- বেতন মাস ফিল্টার -->
             <div>
-                <label class="block text-[11px] font-bold text-gray-500 mb-1">বেতনের মাস</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">বেতনের মাস</label>
                 <select id="filter-month" onchange="renderFilteredStudents()"
-                        class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-semibold">
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
                     <option value="জানুয়ারি">জানুয়ারি</option>
                     <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
                     <option value="মার্চ">মার্চ</option>
@@ -136,9 +262,9 @@
 
             <!-- বেতন স্ট্যাটাস ফিল্টার -->
             <div>
-                <label class="block text-[11px] font-bold text-gray-500 mb-1">বেতন স্ট্যাটাস</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">বেতন স্ট্যাটাস</label>
                 <select id="filter-status-list" onchange="renderFilteredStudents()"
-                        class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-semibold">
+                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
                     <option value="all">সবাই</option>
                     <option value="paid">পরিশোধিত</option>
                     <option value="due">বকেয়া</option>
@@ -148,37 +274,49 @@
     </div>
 
     <!-- ছাত্রদের ডাটা টেবিল কন্টেইনার -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-        <div class="overflow-x-auto rounded-xl border border-gray-100">
+    <div id="student-list-table-container" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+        <div class="overflow-x-auto rounded-xl border border-gray-100 max-h-[500px] overflow-y-auto custom-scroll">
             <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">রোল ও আইডি</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">নাম ও অভিভাবক</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">শ্রেণী ও আবাসন</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">যোগাযোগ</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">বেতন স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider no-print">অ্যাকশন</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-roll-id">রোল ও আইডি</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-student">শিক্ষার্থীর পরিচিতি</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-parents">পিতা ও মাতা</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-academic">শাখা ও জামাত</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-contact">যোগাযোগ ও ফিস</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-status">বেতন স্ট্যাটাস</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-actions no-print">অ্যাকশন</th>
                 </tr>
                 </thead>
-                <tbody id="student-list-table-body" class="bg-white divide-y divide-gray-100">
+                <tbody id="student-list-table-body" class="bg-white divide-y divide-gray-100 text-xs">
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- মডাল ১: শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল (Popup Biodata) -->
+<!-- ========================================================== -->
+<!-- মডাল ১: শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল (Popup A5 Biodata) -->
+<!-- ========================================================== -->
 <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
-    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl relative border border-gray-100 animate-fadeIn">
-        <h4 class="text-sm font-bold text-emerald-800 border-b pb-3 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-address-card"></i> শিক্ষার্থীর বিস্তারিত বায়োডাটা
+    <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl relative border border-gray-100 animate-fadeIn">
+        <h4 class="text-sm font-extrabold text-emerald-850 border-b pb-3 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-address-card text-emerald-600 text-lg"></i> শিক্ষার্থীর বিস্তারিত বায়োডাটা
         </h4>
-        <div id="profile-modal-body" class="space-y-3.5 text-xs text-gray-700 leading-relaxed">
+        
+        <!-- ডাইনামিক বায়োডাটা বডি (A5 প্রিন্ট ফ্রেন্ডলি) -->
+        <div id="profile-modal-body" class="space-y-4 text-xs text-gray-700 leading-relaxed">
             <!-- ডাইনামিক প্রোফাইল ডাটা স্ক্রিপ্ট দিয়ে লোড হবে -->
         </div>
-        <div class="mt-6 flex justify-end">
-            <button onclick="closeProfileModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs transition">
+        
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button id="btn-modal-edit" onclick="" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-pen-to-square"></i>৪. সম্পাদনা করুন
+            </button>
+            <button onclick="printSingleBiodata()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-print"></i> বায়োডাটা প্রিন্ট করুন (A5)
+            </button>
+            <button onclick="closeProfileModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs transition border">
                 বন্ধ করুন
             </button>
         </div>
@@ -192,6 +330,11 @@
         document.getElementById('print-madrasah-name').textContent = name;
         document.getElementById('print-madrasah-address').textContent = address;
 
+        // ডাইনামিক ফিল্টার ড্রপডাউন পপুলেট করা
+        const config = await db.settings.get('madrasah_config_block') || {};
+        const academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+        populateDynamicFilters(academicStructure);
+
         const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
         const currentMonthName = bnMonths[new Date().getMonth()];
         const monthSelect = document.getElementById('filter-month');
@@ -199,7 +342,83 @@
             monthSelect.value = currentMonthName;
         }
 
+        // কলাম চেকবক্স সেটিংস লোড করা
+        loadColumnChooserSettings();
+
         await renderFilteredStudents();
+    }
+
+    // কলাম অপশন সেটিংস ড্রপডাউন টগল
+    function toggleColumnMenu() {
+        const menu = document.getElementById('column-chooser-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // মাউস বাইরে ক্লিক করলে কলাম ড্রপডাউন বন্ধ হওয়া
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('column-chooser-wrapper');
+        const menu = document.getElementById('column-chooser-menu');
+        if (wrapper && !wrapper.contains(e.target) && menu) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    // কলাম হাইড/শো করার মূল লজিক [6]
+    function toggleColumn(colClass) {
+        const isChecked = document.getElementById(`chk-${colClass}`).checked;
+        const elements = document.querySelectorAll(`.${colClass}`);
+        elements.forEach(el => {
+            if (isChecked) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        });
+        localStorage.setItem(`col_visible_${colClass}`, isChecked ? 'true' : 'false');
+    }
+
+    function loadColumnChooserSettings() {
+        const columns = ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'];
+        columns.forEach(col => {
+            const savedState = localStorage.getItem(`col_visible_${col}`);
+            const chk = document.getElementById(`chk-${col}`);
+            if (savedState !== null && chk) {
+                chk.checked = savedState === 'true';
+            }
+        });
+    }
+
+    // ডাইনামিক ফিল্টার ড্রপডাউন জেনারেটর
+    function populateDynamicFilters(academicStructure) {
+        const branchSelect = document.getElementById('filter-branch-list');
+        const classSelect = document.getElementById('filter-class-list');
+        
+        branchSelect.innerHTML = `<option value="">সকল শাখা</option>`;
+        classSelect.innerHTML = `<option value="">সকল শ্রেণী</option>`;
+
+        const classesSet = new Set();
+
+        academicStructure.forEach(branch => {
+            branchSelect.innerHTML += `<option value="${branch.name}">${branch.name}</option>`;
+            branch.departments.forEach(dept => {
+                dept.classes.forEach(cls => {
+                    classesSet.add(cls.name);
+                });
+            });
+        });
+
+        classesSet.forEach(clsName => {
+            classSelect.innerHTML += `<option value="${clsName}">${clsName}</option>`;
+        });
+    }
+
+    // ডাইনামিক নাম্বার রিফাইন করাসহ সরাসরি পিসি/মোবাইল থেকে কল করা
+    function callPhoneNumber(phone) {
+        let clean = phone.toString().replace(/\D/g, '');
+        if (clean.startsWith('8801')) {
+            clean = clean.substring(2);
+        }
+        if (!clean.startsWith('01') && clean.length === 10) {
+            clean = '0' + clean;
+        }
+        window.location.href = `tel:${clean}`;
     }
 
     async function renderFilteredStudents() {
@@ -207,6 +426,7 @@
         if (!tableBody) return;
 
         const searchQuery = document.getElementById('search-student-list').value.toLowerCase().trim();
+        const branchQuery = document.getElementById('filter-branch-list').value;
         const classQuery = document.getElementById('filter-class-list').value;
         const monthQuery = document.getElementById('filter-month').value;
         const statusQuery = document.getElementById('filter-status-list').value;
@@ -238,6 +458,10 @@
                 );
             }
 
+            if (branchQuery) {
+                filtered = filtered.filter(s => s.branch === branchQuery);
+            }
+
             if (classQuery) {
                 filtered = filtered.filter(s => s.class === classQuery);
             }
@@ -250,7 +474,7 @@
 
             filtered.sort((a, b) => (a.roll || 0) - (b.roll || 0));
 
-            // আদায়ের পরিসংখ্যান গণনা
+            // পরিসংখ্যানে আপডেট
             let totalPaid = 0;
             let totalDue = 0;
             filtered.forEach(s => {
@@ -269,7 +493,7 @@
             if (filtered.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-xs text-gray-500 font-medium">
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
                             কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
@@ -282,11 +506,10 @@
                 let statusCell = '';
                 let actionButton = '';
 
-                // ডাইনামিক ফিল্ডগুলোর সেফগার্ড চেক (যাতে কোনো ভ্যালু আনডিফাইনড থাকলেও পেজ ক্র্যাশ না করে)
                 const sName = s.name || "অজানা";
                 const sRoll = s.roll || "-";
                 const sClass = s.class || "-";
-                const sResidence = s.residence || "অনাবাসিক";
+                const sGroup = s.group || "-";
                 const sId = s.id || "";
                 const sFather = s.father_name || "-";
                 const sPhone = s.parent_phone || "";
@@ -304,11 +527,13 @@
                          <i class="fa-solid fa-circle-xmark"></i> বকেয়া
                        </span>`;
                     
-                    // মোবাইল ও হোয়াটসঅ্যাপ নম্বর সেফগার্ড চেক
-                    const wpPhoneVal = sWhatsapp || sPhone || "";
-                    const formattedNumber = formatWhatsAppNumber(wpPhoneVal);
+                    // রিফাইনড নাম্বার দিয়ে হোয়াটসঅ্যাপ রিমাইন্ডার লিংক প্রস্তুত
+                    const cleanPhone = sWhatsapp || sPhone || "";
+                    let waNumber = cleanPhone.toString().replace(/\D/g, '');
+                    if (waNumber.startsWith('0')) waNumber = '88' + waNumber;
+
                     const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন এখনো বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
-                    const wpUrl = `https://wa.me/${formattedNumber}?text=${encodeURIComponent(wpMessage)}`;
+                    const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
 
                     actionButton = `
                         <div class="flex gap-1">
@@ -324,42 +549,50 @@
 
                 html += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-3 text-xs">
+                        <td class="px-4 py-3 text-xs col-roll-id">
                             <div class="font-bold text-gray-700 font-en">রোল: ${sRoll}</div>
                             <div class="text-[10px] text-gray-400 font-bold font-en">${sId}</div>
                         </td>
-                        <td class="px-4 py-3 text-xs">
-                            <button onclick="showStudentProfile('${sId}')" class="font-bold text-emerald-800 hover:underline text-left text-sm cursor-pointer">${sName}</button>
-                            <div class="text-[11px] text-gray-500">পিতা: ${sFather}</div>
+                        <td class="px-4 py-3 text-xs col-student">
+                            <div class="flex items-center gap-2">
+                                ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold font-en text-[10px]">St</div>'}
+                                <div>
+                                    <button onclick="showStudentProfile('${sId}')" class="font-bold text-emerald-800 hover:underline text-left text-sm cursor-pointer block">${sName}</button>
+                                    <div class="text-[10px] text-gray-400 font-bold"> Sl: ${s.serial_no || '-'} </div>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-4 py-3 text-xs text-gray-700 font-bold">
-                            <div class="text-emerald-950">${sClass}</div>
-                            <div class="text-[10px] text-gray-400 font-normal">${sResidence}</div>
+                        <td class="px-4 py-3 text-xs text-gray-600 col-parents">
+                            <div class="font-medium">পিতা: ${sFather}</div>
+                            <div class="text-[10px] text-gray-400 font-semibold">মাতা: ${s.mother_name || '-'}</div>
                         </td>
-                        <td class="px-4 py-3 text-[11px] text-gray-600 font-en">
-                            <div><i class="fa-solid fa-phone text-emerald-600"></i> ${sPhone}</div>
-                            ${sWhatsapp ? `<div><i class="fa-brands fa-whatsapp text-green-500"></i> ${sWhatsapp}</div>` : ''}
+                        <td class="px-4 py-3 text-xs text-gray-700 font-bold col-academic">
+                            <div class="text-emerald-950">${sClass} ${sGroup !== '-' ? `(${sGroup})` : ''}</div>
+                            <div class="text-[10px] text-gray-400 font-normal">${s.branch} | ${s.department}</div>
                         </td>
-                        <td class="px-4 py-3 text-xs">${statusCell}</td>
-                        <td class="px-4 py-3 text-xs no-print">${actionButton}</td>
+                        <td class="px-4 py-3 text-[11px] text-gray-600 font-en col-contact">
+                            <div class="flex items-center gap-1.5 font-bold text-gray-700">
+                                <span>${sPhone}</span>
+                                <!-- ডাইরেক্ট কল বাটন -->
+                                <button onclick="callPhoneNumber('${sPhone}')" class="text-blue-600 hover:text-blue-800 w-5 h-5 bg-blue-50 hover:bg-blue-100 rounded-full flex items-center justify-center border shadow-sm" title="কল করুন"><i class="fa-solid fa-phone text-[9px]"></i></button>
+                            </div>
+                            <div class="text-[10px] font-bold text-emerald-800">${s.fee_group_name || 'সাধারণ'}: ৳${s.monthly_fee || 0}</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs col-status">${statusCell}</td>
+                        <td class="px-4 py-3 text-xs no-print col-actions">${actionButton}</td>
                     </tr>`;
             });
 
             tableBody.innerHTML = html;
 
+            // সংরক্ষিত কলাম শো/হাইড সেটিংস সচল করা
+            loadColumnChooserSettings();
+            const cols = ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'];
+            cols.forEach(toggleColumn);
+
         } catch (err) {
             console.error("তালিকা প্রস্তুত করতে ত্রুটি:", err);
         }
-    }
-
-    // মোবাইল নম্বর বাংলাদেশের ফরম্যাটে ডাইনামিক রূপান্তর করার সেফগার্ড ফাংশন
-    function formatWhatsAppNumber(phone) {
-        if (!phone) return "";
-        let clean = phone.toString().replace(/\D/g, ''); // সংখ্যা বা টেক্সট যা-ই হোক, স্ট্রিং কনভার্ট করে নিরাপদ রিপ্লেস করা
-        if (clean.startsWith('0')) {
-            clean = '88' + clean;
-        }
-        return clean;
     }
 
     async function showStudentProfile(studentId) {
@@ -368,48 +601,78 @@
             if (!s) return;
 
             const modalBody = document.getElementById('profile-modal-body');
+            
+            // ডাইনামিক বেতন এবং ফিস প্রোপার্টি নির্ধারণ (ক্র্যাশ বন্ধ করতে সেফগার্ড বা ব্যাকআপ ভ্যালু সহ)
+            const feeGroupName = s.fee_group_name || 'সাধারণ বেতন';
+            const monthlyFee = s.monthly_fee ? parseFloat(s.monthly_fee).toLocaleString('bn-BD') : '০';
+
+            // A5 প্রিন্ট ও ভিউ ফ্রেন্ডলি প্রোফাইল ডিজাইন
             modalBody.innerHTML = `
                 <div class="flex items-center gap-4 border-b pb-3 mb-3">
-                    <div class="bg-emerald-50 text-emerald-700 p-4 rounded-full">
-                        <i class="fa-solid fa-user-graduate text-3xl"></i>
+                    <div class="shrink-0">
+                        ${s.photo_url ? `<img class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md bg-gray-50" src="${s.photo_url}">` : '<div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-2xl">St</div>'}
                     </div>
                     <div>
                         <h5 class="text-sm font-extrabold text-gray-800">${s.name || "অজানা"}</h5>
-                        <p class="text-[10px] text-gray-400 font-bold tracking-wider font-en">ID: ${s.id || ""}</p>
+                        <p class="text-[10px] text-gray-400 font-bold tracking-wider font-en">ভর্তি আইডি: ${s.id || ""}</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3">
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">পিতার নাম:</span> <strong>${s.father_name || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">মাতার নাম:</span> <strong>${s.mother_name || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">জন্ম তারিখ:</span> <strong class="font-en">${s.dob || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">রক্তের গ্রুপ:</span> <strong class="text-rose-600">${s.blood_group || '-'}</strong></div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3 text-gray-700">
+                    <div><span class="text-gray-400 font-bold block text-[10px]">পিতার নাম:</span> <strong class="text-gray-850">${s.father_name || '-'}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">মাতার নাম:</span> <strong class="text-gray-850">${s.mother_name || '-'}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">জন্ম তারিখ:</span> <strong class="font-en">${s.dob || '-'}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">রক্তের গ্রুপ:</span> <strong class="text-rose-600">${s.blood_group || '-'}</strong></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3">
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">শ্রেণী:</span> <strong>${s.class || "-"}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">রোল নম্বর:</span> <strong class="font-en">${s.roll || "-"}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">আবাসন স্ট্যাটাস:</span> <strong>${s.residence || 'অনাবাসিক'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">ভর্তির তারিখ:</span> <strong class="font-en">${s.admission_date || '-'}</strong></div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3 text-gray-700">
+                    <div><span class="text-gray-400 font-bold block text-[10px]">শাখা ও বিভাগ:</span> <strong class="text-gray-850">${s.branch} | ${s.department}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">শ্রেণী ও রোল নম্বর:</span> <strong class="text-emerald-800 font-en">${s.class} (রোল: ${s.roll})</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">বেতন গ্রুপ:</span> <strong class="text-emerald-800">${feeGroupName}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">মাসিক ফিস (বেতন):</span> <strong class="text-emerald-800 font-en">৳ ${monthlyFee}</strong></div>
                 </div>
 
-                <div class="space-y-1">
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">জন্ম নিবন্ধন নম্বর:</span> <strong class="font-en">${s.birth_reg || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">মোবাইল নম্বর:</span> <strong class="font-en">${s.parent_phone || ""}</strong></div>
-                    <div><span class="text-gray-400 font-semibold block text-[10px]">বর্তমান ঠিকানা:</span> <strong>${s.address || '-'}</strong></div>
+                <div class="space-y-1.5 text-gray-700">
+                    <div><span class="text-gray-400 font-bold block text-[10px]">জন্ম নিবন্ধন নম্বর:</span> <strong class="font-en">${s.birth_reg || '-'}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">অভিভাবকের মোবাইল:</span> <strong class="font-en">${s.parent_phone || ""}</strong></div>
+                    <div><span class="text-gray-400 font-bold block text-[10px]">বর্তমান ঠিকানা:</span> <strong>গ্রাম: ${s.village || '-'}, পোস্ট: ${s.post || '-'}, থানা: ${s.thana || '-'}, জেলা: ${s.district || '-'}</strong></div>
                 </div>
             `;
+
+            // মডাল এডিট বাটনে ডাইনামিক ক্লিক ইন্টারসেপ্টর বসানো
+            const editBtn = document.getElementById('btn-modal-edit');
+            editBtn.onclick = () => editStudentFromList(s.id);
 
             document.getElementById('profile-modal').classList.remove('hidden');
 
         } catch (err) {
-            console.error("প্রোফাইল লোড করতে समस्या:", err);
+            console.error("প্রোফাইল লোড করতে সমস্যা:", err);
             showToast("প্রোফাইল ডাটা লোড করা সম্ভব হয়নি।", "error");
         }
     }
 
     function closeProfileModal() {
         document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    // বায়োডাটা প্রিন্ট ট্রিগার (A5 Portrait পেপারে একক কার্ড প্রিন্ট করার জন্য বডি হ্যাক)
+    function printSingleBiodata() {
+        document.body.classList.add('print-single-biodata');
+        window.print();
+        document.body.classList.remove('print-single-biodata');
+    }
+
+    // বায়োডাটা মডালের ভেতর থেকে সরাসরি এডিটে নিয়ে যাওয়ার এপিআই
+    function editStudentFromList(id) {
+        closeProfileModal();
+        window.preselectedStudentId = id; 
+        loadModule('admission');
+        
+        setTimeout(async () => {
+            if (typeof editStudent === 'function') {
+                editStudent(id);
+            }
+        }, 800);
     }
 
     window.collectFeeFor = function(studentId) {
