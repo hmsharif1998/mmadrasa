@@ -1,7 +1,7 @@
 // ============================================
 // ১. গুগল অ্যাপস স্ক্রিপ্ট লিংক এবং সেশন গ্লোবাল স্টেট
 // ============================================
-const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbxB0PBAPPREra1hUXkmGnDTo2xVi6J9ZgMJVPY9PfSU_rzDm5G5UP5PMhnH6RoS9qFZeg/exec';
+const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbzZL5D_wk3yfpN1YNWxnJh-vKCWtLQiG2UH95PMZUpKC1tQShQgWS1fF_BA9PIA0fZIMA/exec';
 
 // গ্লোবাল ইউজার স্টেট (সেশন স্টোরেজ থেকে পুনরুদ্ধার)
 window.currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;

@@ -317,8 +317,12 @@
         const day = String(now.getDate()).padStart(2, '0');
         const todayStr = `${year}-${month}-${day}`; 
 
-        const todayAttendance = masterAttendance.filter(a => a.date === todayStr && studentIds.has(a.student_id));
-
+// পরিবর্তিত নিরাপদ নতুন কোড:
+const todayAttendance = masterAttendance.filter(a => {
+    if (!a.date) return false;
+    const cleanDate = a.date.split('T')[0].trim(); // Timezone Splitter
+    return cleanDate === todayStr && studentIds.has(a.student_id);
+});
         let present = 0;
         let absent = 0;
         let late = 0;
