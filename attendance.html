@@ -90,26 +90,21 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">হাজিরার তারিখ *</label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">হাজিরার তারিখ *</label>
                     <input type="date" id="attendance-date" onchange="window.onDateOrFilterChange()"
                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">শাখা (Branch) *</label>
-                    <select id="attendance-branch-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শাখা (Branch) *</label>
+                    <div id="daily-branch-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী/জামাত *</label>
-                    <select id="attendance-class-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শ্রেণী/জামাত *</label>
+                    <div id="daily-class-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">গ্রুপ/সেকশন</label>
-                    <select id="attendance-group-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold">
-                        <option value="">সকল গ্রুপ</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">গ্রুপ/সেকশন</label>
+                    <div id="daily-group-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </div>
         </div>
@@ -166,7 +161,7 @@
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">বছর (Year)</label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">বছর (Year)</label>
                     <select id="monthly-year-filter" onchange="window.generateMonthlyRegister()"
                             class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-en">
                         <option value="2026" selected>2026</option>
@@ -174,7 +169,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">মাস (Month)</label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">মাস (Month)</label>
                     <select id="monthly-month-filter" onchange="window.generateMonthlyRegister()"
                             class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
                         <option value="01">জানুয়ারি (01)</option>
@@ -192,21 +187,16 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">শাখা *</label>
-                    <select id="monthly-branch-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শাখা *</label>
+                    <div id="monthly-branch-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী *</label>
-                    <select id="monthly-class-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শ্রেণী *</label>
+                    <div id="monthly-class-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">গ্রুপ</label>
-                    <select id="monthly-group-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold">
-                        <option value="">সকল গ্রুপ</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">গ্রুপ</label>
+                    <div id="monthly-group-container" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </div>
         </div>
@@ -228,6 +218,10 @@
     let syncTimeout = null; 
     let hasUnsavedChanges = false;
 
+    // ডিপেন্ডেন্ট ফিল্টারের জন্য স্টেট ট্র্যাকার
+    let selectedDaily = { branch: '', class: '', group: '' };
+    let selectedMonthly = { branch: '', class: '', group: '' };
+
     // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
     window.initAttendance = async function() {
         const now = new Date();
@@ -246,56 +240,124 @@
         await window.onDateOrFilterChange();
     };
 
+    // ডিপেন্ডেন্ট রেডিও বাটন তৈরির জেনারেটর
     window.populateAttendanceFilters = function() {
-        const branchSelect = document.getElementById('attendance-branch-filter');
-        const classSelect = document.getElementById('attendance-class-filter');
-        const groupSelect = document.getElementById('attendance-group-filter');
+        renderRadioFilters('daily');
+        renderRadioFilters('monthly');
+    };
 
-        const mBranchSelect = document.getElementById('monthly-branch-filter');
-        const mClassSelect = document.getElementById('monthly-class-filter');
-        const mGroupSelect = document.getElementById('monthly-group-filter');
+    function renderRadioFilters(type) {
+        const state = type === 'daily' ? selectedDaily : selectedMonthly;
+        const branchContainer = document.getElementById(`${type}-branch-container`);
+        const classContainer = document.getElementById(`${type}-class-container`);
+        const groupContainer = document.getElementById(`${type}-group-container`);
 
-        if (!branchSelect || !classSelect || !groupSelect) return;
+        if (!branchContainer || !classContainer || !groupContainer) return;
 
-        const initHTML = `<option value="">শাখা নির্বাচন করুন</option>`;
-        const initClassHTML = `<option value="">শ্রেণী নির্বাচন করুন</option>`;
-        const initGroupHTML = `<option value="">সকল গ্রুপ</option>`;
+        // ১. শাখা (Branch) রেডিও বাটন
+        let branchHTML = '';
+        academicStructure.forEach(branch => {
+            const isChecked = state.branch === branch.name ? 'checked' : '';
+            const activeClass = state.branch === branch.name 
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
+            branchHTML += `
+                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
+                    <input type="radio" name="${type}-branch" value="${branch.name}" ${isChecked} 
+                        onchange="window.handleRadioChange('${type}', 'branch', '${branch.name}')" class="hidden">
+                    ${branch.name}
+                </label>
+            `;
+        });
+        branchContainer.innerHTML = branchHTML || '<span class="text-xs text-gray-400 font-bold py-1.5">কোনো শাখা পাওয়া যায়নি</span>';
 
-        branchSelect.innerHTML = initHTML;
-        classSelect.innerHTML = initClassHTML;
-        groupSelect.innerHTML = initGroupHTML;
-
-        mBranchSelect.innerHTML = initHTML;
-        mClassSelect.innerHTML = initClassHTML;
-        mGroupSelect.innerHTML = initGroupHTML;
-
+        // ২. শ্রেণী (Class) রেডিও বাটন - শাখার ওপর নির্ভরশীল
+        let classHTML = '';
+        const activeBranchObj = academicStructure.find(b => b.name === state.branch);
         const classesSet = new Set();
         const groupsSet = new Set();
 
-        academicStructure.forEach(branch => {
-            const opt = `<option value="${branch.name}">${branch.name}</option>`;
-            branchSelect.innerHTML += opt;
-            mBranchSelect.innerHTML += opt;
-
-            branch.departments.forEach(dept => {
+        if (activeBranchObj) {
+            activeBranchObj.departments.forEach(dept => {
                 dept.classes.forEach(cls => {
                     classesSet.add(cls.name);
-                    cls.groups.forEach(g => groupsSet.add(g));
+                    if (state.class === cls.name) {
+                        cls.groups.forEach(g => groupsSet.add(g));
+                    }
                 });
             });
-        });
+        }
 
-        classesSet.forEach(cls => {
-            const opt = `<option value="${cls}">${cls}</option>`;
-            classSelect.innerHTML += opt;
-            mClassSelect.innerHTML += opt;
+        classesSet.forEach(clsName => {
+            const isChecked = state.class === clsName ? 'checked' : '';
+            const activeClass = state.class === clsName 
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
+            classHTML += `
+                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
+                    <input type="radio" name="${type}-class" value="${clsName}" ${isChecked} 
+                        onchange="window.handleRadioChange('${type}', 'class', '${clsName}')" class="hidden">
+                    ${clsName}
+                </label>
+            `;
         });
+        classContainer.innerHTML = classHTML || `<span class="text-xs text-gray-400 font-bold py-1.5">${state.branch ? 'এই শাখায় কোনো শ্রেণী নেই' : 'প্রথমে শাখা সিলেক্ট করুন'}</span>`;
 
-        groupsSet.forEach(g => {
-            const opt = `<option value="${g}">${g}</option>`;
-            groupSelect.innerHTML += opt;
-            mGroupSelect.innerHTML += opt;
-        });
+        // ৩. গ্রুপ (Group) রেডিও বাটন - শ্রেণীর ওপর নির্ভরশীল
+        let groupHTML = '';
+        const isAllChecked = state.group === '' ? 'checked' : '';
+        const allGroupActive = state.group === '' 
+            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+            : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
+        
+        if (state.class) {
+            groupHTML += `
+                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${allGroupActive}">
+                    <input type="radio" name="${type}-group" value="" ${isAllChecked} 
+                        onchange="window.handleRadioChange('${type}', 'group', '')" class="hidden">
+                    সকল গ্রুপ
+                </label>
+            `;
+            groupsSet.forEach(gName => {
+                if (gName) {
+                    const isChecked = state.group === gName ? 'checked' : '';
+                    const activeClass = state.group === gName 
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
+                    groupHTML += `
+                        <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
+                            <input type="radio" name="${type}-group" value="${gName}" ${isChecked} 
+                                onchange="window.handleRadioChange('${type}', 'group', '${gName}')" class="hidden">
+                            ${gName}
+                        </label>
+                    `;
+                }
+            });
+        }
+        groupContainer.innerHTML = groupHTML || `<span class="text-xs text-gray-400 font-bold py-1.5">${state.class ? 'এই শ্রেণীতে কোনো গ্রুপ নেই' : 'প্রথমে শ্রেণী সিলেক্ট করুন'}</span>`;
+    }
+
+    // ফিল্টার পরিবর্তনের হ্যান্ডলার
+    window.handleRadioChange = async function(type, field, value) {
+        const state = type === 'daily' ? selectedDaily : selectedMonthly;
+        
+        state[field] = value;
+
+        // ডিপেন্ডেন্সি রিসেট চেইন লজিক
+        if (field === 'branch') {
+            state.class = ''; 
+            state.group = ''; 
+        } else if (field === 'class') {
+            state.group = ''; 
+        }
+
+        renderRadioFilters(type);
+
+        if (type === 'daily') {
+            await window.onDateOrFilterChange();
+        } else {
+            await window.generateMonthlyRegister();
+        }
     };
 
     // ট্যাব সুইচার মেথড
@@ -329,9 +391,9 @@
     // ২. ফিল্টার বা ডেট চেঞ্জ হলে ডেক্সি থেকে কাস্টম রিড
     window.onDateOrFilterChange = async function() {
         const date = document.getElementById('attendance-date').value;
-        const branch = document.getElementById('attendance-branch-filter').value;
-        const className = document.getElementById('attendance-class-filter').value;
-        const group = document.getElementById('attendance-group-filter').value;
+        const branch = selectedDaily.branch;
+        const className = selectedDaily.class;
+        const group = selectedDaily.group;
 
         const tableBody = document.getElementById('attendance-table-body');
         const mobileContainer = document.getElementById('attendance-mobile-cards');
@@ -358,7 +420,12 @@
             students.sort((a, b) => (a.roll || 0) - (b.roll || 0));
             studentsInClass = students;
 
-            const savedAttendance = await db.attendance.where('date').equals(date).toArray();
+            const allAttendance = await db.attendance.toArray();
+            const savedAttendance = allAttendance.filter(a => {
+                if (!a.date) return false;
+                const cleanDate = a.date.split('T')[0].trim(); // ISO Timezone Handler
+                return cleanDate === date;
+            });            
             tempAttendanceMap = {};
             savedAttendance.forEach(att => {
                 if (att.is_deleted !== 1) {
@@ -392,15 +459,28 @@
         }
 
         if (studentsInClass.length === 0) {
-            const emptyMsg = `
-                <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500 font-medium">এই জামাতে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।</td>
-                </tr>`;
+            const emptyMsg = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500 font-medium">এই জামাতে কোনো তালিবে ইলমের তথ্য পাওয়া যায়নি।</td></tr>`;
             tableBody.innerHTML = emptyMsg;
-            mobileContainer.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">এই জামাতে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।</p>`;
+            mobileContainer.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">তালিবে ইলম পাওয়া যায়নি</p>`;
             resetStats();
             return;
         }
+
+        // ১. গতকালের তারিখ নির্ধারণ
+        const selectedDate = document.getElementById('attendance-date').value;
+        const targetDate = new Date(selectedDate);
+        const yesterdayDate = new Date(targetDate);
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+
+        // ২. গতকালের হাজিরার ডাটাবেজ থেকে সংগ্রহ (Performance এর জন্য লুপের বাইরে একবারই করা হয়েছে)
+        const yestAttendance = await db.attendance.where('date').equals(yesterdayStr).toArray();
+        const yestMap = {};
+        yestAttendance.forEach(a => { 
+            if(a.is_deleted !== 1) yestMap[a.student_id] = a.status; 
+        });
+
+        const yestStatusBN = { 'Present': 'হাজির', 'Absent': 'গাইর হাজির', 'Late': 'বিলম্ব' };
 
         let tableHtml = '';
         let mobileHtml = '';
@@ -409,6 +489,7 @@
         let absentCount = 0;
         let lateCount = 0;
 
+        // ৩. তালিবে ইলমদের লুপ শুরু
         for (let i = 0; i < studentsInClass.length; i++) {
             const s = studentsInClass[i];
             const att = tempAttendanceMap[s.id] || { status: "", note: "" };
@@ -417,17 +498,23 @@
             else if (att.status === 'Absent') absentCount++;
             else if (att.status === 'Late') lateCount++;
 
+            // আজীবন হাজিরা পরিসংখ্যান
             const history = await getStudentAttendanceStats(s.id);
 
+            // গতকালের অবস্থা বের করা
+            const yestStatus = yestMap[s.id] || "রেকর্ড নেই";
+            const yestColor = yestStatus === 'Absent' ? 'text-rose-600' : (yestStatus === 'Present' ? 'text-emerald-600' : (yestStatus === 'Late' ? 'text-amber-600' : 'text-gray-400'));
+
+            // --- ডেস্কটপ টেবিল ভিউ ---
             tableHtml += `
                 <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
                     <td class="px-4 py-3 text-xs font-bold font-en text-gray-700">
                         <div>রোল: ${s.roll || '-'}</div>
-                        <div class="text-[10px] text-gray-400 font-bold font-en">${s.id}</div>
+                        <div class="text-[10px] text-gray-400 font-en">${s.id}</div>
                     </td>
                     <td class="px-4 py-3 text-xs">
                         <div class="flex items-center gap-2">
-                            ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold font-en text-[10px]">St</div>'}
+                            ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-[10px]">St</div>'}
                             <div>
                                 <div class="font-bold text-gray-800 text-sm">${s.name || 'অজানা'}</div>
                                 <div class="text-[9px] text-gray-400 font-bold">Sl: ${s.serial_no || '-'}</div>
@@ -440,34 +527,36 @@
                             <span class="bg-rose-50 text-rose-800 px-1.5 py-0.5 rounded-full font-bold">A: ${history.absent} দিন</span>
                             <span class="bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">L: ${history.late} দিন</span>
                         </div>
-                        <div class="text-gray-400 font-bold mt-1">উপস্থিতির হার: <strong class="text-emerald-700 font-en font-bold">${history.rate}%</strong></div>
+                        <div class="mt-1 flex items-center gap-1">
+                            <span class="text-gray-400 font-bold">গতকাল:</span>
+                            <strong class="${yestColor}">${yestStatusBN[yestStatus] || yestStatus}</strong>
+                            <span class="ml-1 text-gray-300">| হার: <strong class="text-emerald-700 font-en">${history.rate}%</strong></span>
+                        </div>
                     </td>
                     <td class="px-4 py-3 text-center">
                         <div class="inline-flex rounded-xl p-1 bg-gray-100 border gap-1">
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
                         </div>
                     </td>
                     <td class="px-4 py-3">
-                        <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="যেমন: অসুস্থতা..."
+                        <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="মন্তব্য..."
                                class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:border-emerald-500 bg-white">
                     </td>
                     <td class="px-4 py-3 text-right">
-                        ${att.status === 'Absent' ? `
-                            <button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-200 font-bold px-2.5 py-1.5 rounded-xl text-[10px] flex items-center justify-center gap-1.5 transition ml-auto shadow-sm" title="অনুপস্থিতি নোটিশ পাঠান">
-                                <i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ
-                            </button>` : '-'}
+                        ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-50 text-green-600 border border-green-200 font-bold px-2.5 py-1.5 rounded-xl text-[10px] flex items-center gap-1 transition shadow-sm"><i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ</button>` : '-'}
                     </td>
                 </tr>`;
 
+            // --- মোবাইলের জন্য কার্ড ভিউ ---
             let borderClass = 'border-gray-150 bg-white';
             if (att.status === 'Present') borderClass = 'border-emerald-200 bg-emerald-50/10';
             else if (att.status === 'Absent') borderClass = 'border-rose-200 bg-rose-50/10';
             else if (att.status === 'Late') borderClass = 'border-amber-200 bg-amber-50/10';
 
             mobileHtml += `
-                <div class="p-4 rounded-xl border ${borderClass} transition duration-150 shadow-sm space-y-3 text-gray-700">
+                <div class="p-4 rounded-xl border ${borderClass} shadow-sm space-y-3 text-gray-700">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
                             ${s.photo_url ? `<img class="w-10 h-10 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">St</div>'}
@@ -476,27 +565,23 @@
                                 <p class="text-[10px] text-gray-400 font-bold">রোল: ${s.roll || '-'} | ID: ${s.id}</p>
                             </div>
                         </div>
-                        ${att.status === 'Absent' ? `
-                            <button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-[9px] flex items-center gap-1.5 transition duration-150 shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ
-                            </button>` : ''}
+                        ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-[9px] flex items-center gap-1.5 shadow-sm"><i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ</button>` : ''}
                     </div>
 
-                    <div class="text-[9px] text-gray-400 flex flex-wrap gap-x-2 gap-y-0.5 pt-0.5 border-t border-dashed">
+                    <div class="text-[9px] text-gray-400 flex flex-wrap gap-x-2 gap-y-1 pt-0.5 border-t border-dashed">
                         <span>উপস্থিতি হার: <strong class="text-emerald-700 font-en">${history.rate}%</strong></span>
                         <span>P: ${history.present} | A: ${history.absent} | L: ${history.late}</span>
+                        <span class="w-full font-bold">গতকাল: <strong class="${yestColor}">${yestStatusBN[yestStatus] || yestStatus}</strong></span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="py-2 rounded-xl text-xs font-bold transition-all duration-150 ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">উপস্থিত</button>
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="py-2 rounded-xl text-xs font-bold transition-all duration-150 ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">অনুপস্থিত</button>
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="py-2 rounded-xl text-xs font-bold transition-all duration-150 ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">বিলম্ব</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">উপস্থিত</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">অনুপস্থিত</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">বিলম্ব</button>
                     </div>
 
-                    <div>
-                        <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="মন্তব্য লিখুন (যেমন: অসুস্থতা...)"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:border-emerald-500 bg-white">
-                    </div>
+                    <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="মন্তব্য লিখুন..."
+                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-[11px] focus:border-emerald-500 bg-white">
                 </div>`;
         }
 
@@ -505,16 +590,16 @@
         updateGlobalStats(presentCount, absentCount, lateCount);
     };
 
-    // ২.৩ পিনপয়েন্ট রিকভারি: ডাইনামিক মাসিক লেজার রেজিস্টার জেনারেটর (Array Filter Solution)
+    // ২.৩ ডায়নামিক মাসিক লেজার রেজিস্টার জেনারেটর
     window.generateMonthlyRegister = async function() {
         const container = document.getElementById('monthly-register-wrapper');
         if (!container) return;
 
         const year = document.getElementById('monthly-year-filter').value;
         const month = document.getElementById('monthly-month-filter').value;
-        const branch = document.getElementById('monthly-branch-filter').value;
-        const className = document.getElementById('monthly-class-filter').value;
-        const group = document.getElementById('monthly-group-filter').value;
+        const branch = selectedMonthly.branch;
+        const className = selectedMonthly.class;
+        const group = selectedMonthly.group;
 
         if (!branch || !className) {
             container.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">মাসিক লেজার গ্রিড দেখতে প্রথমে শাখা ও জামাত সিলেক্ট করুন।</p>`;
@@ -536,12 +621,15 @@
 
             const daysInMonth = new Date(year, parseInt(month), 0).getDate();
 
-            // ১০০% নিরাপদ ডেটা কালেকশন (ইনডেক্স বাগ মুক্ত)
             const allAttendance = await db.attendance.toArray();
             const monthPrefix = `${year}-${month}`;
-            const monthlyAttendance = allAttendance.filter(a => a.date && a.date.startsWith(monthPrefix) && a.is_deleted !== 1);
 
-            // ওয়ান-টুলিপ ডুপ্লিকেট চেকার: সর্বশেষ আইডিটি দিয়ে পূর্বের রেকর্ড ওভাররাইট করা (Latest Entry Wins)
+            const monthlyAttendance = allAttendance.filter(a => {
+                if (!a.date || a.is_deleted === 1) return false;
+                const cleanDate = a.date.split('T')[0].trim();
+                return cleanDate.startsWith(monthPrefix);
+            });
+
             const lookup = {};
             monthlyAttendance.forEach(a => {
                 lookup[`${a.student_id}_${a.date}`] = {
@@ -658,7 +746,7 @@
         window.renderAttendanceTable();
     };
 
-    // কাস্টম সেভ বাটনের ট্র্যাকিং লজিক (Manual Save Flow with Audit Log)
+    // ম্যানুয়াল সেভ ফ্লো
     window.saveCurrentAttendance = async function() {
         const date = document.getElementById('attendance-date').value;
         const bulkData = [];

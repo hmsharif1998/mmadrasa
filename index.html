@@ -20,6 +20,8 @@
 
     <!-- Custom CSS Link -->
     <link rel="stylesheet" href="style.css">
+<!-- SheetJS (Excel Library) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         /* ফন্ট লোডিং */
@@ -58,9 +60,40 @@
         #pin-lock-overlay.hidden {
             display: none !important;
         }
+		
+		/* পুল-টু-রিফ্রেশ এনিমেশন স্টাইল */
+#pull-to-refresh-indicator {
+    position: fixed;
+    top: -60px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+.refresh-circle {
+    background: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 2px solid #10b981;
+}
     </style>
 </head>
 <body class="bg-gray-50 overflow-hidden select-none">
+<div id="pull-to-refresh-indicator">
+    <div class="refresh-circle">
+        <i class="fa-solid fa-rotate text-emerald-600" id="refresh-icon"></i>
+    </div>
+</div>
 
 <!-- টোস্ট নোটিফিকেশন কন্টেইনার -->
 <div id="toast-container" class="fixed top-5 right-5 z-[200] space-y-3 pointer-events-none"></div>
@@ -145,19 +178,19 @@
                     <i class="fa-solid fa-chart-line w-5 text-emerald-300"></i> ড্যাশবোর্ড
                 </button>
                 <button onclick="loadModule('admission')" id="nav-admission" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
-                    <i class="fa-solid fa-user-plus w-5 text-emerald-300"></i> ছাত্র ভর্তি
+                    <i class="fa-solid fa-user-plus w-5 text-emerald-300"></i> তামরি (ভর্তি)
                 </button>
                 <button onclick="loadModule('fees')" id="nav-fees" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
                     <i class="fa-solid fa-money-bill-wave w-5 text-emerald-300"></i> বেতন কালেকশন
                 </button>
                 <button onclick="loadModule('student_list')" id="nav-student_list" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
-                    <i class="fa-solid fa-users w-5 text-emerald-300"></i> ছাত্রদের তালিকা
+                    <i class="fa-solid fa-users w-5 text-emerald-300"></i> তালিবে ইলম তালিকা
                 </button>
                 <button onclick="loadModule('expense')" id="nav-expense" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
-                    <i class="fa-solid fa-file-invoice-dollar w-5 text-emerald-300"></i> খরচের খাতা
+                    <i class="fa-solid fa-file-invoice-dollar w-5 text-emerald-300"></i> ইখরাজাত (ব্যয়)
                 </button>
                 <button onclick="loadModule('attendance')" id="nav-attendance" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
-                    <i class="fa-solid fa-calendar-check w-5 text-emerald-300"></i> দৈনিক হাজিরা
+                    <i class="fa-solid fa-calendar-check w-5 text-emerald-300"></i> হাজিরা খাতা
                 </button>
                 <button onclick="loadModule('settings')" id="nav-settings" class="w-full text-left py-2.5 px-4 rounded-xl transition duration-200 hover:bg-emerald-800/40 flex items-center gap-3 font-semibold text-xs md:text-sm">
                     <i class="fa-solid fa-gear w-5 text-emerald-300"></i> সেটিংস
@@ -283,7 +316,7 @@
             statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-white/10 text-yellow-300 animate-spin";
             statusIconBox.innerHTML = `<i class="fa-solid fa-spinner"></i>`;
             statusMessage.textContent = "যাচাই করা হচ্ছে...";
-            statusSubMessage.textContent = "সরাসরি গুগল শিট ডাটাবেজের সাথে সংযোগ করা হচ্ছে";
+            statusSubMessage.textContent = "আপনার আইডেন্টিটি পরীক্ষা করা হচ্ছে, অপেক্ষা করুন...";
         }
 
         // সরাসরি গুগল শিট ভেরিফিকেশন কল

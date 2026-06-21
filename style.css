@@ -1,7 +1,7 @@
 /* ==========================================================================
    Madrasah Management System - Global Stylesheet
    Author: Senior Software Engineer & UI/UX Architect
-   Description: Optimized styling with conflict-free Class-Based Print System
+   Description: Optimized styling with Class-Based Print Isolation System
    ========================================================================== */
 
 /* গুগল ফন্ট লোডিং */
@@ -90,12 +90,28 @@ body {
     animation: shake 0.35s ease-in-out;
 }
 
-/* পিন কিপ্যাড গ্লাস-মরফিজম ইফেক্ট */
-.glass-panel {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+
+/* ১. পুল-টু-রিফ্রেশ স্পিন এনিমেশন */
+@keyframes spin-custom {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.pull-refresh-spinning {
+    animation: spin-custom 0.8s linear infinite;
+}
+
+/* ২. মোবাইল কন্টেন্ট ফিক্স (Safe Area) */
+/* মোবাইলে নিচের ২-৩ লাইন যেন ঢাকা না পড়ে তার জন্য */
+main {
+    padding-bottom: 100px !important; 
+    scroll-behavior: smooth;
+}
+
+/* আইফোনের জন্য বিশেষ ফিক্স */
+@supports (padding: env(safe-area-inset-bottom)) {
+    main {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+    }
 }
 
 /* --- ডাটা টেবিল ডিজাইন অপ্টিমাইজেশন --- */
@@ -107,6 +123,38 @@ th {
     font-family: var(--font-bangla);
     font-weight: 700 !important;
     color: #64748b !important; /* Slate 500 */
+}
+
+/* ৩. আধুনিক রেডিও বাটন (Toggle Tiles) */
+.modern-radio-group input[type="radio"] {
+    display: none; /* অরিজিনাল রেডিও বাটন হাইড */
+}
+
+.modern-radio-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0; /* gray-200 */
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569; /* gray-600 */
+    text-align: center;
+}
+
+.modern-radio-group input[type="radio"]:checked + .modern-radio-tile {
+    background: #ecfdf5; /* emerald-50 */
+    border-color: #10b981; /* emerald-500 */
+    color: #065f46; /* emerald-800 */
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+}
+
+.modern-radio-tile:hover {
+    background: #f8fafc;
 }
 
 /* ==========================================================================
@@ -121,6 +169,8 @@ th {
     button, 
     .no-print *,
     #toast-container,
+    #column-chooser-wrapper,
+    #pagination-wrapper,
     iframe {
         display: none !important;
         visibility: hidden !important;
@@ -221,7 +271,7 @@ th {
     }
 
     /* ----------------------------------------------------------------------
-       ৩.৩ এ৫ ভর্তি রসিদ ও বায়োডাটা প্রিন্ট মোড (body.print-mode-a5-receipt)
+       ৯.৩ এ৫ ভর্তি রসিদ ও বায়োডাটা প্রিন্ট মোড (body.print-mode-a5-receipt)
        ---------------------------------------------------------------------- */
     body.print-mode-a5-receipt {
         height: auto !important;
@@ -242,9 +292,11 @@ th {
         display: block !important;
         background: #ffffff !important;
         z-index: 999999 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
-    body.print-mode-receipt #admission-receipt-print,
-    body.print-mode-receipt #profile-modal-body {
+    body.print-mode-a5-receipt #admission-receipt-print,
+    body.print-mode-a5-receipt #profile-modal-body {
         visibility: visible !important;
         display: flex !important;
         flex-direction: column !important;
@@ -261,7 +313,7 @@ th {
     }
 
     /* ----------------------------------------------------------------------
-       ৩.৪ ৮০মিমি থার্মাল রোল রসিদ প্রিন্ট মোড (body.print-mode-thermal)
+       ৯.৪ ৮০মিমি থার্মাল রোল রসিদ প্রিন্ট মোড (body.print-mode-thermal)
        ---------------------------------------------------------------------- */
     body.print-mode-thermal {
         height: auto !important;
@@ -281,6 +333,8 @@ th {
         background: #ffffff !important;
         border: none !important;
         box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     body.print-mode-thermal #receipt-print-area {
         visibility: visible !important;
@@ -296,4 +350,71 @@ th {
         visibility: visible !important;
         font-family: var(--font-mono) !important;
     }
+}
+
+/* ৪. প্রফেশনাল প্রিন্ট কন্ট্রোল (A4, A5, Thermal) */
+@media print {
+    /* প্রিন্টের সময় অপ্রয়োজনীয় সব হাইড */
+    .no-print, #sidebar, header, #toast-container, button {
+        display: none !important;
+    }
+
+    body, main, #main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    /* A4 রিপোর্ট তালিকা (ডিফল্ট) */
+    .print-a4 {
+        width: 210mm;
+        margin: 10mm auto;
+    }
+
+    /* A5 রসিদ ও বায়োডাটা */
+    .print-a5 {
+        width: 148mm;
+        height: 210mm;
+        margin: 0;
+        padding: 5mm;
+    }
+
+    /* থার্মাল রোল (৮০মিমি) */
+    .print-thermal {
+        width: 80mm;
+        padding: 2mm;
+        font-size: 11px !important;
+    }
+
+    /* থার্মাল পেপারে বর্ডার ও টেক্সট এডজাস্টমেন্ট */
+    .print-thermal * {
+        border-color: #000 !important;
+        color: #000 !important;
+    }
+}
+
+/* রেডিও ইনপুটটি পুরোপুরি হাইড করা */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border-width: 0;
+}
+
+/* আধুনিক টাইলস স্টাইল */
+.modern-radio-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+/* যখন চেক করা হবে তখন একটি বাউন্স ইফেক্ট */
+.modern-radio-group input[type="radio"]:checked + .modern-radio-tile {
+    transform: scale(1.05);
 }
