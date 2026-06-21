@@ -97,21 +97,17 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">শাখা (Branch) *</label>
                     <select id="attendance-branch-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
-                        <option value="">শাখা নির্বাচন করুন</option>
-                    </select>
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী/জামাত *</label>
                     <select id="attendance-class-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
-                        <option value="">শ্রেণী নির্বাচন করুন</option>
-                    </select>
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">গ্রুপ/সেকশন</label>
                     <select id="attendance-group-filter" onchange="window.onDateOrFilterChange()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold">
                         <option value="">সকল গ্রুপ</option>
                     </select>
                 </div>
@@ -119,7 +115,18 @@
         </div>
 
         <!-- দৈনিক হাজিরার তালিকা কন্টেইনার -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
+            
+            <!-- কাস্টম সেভ বাটন প্যানেল (Sticky Header) -->
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-150 no-print">
+                <span id="unsaved-warning" class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 hidden animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> অসংরক্ষিত হাজিরা পরিবর্তন বিদ্যমান!
+                </span>
+                <button type="button" id="btn-save-attendance" onclick="window.saveCurrentAttendance()" class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-emerald-750/15">
+                    <i class="fa-solid fa-floppy-disk"></i> হাজিরা সেভ করুন
+                </button>
+            </div>
+
             <!-- ডেস্কটপ টেবিল ভিউ -->
             <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-150 max-h-[500px] overflow-y-auto custom-scroll">
                 <table class="min-w-full divide-y divide-gray-100">
@@ -149,7 +156,7 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- ২. মাসিক রেজিস্টার ও নোট ট্যাব প্যানেল (নতুন ফিচার!) -->
+    <!-- ২. মাসিক রেজিস্টার ও নোট ট্যাব প্যানেল -->
     <!-- ============================================ -->
     <div id="attendance-monthly-pane" class="space-y-6 hidden">
         <!-- মাসিক ফিল্টার গ্রিড -->
@@ -187,17 +194,17 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">শাখা *</label>
                     <select id="monthly-branch-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold"></select>
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী *</label>
                     <select id="monthly-class-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold"></select>
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">গ্রুপ</label>
                     <select id="monthly-group-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-semibold">
                         <option value="">সকল গ্রুপ</option>
                     </select>
                 </div>
@@ -217,8 +224,9 @@
 (function() {
     let academicStructure = [];
     let studentsInClass = []; 
-    let attendanceMap = {};    
+    let tempAttendanceMap = {}; // অসংরক্ষিত বাফার স্টেট ট্র্যাকার (মেমরি অবজেক্ট)   
     let syncTimeout = null; 
+    let hasUnsavedChanges = false;
 
     // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
     window.initAttendance = async function() {
@@ -228,7 +236,6 @@
         const day = String(now.getDate()).padStart(2, '0');
         document.getElementById('attendance-date').value = `${year}-${month}-${day}`;
 
-        // মাসিক ট্যাবের বর্তমান ডিফল্ট সিলেক্ট করা
         document.getElementById('monthly-year-filter').value = year;
         document.getElementById('monthly-month-filter').value = month;
 
@@ -293,6 +300,12 @@
 
     // ট্যাব সুইচার মেথড
     window.switchAttendanceTab = async function(tab) {
+        if (hasUnsavedChanges) {
+            if (!confirm("আপনার কাছে অসংরক্ষিত হাজিরা পরিবর্তন রয়েছে! সেভ না করে কি অন্য ট্যাবে যেতে চান?")) {
+                return;
+            }
+        }
+
         const dPane = document.getElementById('attendance-daily-pane');
         const mPane = document.getElementById('attendance-monthly-pane');
         const dBtn = document.getElementById('tab-btn-daily');
@@ -313,7 +326,7 @@
         }
     };
 
-    // ২. ফিল্টার বা ডেট চেঞ্জ হলে শিক্ষার্থীর তালিকা লোড
+    // ২. ফিল্টার বা ডেট চেঞ্জ হলে ডেক্সি থেকে কাস্টম রিড
     window.onDateOrFilterChange = async function() {
         const date = document.getElementById('attendance-date').value;
         const branch = document.getElementById('attendance-branch-filter').value;
@@ -346,10 +359,10 @@
             studentsInClass = students;
 
             const savedAttendance = await db.attendance.where('date').equals(date).toArray();
-            attendanceMap = {};
+            tempAttendanceMap = {};
             savedAttendance.forEach(att => {
                 if (att.is_deleted !== 1) {
-                    attendanceMap[att.student_id] = {
+                    tempAttendanceMap[att.student_id] = {
                         status: att.status,
                         note: att.note || "",
                         attendance_id: att.attendance_id
@@ -357,6 +370,7 @@
                 }
             });
 
+            hasUnsavedChanges = false;
             await window.renderAttendanceTable();
 
         } catch (err) {
@@ -364,11 +378,18 @@
         }
     };
 
-    // ৩. হাজিরার প্রধান ডাটা টেবিল ও মোবাইল কার্ড রেন্ডারার
+    // ৩. দৈনিক হাজিরার ডাটা টেবিল ও মোবাইল কার্ড রেন্ডারার (O(1) Memory Cache Read)
     window.renderAttendanceTable = async function() {
         const tableBody = document.getElementById('attendance-table-body');
         const mobileContainer = document.getElementById('attendance-mobile-cards');
         if (!tableBody || !mobileContainer) return;
+
+        // অসংরক্ষিত পরিবর্তনের ওয়ার্নিং শো/হাইড লজিক
+        const warnEl = document.getElementById('unsaved-warning');
+        if (warnEl) {
+            if (hasUnsavedChanges) warnEl.classList.remove('hidden');
+            else warnEl.classList.add('hidden');
+        }
 
         if (studentsInClass.length === 0) {
             const emptyMsg = `
@@ -390,7 +411,7 @@
 
         for (let i = 0; i < studentsInClass.length; i++) {
             const s = studentsInClass[i];
-            const att = attendanceMap[s.id] || { status: "", note: "" };
+            const att = tempAttendanceMap[s.id] || { status: "", note: "" };
 
             if (att.status === 'Present') presentCount++;
             else if (att.status === 'Absent') absentCount++;
@@ -484,9 +505,7 @@
         updateGlobalStats(presentCount, absentCount, lateCount);
     };
 
-    // --------------------------------------------------
-    // 👑 নতুন ফিচার: মাসিক লেজার গ্রিড জেনারেটর ইঞ্জিন
-    // --------------------------------------------------
+    // ২.৩ পিনপয়েন্ট রিকভারি: ডাইনামিক মাসিক লেজার রেজিস্টার জেনারেটর (Array Filter Solution)
     window.generateMonthlyRegister = async function() {
         const container = document.getElementById('monthly-register-wrapper');
         if (!container) return;
@@ -503,7 +522,6 @@
         }
 
         try {
-            // ১. ক্লাসের শিক্ষার্থীদের ফিল্টার ও রোল অনুযায়ী সাজানো
             let students = await db.students.reverse().toArray();
             students = students.filter(s => s.is_deleted !== 1 && s.branch === branch && s.class === className);
             if (group) {
@@ -516,28 +534,22 @@
                 return;
             }
 
-            // ২. ডাইনামিক ডেজ ইন মান্থ জেনারেশন
             const daysInMonth = new Date(year, parseInt(month), 0).getDate();
 
-            // ৩. `.startsWith()` ইডেক্স কুয়েরি ব্যবহার করে ওই মাসের সকল হাজিরা ১ সেকেন্ডে পুল করা
+            // ১০০% নিরাপদ ডেটা কালেকশন (ইনডেক্স বাগ মুক্ত)
+            const allAttendance = await db.attendance.toArray();
             const monthPrefix = `${year}-${month}`;
-            const monthlyAttendance = await db.attendance
-                .where('date')
-                .startsWith(monthPrefix)
-                .toArray();
+            const monthlyAttendance = allAttendance.filter(a => a.date && a.date.startsWith(monthPrefix) && a.is_deleted !== 1);
 
-            // ৪. O(1) জটিলতায় রিড করার জন্য মেমোরি অবজেক্ট ইনজেকশন
+            // ওয়ান-টুলিপ ডুপ্লিকেট চেকার: সর্বশেষ আইডিটি দিয়ে পূর্বের রেকর্ড ওভাররাইট করা (Latest Entry Wins)
             const lookup = {};
             monthlyAttendance.forEach(a => {
-                if (a.is_deleted !== 1) {
-                    lookup[`${a.student_id}_${a.date}`] = {
-                        status: a.status,
-                        note: a.note || ""
-                    };
-                }
+                lookup[`${a.student_id}_${a.date}`] = {
+                    status: a.status,
+                    note: a.note || ""
+                };
             });
 
-            // ৫. লেজার টেবিল রেন্ডারিং
             let html = `
                 <table class="min-w-full border-collapse border border-gray-200 text-left text-[10px] font-sans">
                     <thead class="bg-gray-100 font-bold sticky top-0 z-10 text-gray-700">
@@ -591,7 +603,6 @@
                             cellClass = 'text-amber-600 bg-amber-50/50 font-bold';
                         }
 
-                        // মন্তব্য থাকলে সেলে একটি তারকা চিহ্ন (*) প্রদর্শন করবে এবং মাউস রাখলে মন্তব্য দেখাবে (HTML title Native Tooltip)
                         if (att.note) {
                             cellVal += '*';
                             noteTooltip = `মন্তব্য: ${att.note}`;
@@ -616,8 +627,83 @@
             container.innerHTML = html;
 
         } catch (err) {
-            console.error("মাসিক লেজার গ্রিড তৈরিতে সমস্যা:", err);
-            container.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">লেজার তৈরি করতে ব্যর্থ হয়েছে!</p>`;
+            console.error("মাসিক লেজার তৈরিতে ব্যর্থ:", err);
+            container.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">লেজার লোড করা যায়নি!</p>`;
+        }
+    };
+
+    window.setAttendanceStatus = function(studentId, status) {
+        const date = document.getElementById('attendance-date').value;
+        const compoundKey = `${studentId}_${date}`;
+        
+        if (!tempAttendanceMap[studentId]) {
+            tempAttendanceMap[studentId] = { status: "", note: "", attendance_id: compoundKey };
+        }
+        
+        tempAttendanceMap[studentId].status = status;
+        hasUnsavedChanges = true;
+        window.renderAttendanceTable(); // ইনস্ট্যান্ট ফ্রন্টেন্ড রি-রেন্ডার ও বাটন রি-কালার
+    };
+
+    window.setAttendanceNote = function(studentId, noteVal) {
+        const date = document.getElementById('attendance-date').value;
+        const compoundKey = `${studentId}_${date}`;
+        
+        if (!tempAttendanceMap[studentId]) {
+            tempAttendanceMap[studentId] = { status: "Present", note: "", attendance_id: compoundKey };
+        }
+        
+        tempAttendanceMap[studentId].note = noteVal;
+        hasUnsavedChanges = true;
+        window.renderAttendanceTable();
+    };
+
+    // কাস্টম সেভ বাটনের ট্র্যাকিং লজিক (Manual Save Flow with Audit Log)
+    window.saveCurrentAttendance = async function() {
+        const date = document.getElementById('attendance-date').value;
+        const bulkData = [];
+        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+        const curUser = user ? user.username : "system";
+
+        for (let studentId in tempAttendanceMap) {
+            const att = tempAttendanceMap[studentId];
+            if (att.status) {
+                // অডিট লগের জন্য পূর্ববর্তী রেকর্ডের created_by রক্ষা করা
+                const existing = await db.attendance.get(att.attendance_id);
+                const createdBy = existing ? existing.created_by : curUser;
+
+                bulkData.push({
+                    attendance_id: att.attendance_id,
+                    student_id: studentId,
+                    date: date,
+                    status: att.status,
+                    note: att.note || "",
+                    created_by: createdBy,
+                    updated_by: curUser,
+                    is_synced: 0,
+                    is_deleted: 0
+                });
+            }
+        }
+
+        if (bulkData.length > 0) {
+            try {
+                await db.attendance.bulkPut(bulkData);
+                showToast("হাজিরা সফলভাবে সংরক্ষিত হয়েছে!", "success");
+                hasUnsavedChanges = false;
+
+                if (typeof updatePendingCount === 'function') {
+                    await updatePendingCount();
+                }
+
+                await window.onDateOrFilterChange();
+                triggerDebouncedSync();
+            } catch (err) {
+                console.error("হাজিরা সেভ করতে সমস্যা:", err);
+                showToast("ডাটাবেজে হাজিরা সেভ করা সম্ভব হয়নি।", "error");
+            }
+        } else {
+            showToast("কোনো হাজিরার তথ্য পরিবর্তন করা হয়নি।", "info");
         }
     };
 
@@ -642,7 +728,6 @@
         updateGlobalStats(0, 0, 0);
     }
 
-    // ৪. ১০ সেকেন্ড ডিবান্সড সিঙ্ক বাফার
     async function triggerDebouncedSync() {
         if (syncTimeout) {
             clearTimeout(syncTimeout);
@@ -662,100 +747,26 @@
             return;
         }
 
-        if (!confirm("উপস্থিত না থাকা সব শিক্ষার্থীকে কি উপস্থিত করতে চান?")) return;
-
-        const bulkData = [];
         const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
         const curUser = user ? user.username : "system";
 
         for (let s of studentsInClass) {
             const compoundKey = `${s.id}_${date}`;
-            const att = attendanceMap[s.id] || { status: "", note: "" };
+            const att = tempAttendanceMap[s.id] || { status: "", note: "" };
             
             if (att.status !== 'Present') {
-                bulkData.push({
-                    attendance_id: compoundKey,
-                    student_id: s.id,
-                    date: date,
-                    status: 'Present',
-                    note: att.note || "",
-                    created_by: curUser,
-                    updated_by: curUser,
-                    is_synced: 0,
-                    is_deleted: 0
-                });
-                attendanceMap[s.id] = { status: 'Present', note: att.note || "", attendance_id: compoundKey };
+                tempAttendanceMap[s.id] = { 
+                    status: 'Present', 
+                    note: att.note || "", 
+                    attendance_id: compoundKey 
+                };
             }
         }
 
-        if (bulkData.length > 0) {
-            try {
-                await db.attendance.bulkPut(bulkData);
-                showToast("সবাইকে উপস্থিত করা হয়েছে!", "success");
-                
-                if (typeof updatePendingCount === 'function') {
-                    await updatePendingCount();
-                }
-
-                await window.onDateOrFilterChange();
-                triggerDebouncedSync(); 
-            } catch (err) {
-                console.error("বাল্ক হাজিরার সময় ত্রুটি:", err);
-                showToast("হাজিরা সংরক্ষণ করা সম্ভব হয়নি।", "error");
-            }
-        } else {
-            showToast("সবাই ইতিমধ্যে উপস্থিত আছেন।", "info");
-        }
+        hasUnsavedChanges = true;
+        await window.renderAttendanceTable();
+        showToast("সবাইকে সাময়িকভাবে উপস্থিত করা হয়েছে। সেভ করতে নিচে ক্লিক করুন!", "info");
     };
-
-    window.setAttendanceStatus = async function(studentId, status) {
-        const att = attendanceMap[studentId] || { status: "", note: "" };
-        await saveAttendanceToDb(studentId, status, att.note);
-        await window.onDateOrFilterChange(); 
-    };
-
-    window.setAttendanceNote = async function(studentId, noteVal) {
-        const att = attendanceMap[studentId] || { status: "", note: "" };
-        await saveAttendanceToDb(studentId, att.status || 'Present', noteVal);
-        await window.onDateOrFilterChange();
-    };
-
-    // লোকাল ডাটাবেজে অডিট ট্রায়াল সহ হাজিরা রাইটিং
-    async function saveAttendanceToDb(studentId, status, note) {
-        const date = document.getElementById('attendance-date').value;
-        const compoundKey = `${studentId}_${date}`;
-
-        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
-        const curUser = user ? user.username : "system";
-
-        try {
-            const existing = await db.attendance.get(compoundKey);
-            const createdBy = existing ? existing.created_by : curUser;
-
-            await db.attendance.put({
-                attendance_id: compoundKey,
-                student_id: studentId,
-                date: date,
-                status: status,
-                note: note || "",
-                created_by: createdBy,
-                updated_by: curUser,
-                is_synced: 0,
-                is_deleted: 0
-            });
-            attendanceMap[studentId] = { status: status, note: note, attendance_id: compoundKey };
-            
-            if (typeof updatePendingCount === 'function') {
-                await updatePendingCount();
-            }
-
-            triggerDebouncedSync(); 
-
-        } catch (err) {
-            console.error("হাজিরা রাইট ফেইলড:", err);
-            showToast("হাজিরা সেভ করা যায়নি।", "error");
-        }
-    }
 
     async function getStudentAttendanceStats(studentId) {
         try {
@@ -803,7 +814,7 @@
         const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
 
         const wpMessage = `প্রিয় অভিভাবক,
-আজ ${date} তারিখে আপনার সন্তান ${student.name} ${madrasahName}-এ অনুপস্থিত রয়েছে। অনুপস্থিতির সুনির্দিষ্ট কারণ জানাতে মাদরাসা হেল্পলাইনে দ্রুত যোগাযোগ করুন। ধন্যবাদ।`;
+আজ ${date} তারিখে আপনার সন্তান ${student.name} ${madrasahName}-এ অনুপস্থিত রয়েছে। অনুপস্থিতির সুনির্দিষ্ট কারণ জানাতে অনুগ্রহ করে মাদরাসা হেল্পলাইনে দ্রুত যোগাযোগ করুন। ধন্যবাদ।`;
 
         const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
         window.open(wpUrl, '_blank');
