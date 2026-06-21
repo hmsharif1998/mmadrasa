@@ -612,3 +612,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('online', updateConnectionStatus);
 window.addEventListener('offline', updateConnectionStatus);
 
+// ============================================
+// ১৮. PWA কাস্টম পুল-টু-রিফ্রেশ ইঞ্জিন (মোবাইলে নিচে টান দিলে রিলোড হবে)
+// ============================================
+function initPullToRefresh() {
+    const mainContainer = document.querySelector('main');
+    if (!mainContainer) return;
+
+    let startY = 0;
+    let active = false;
+
+    // টাচ বা টান দেওয়া শুরু করার লিসেনার
+    mainContainer.addEventListener('touchstart', (e) => {
+        // শুধুমাত্র যখন কন্টেইনারের স্ক্রল পজিশন একদম উপরে (scrollTop === 0) থাকবে
+        if (mainContainer.scrollTop === 0) {
+            startY = e.touches[0].pageY;
+            active = true;
+        } else {
+            active = false;
+        }
+    }, { passive: true });
+
+    // আঙুল নিচে নামানোর লিসেনার
+    mainContainer.addEventListener('touchmove', (e) => {
+        if (!active) return;
+        const currentY = e.touches[0].pageY;
+        const pullDistance = currentY - startY;
+
+        // ব্যবহারকারী যদি নিচে ১২০ পিক্সেলের বেশি টান বা ড্র্যাগ করেন
+        if (pullDistance > 120) {
+            active = false; // লুপ বা ডাবল রিলোড এড়াতে সাথে সাথে ইন-অ্যাক্টিভ করা
+            showToast("ডাটা রিলোড হচ্ছে...", "info");
+            setTimeout(() => {
+                window.location.reload();
+            }, 600);
+        }
+    }, { passive: true });
+}
+
+// ডোমে লোড হওয়ার পর রিফ্রেশার চালু করা
+document.addEventListener('DOMContentLoaded', () => {
+    initPullToRefresh();
+});
