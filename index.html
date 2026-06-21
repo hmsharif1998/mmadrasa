@@ -14,6 +14,10 @@
     <!-- FontAwesome CDN (আইকন কালেকশন) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- PWA মেটা ট্যাগ এবং ম্যানিফেস্ট লিংক -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#022c22">
+
     <!-- Custom CSS Link -->
     <link rel="stylesheet" href="style.css">
 
@@ -62,7 +66,7 @@
 <div id="toast-container" class="fixed top-5 right-5 z-[200] space-y-3 pointer-events-none"></div>
 
 <!-- ========================================================== -->
-<!-- পিন লক ওভারলে স্ক্রিন (Username + PIN Online Validation) -->
+<!-- পিন লক ওভারলে স্ক্রিন (Sleek Username + PIN Online Validation) -->
 <!-- ========================================================== -->
 <div id="pin-lock-overlay">
     <div class="bg-white/10 backdrop-blur-lg p-8 rounded-3xl border border-white/20 shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all duration-300">
@@ -76,45 +80,45 @@
         <h2 id="lock-madrasah-name" class="text-2xl font-extrabold mb-1 text-white">মাদরাসাতুল মদিনা</h2>
         <p class="text-emerald-200 text-xs mb-5 font-semibold">নিরাপত্তা স্ক্রিন যাচাইকরণ</p>
 
-        <!-- ২. ডাইনামিক ইউজারনেম সিলেক্টর ও পিন ডট কন্টেইনার -->
+        <!-- ২. ডাইনামিক ইউজারনেম ও পাসওয়ার্ড টাইপ ফর্ম -->
         <div id="lock-input-group" class="space-y-4">
-            <div>
-                <select id="lock-user-select" class="w-full px-4 py-2.5 rounded-xl border border-white/20 bg-emerald-950/80 hover:bg-emerald-950 text-white font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs text-center transition">
-                    <option value="">ইউজার লোড হচ্ছে...</option>
-                </select>
+            
+            <!-- ইউজারনেম ইনপুট -->
+            <div class="space-y-1 text-left">
+                <label class="block text-[11px] font-bold text-emerald-250">ইউজারনেম (Username)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-400">
+                        <i class="fa-solid fa-user text-xs"></i>
+                    </span>
+                    <input type="text" id="lock-username" required placeholder="যেমন: habib12" 
+                           class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/25 bg-emerald-950/50 hover:bg-emerald-950 text-white font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs transition">
+                </div>
             </div>
 
-            <!-- পিন ডট ইন্ডিকেটর সমূহ -->
-            <div class="flex justify-center gap-4 py-2">
-                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
-                <span class="pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150"></span>
+            <!-- ৪ সংখ্যার পিন কোড ইনপুট -->
+            <div class="space-y-1 text-left">
+                <label class="block text-[11px] font-bold text-emerald-250">৪ সংখ্যার পিন (PIN)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-400">
+                        <i class="fa-solid fa-key text-xs"></i>
+                    </span>
+                    <input type="password" id="lock-password" required maxlength="4" placeholder="••••" 
+                           oninput="this.value = window.convertToEnglishDigits(this.value)"
+                           class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/25 bg-emerald-950/50 hover:bg-emerald-950 text-white font-bold text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs transition">
+                </div>
             </div>
+
+            <!-- সাবমিট বাটন -->
+            <button onclick="window.checkPinSubmit()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-3 rounded-xl transition duration-150 shadow-md shadow-emerald-500/20 text-xs flex items-center justify-center gap-1.5 mt-2">
+                <i class="fa-solid fa-right-to-bracket"></i> প্যানেলে প্রবেশ করুন
+            </button>
         </div>
 
         <!-- ৩. রিয়্যাল-টাইম স্ট্যাটাস ও লোডার স্ক্রিন (পিন ভেরিফিকেশন ফেস) -->
         <div id="lock-status-area" class="hidden py-10 space-y-4">
-            <!-- ডাইনামিক আইকন লোডার এখানে স্ক্রিপ্ট দিয়ে ইনজেক্ট হবে -->
             <div id="status-icon-box" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl"></div>
             <h3 id="status-message" class="text-lg font-bold text-white"></h3>
             <p id="status-sub-message" class="text-xs text-emerald-200"></p>
-        </div>
-
-        <!-- ৪. সংখ্যা কিপ্যাড গ্রিড -->
-        <div id="lock-keypad-area" class="grid grid-cols-3 gap-3.5 max-w-[240px] mx-auto mt-6">
-            <button onclick="window.pressPin('1')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">1</button>
-            <button onclick="window.pressPin('2')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">2</button>
-            <button onclick="window.pressPin('3')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">3</button>
-            <button onclick="window.pressPin('4')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">4</button>
-            <button onclick="window.pressPin('5')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">5</button>
-            <button onclick="window.pressPin('6')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">6</button>
-            <button onclick="window.pressPin('7')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">7</button>
-            <button onclick="window.pressPin('8')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">8</button>
-            <button onclick="window.pressPin('9')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">9</button>
-            <button onclick="window.clearPin()" class="w-14 h-14 rounded-full flex items-center justify-center text-red-300 font-bold text-xs hover:text-red-200 active:scale-95 transition-all">মুছুন</button>
-            <button onclick="window.pressPin('0')" class="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center font-extrabold text-xl text-white transition-all shadow-sm">0</button>
-            <button onclick="window.checkPinSubmit()" class="w-14 h-14 rounded-full flex items-center justify-center text-emerald-300 font-extrabold text-xl hover:text-emerald-200 active:scale-95 transition-all">✓</button>
         </div>
     </div>
 </div>
@@ -230,85 +234,40 @@
 <script src="app.js"></script>
 
 <!-- ========================================================== -->
-<!-- লক স্ক্রিন ও পিন ভেরিফিকেশন কন্ট্রোলার -->
+<!-- সিকিউরড সরাসরি অনলাইন পিন ভেরিফিকেশন কন্ট্রোলার -->
 <!-- ========================================================== -->
 <script>
 (function() {
-    window.enteredPin = "";
+    
+    // ক্রিপ্টোগ্রাফিক পিন হ্যাশিং হেল্পার (sessionStorage সেশন সুরক্ষার জন্য)
+    async function hashPIN(pin) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin + "m@drasah_salt");
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-    // লোকাল ও ক্লাউড ডাটাবেজ থেকে ড্রপডাউন ইউজার লোড করা
-    window.populateLockUserDropdown = async function() {
-        const userSelect = document.getElementById('lock-user-select');
-        if (!userSelect) return;
-
-        userSelect.innerHTML = `<option value="">ইউজার নির্বাচন করুন</option>`;
-        try {
-            const localUsers = await db.users.toArray();
-            const activeUsers = localUsers.filter(u => u.is_deleted !== 1);
-
-            if (activeUsers.length === 0) {
-                // ডিফল্ট fallback (যদি লোকাল কোনো ইউজার সিঙ্ক না হয়ে থাকে)
-                userSelect.innerHTML += `<option value="admin">মুহতামিম (Default)</option>`;
-            } else {
-                activeUsers.forEach(u => {
-                    let roleText = "মুহতামিম";
-                    if (u.role === 'accountant') roleText = "হিসাবরক্ষক";
-                    else if (u.role === 'teacher') roleText = "শিক্ষক";
-
-                    userSelect.innerHTML += `<option value="${u.username}">${u.username} (${roleText})</option>`;
-                });
-            }
-        } catch (err) {
-            userSelect.innerHTML += `<option value="admin">মুহতামিম (Default)</option>`;
-        }
-    };
-
-    window.pressPin = function(num) {
-        if ((window.enteredPin || "").length < 4) {
-            window.enteredPin = (window.enteredPin || "") + num;
-            window.updatePinDots();
-        }
-
-        if ((window.enteredPin || "").length === 4) {
-            setTimeout(window.checkPinSubmit, 200);
-        }
-    };
-
-    window.updatePinDots = function() {
-        const dots = document.querySelectorAll('.pin-dot');
-        dots.forEach((dot, index) => {
-            if (index < (window.enteredPin || "").length) {
-                dot.className = "pin-dot w-4 h-4 rounded-full bg-yellow-300 border-2 border-yellow-300 scale-110 transition-all duration-150";
-            } else {
-                dot.className = "pin-dot w-4 h-4 rounded-full border-2 border-white/40 transition-all duration-150";
-            }
-        });
-    };
-
-    window.clearPinInput = function() {
-        window.enteredPin = "";
-        window.updatePinDots();
-    };
-
-    window.clearPin = function() {
-        window.clearPinInput();
-    };
-
-    // ৩.১ পিন ভেরিফিকেশন ফ্লো (গুগল শিট অনলাইন এপিআই চেক)
+    // সরাসরি গুগল শিটে ভেরিফিকেশন রিকোয়েস্ট সাবমিট (কোনো লোকাল ব্যাকআপ পিন সেভ থাকবে না)
     window.checkPinSubmit = async function() {
-        const userSelect = document.getElementById('lock-user-select');
-        const username = userSelect ? userSelect.value : '';
-        const pin = window.convertToEnglishDigits(window.enteredPin);
+        const usernameInput = document.getElementById('lock-username');
+        const passwordInput = document.getElementById('lock-password');
+        if (!usernameInput || !passwordInput) return;
 
-        if (!username) {
-            showToast("দয়া করে ইউজার নির্বাচন করুন!", "error");
-            window.clearPinInput();
+        const username = usernameInput.value.trim().toLowerCase();
+        const pin = window.convertToEnglishDigits(passwordInput.value.trim());
+
+        if (!username || !pin) {
+            showToast("দয়া করে ইউজারনেম এবং পিন কোড উভয়ই প্রদান করুন!", "error");
             return;
         }
 
-        // এনিমেশন শুরু: ইনপুট হাইড ও লোডার প্রদর্শন
+        if (pin.length !== 4 || isNaN(pin)) {
+            showToast("পিন কোডটি অবশ্যই ৪ সংখ্যার হতে হবে!", "error");
+            return;
+        }
+
+        // ভিউ কন্টেইনার অ্যানিমেশন ট্রানজিশন
         const lockInputGroup = document.getElementById('lock-input-group');
-        const lockKeypadArea = document.getElementById('lock-keypad-area');
         const lockStatusArea = document.getElementById('lock-status-area');
         const lockHeaderIcon = document.getElementById('lock-header-icon');
 
@@ -317,18 +276,17 @@
         const statusSubMessage = document.getElementById('status-sub-message');
 
         if (lockInputGroup) lockInputGroup.classList.add('hidden');
-        if (lockKeypadArea) lockKeypadArea.classList.add('hidden');
         if (lockHeaderIcon) lockHeaderIcon.classList.add('hidden');
         
         if (lockStatusArea) {
             lockStatusArea.classList.remove('hidden');
             statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-white/10 text-yellow-300 animate-spin";
             statusIconBox.innerHTML = `<i class="fa-solid fa-spinner"></i>`;
-            statusMessage.textContent = "পিন যাচাই করা হচ্ছে...";
-            statusSubMessage.textContent = "সার্ভারের সাথে সংযোগ স্থাপন করা হচ্ছে";
+            statusMessage.textContent = "যাচাই করা হচ্ছে...";
+            statusSubMessage.textContent = "সরাসরি গুগল শিট ডাটাবেজের সাথে সংযোগ করা হচ্ছে";
         }
 
-        // ৩.২ অনলাইন চেক (Online API Authentication)
+        // সরাসরি গুগল শিট ভেরিফিকেশন কল
         if (navigator.onLine && SCRIPT_URL) {
             try {
                 const payload = new URLSearchParams({
@@ -349,46 +307,30 @@
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    // সফল লগইন স্টেট
-                    await handleSuccessfulLogin(username, result.role, result.fullname || username, pin);
+                    // সফল অনলাইন লগইন - টোকেন জেনারেশন
+                    const sessionToken = await hashPIN(pin);
+                    await handleSuccessfulLogin(username, result.role, result.fullname || username, sessionToken);
                     return;
                 } else {
-                    // ভুল পিন স্টেট
-                    handleFailedLogin(result.message || "ভুল পিন নাম্বার!");
+                    handleFailedLogin(result.message || "ভুল পিন নম্বর অথবা ইউজারনেম!");
                     return;
                 }
             } catch (err) {
-                console.warn("অনলাইন লগইন ফেইলড, অফলাইন ডেটা চেক করা হচ্ছে...");
-            }
-        }
-
-        // ৩.৩ অফলাইন ব্যাকআপ চেক (Offline Dexie Fallback Check)
-        try {
-            // যদি অফলাইন থাকে এবং ডেটাবেজে কোনো ইউজার না থাকে তবে ডিফল্ট অ্যাডমিন বাইপাস
-            const totalUsers = await db.users.count();
-            if (totalUsers === 0 && username === 'admin' && pin === '1234') {
-                await handleSuccessfulLogin('admin', 'muhtamim', 'মুহতামিম', '1234');
+                console.error("গুগল শিট অথেন্টিকেশন ত্রুটি:", err);
+                handleFailedLogin("অনলাইন ডাটাবেজের সাথে সংযোগ বিচ্ছিন্ন! ইন্টারনেট সংযোগ চেক করুন।");
                 return;
             }
-
-            const localUser = await db.users.get(username);
-            if (localUser && localUser.is_deleted !== 1 && localUser.pin === pin) {
-                await handleSuccessfulLogin(username, localUser.role, username, pin);
-            } else {
-                handleFailedLogin("ভুল পিন কোড! পুনরায় চেষ্টা করুন।");
-            }
-        } catch (err) {
-            handleFailedLogin("অফলাইন যাচাইকরণে ত্রুটি হয়েছে!");
+        } else {
+            handleFailedLogin("কোনো সক্রিয় ইন্টারনেট সংযোগ নেই! সরাসরি পিন যাচাই করতে ইন্টারনেট প্রয়োজন।");
         }
     };
 
-    // ৪. সফল লগইন রেন্ডারিং (আলহামদু লিল্লাহ!)
-    async function handleSuccessfulLogin(username, role, fullname, pin) {
+    // ৪. সফল লগইন স্টেট ও আলহামদু লিল্লাহ অ্যানিমেশন
+    async function handleSuccessfulLogin(username, role, fullname, sessionToken) {
         const statusIconBox = document.getElementById('status-icon-box');
         const statusMessage = document.getElementById('status-message');
         const statusSubMessage = document.getElementById('status-sub-message');
 
-        // সাকসেস স্টেট রেন্ডার
         if (statusIconBox) {
             statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-4xl bg-emerald-500/20 text-emerald-400 border border-emerald-500 animate-bounce";
             statusIconBox.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
@@ -396,23 +338,12 @@
         if (statusMessage) statusMessage.textContent = "আলহামদু লিল্লাহ";
         if (statusSubMessage) statusSubMessage.textContent = `${fullname} হিসেবে সফলভাবে প্রবেশ করেছেন`;
 
-        // সেশন স্টোরেজে সংরক্ষণ
-        const userObj = { username, role, fullname };
+        // সেশন স্টোরেজে সংরক্ষণ (লোকালে কোনো পাসওয়ার্ড বা পিন সেভ থাকবে না)
+        const userObj = { username, role, fullname, session_token: sessionToken };
         sessionStorage.setItem('currentUser', JSON.stringify(userObj));
         window.currentUser = userObj;
 
-        // লোকাল ডেটাবেজে সিঙ্কড কপি আপডেট করা
-        try {
-            await db.users.put({
-                username: username,
-                pin: pin,
-                role: role,
-                is_synced: 1,
-                is_deleted: 0
-            });
-        } catch(e) {}
-
-        // উইন্ডো হেডার ও সাইডবার ফিল্টার আপডেট করা
+        // হেডার উইন্ডো ও ব্যাজ আপডেট
         const userBadge = document.getElementById('user-display-badge');
         if (userBadge) {
             let roleTitle = "মুহতামিম";
@@ -427,18 +358,15 @@
             const overlay = document.getElementById('pin-lock-overlay');
             if (overlay) overlay.style.display = 'none';
 
-            // ইনপুট ফর্ম রিসেট
             resetLockOverlayState();
 
-            // রোল অনুযায়ী সাইডবার কনফিগার করা
+            // রোল অনুযায়ী সাইডবার কনফিগার ও মডিউল রেন্ডারিং
             window.updateSidebarNavigation();
-            
-            // ড্যাশবোর্ড মডিউল লোড করা
             loadModule('dashboard');
         }, 1500);
     }
 
-    // ৫. ব্যর্থ লগইন রেন্ডারিং (ইন্না লিল্লাহ!)
+    // ৫. ব্যর্থ লগইন স্টেট ও ইন্না লিল্লাহ অ্যানিমেশন
     function handleFailedLogin(errorText) {
         const statusIconBox = document.getElementById('status-icon-box');
         const statusMessage = document.getElementById('status-message');
@@ -464,31 +392,17 @@
 
     function resetLockOverlayState() {
         const lockInputGroup = document.getElementById('lock-input-group');
-        const lockKeypadArea = document.getElementById('lock-keypad-area');
         const lockStatusArea = document.getElementById('lock-status-area');
         const lockHeaderIcon = document.getElementById('lock-header-icon');
 
         if (lockInputGroup) lockInputGroup.classList.remove('hidden');
-        if (lockKeypadArea) lockKeypadArea.classList.remove('hidden');
         if (lockHeaderIcon) lockHeaderIcon.classList.remove('hidden');
         if (lockStatusArea) lockStatusArea.classList.add('hidden');
 
-        window.clearPinInput();
+        // ইনপুট বক্স রি-সেট করা
+        const passwordInput = document.getElementById('lock-password');
+        if (passwordInput) passwordInput.value = '';
     }
-
-    // কিবোর্ড ইভেন্ট লিসেনার
-    document.addEventListener('keydown', (e) => {
-        const overlay = document.getElementById('pin-lock-overlay');
-        if (overlay && overlay.style.display !== 'none' && !document.getElementById('lock-status-area').classList.contains('hidden') === false) {
-            if (e.key >= '0' && e.key <= '9') {
-                window.pressPin(e.key);
-            } else if (e.key === 'Backspace') {
-                window.clearPin();
-            } else if (e.key === 'Enter') {
-                window.checkPinSubmit();
-            }
-        }
-    });
 
     window.toggleSidebar = function() {
         const sidebar = document.getElementById('sidebar');
@@ -504,7 +418,6 @@
         }
     };
 
-    // ডাইনামিক মাদরাসা নাম ও লোগো রেন্ডারিং
     window.applyGlobalSettings = function() {
         const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
         const logoUrl = localStorage.getItem('madrasah_logo') || '';
@@ -522,9 +435,8 @@
         }
     };
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
         window.applyGlobalSettings();
-        await window.populateLockUserDropdown();
     });
 })();
 </script>
