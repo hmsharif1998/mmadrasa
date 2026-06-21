@@ -1,12 +1,12 @@
 /* ==========================================================================
-   Madrasah Management System - PWA Service Worker (Offline Engine)
+   Madrasah Management System - Resilient PWA Service Worker (Offline Engine)
    Author: Senior Software Engineer & UI/UX Architect
-   Description: Caches static templates while bypassing real-time GAS API requests.
+   Description: GET-only caching, bypasses non-HTTP, and uses Promise.allSettled.
    ========================================================================== */
 
-const CACHE_NAME = 'madrasah-pwa-v4';
+const CACHE_NAME = 'madrasah-pwa-v5';
 
-// ক্যাশ করার জন্য সকল প্রয়োজনীয় স্ট্যাটিক ফাইলের তালিকা
+// ক্যাশ করার জন্য প্রয়োজনীয় ফাইলের তালিকা
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -22,15 +22,25 @@ const ASSETS_TO_CACHE = [
     './settings.html'
 ];
 
-// ১. সার্ভিস ওয়ার্কার ইনস্টল ইভেন্ট (ফাইলগুলো ব্রাউজার মেমরিতে ডাউনলোড ও ক্যাশ করা)
+// ১. রেজিলিয়েন্ট ইনস্টল ইভেন্ট (একটি ফাইল মিসিং হলেও ইন্সটলেশন ফেইল হবে না)
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Static assets caching started...');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-            .then(() => self.skipWaiting()) // নতুন সার্ভিস ওয়ার্কার সাথে সাথে সচল হবে
+        caches.open(CACHE_NAME).then(cache => {
+            console.log('Resilient caching started...');
+            // Promise.allSettled ব্যবহার করে প্রতিটি ফাইল আলাদাভাবে ট্রাই করা হচ্ছে
+            return Promise.allSettled(
+                ASSETS_TO_CACHE.map(url => {
+                    return fetch(url).then(response => {
+                        if (response.ok) {
+                            return cache.put(url, response);
+                        }
+                        throw new Error(`Failed to fetch ${url}`);
+                    });
+                })
+            ).then(results => {
+                console.log('Caching process completed with results:', results);
+            });
+        }).then(() => self.skipWaiting())
     );
 });
 
@@ -46,41 +56,57 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        }).then(() => self.clients.claim()) // সব ট্যাব বা উইন্ডোর ওপর নিয়ন্ত্রণ নেওয়া
+        }).then(() => self.clients.claim())
     );
 });
 
-// ৩. ফেচ ইন্টারসেপ্টর (গুগল শিট API বাইপাস এবং অফলাইন ক্যাশ ফলব্যাক)
+// ৩. ফেচ ইন্টারসেপ্টর (নিরাপদ ফিল্টারিং মেকানিজম)
 self.addEventListener('fetch', event => {
-    const requestUrl = new URL(event.request.url);
-
-    // গুগল অ্যাপস স্ক্রিপ্ট (SCRIPT_URL) রিকোয়েস্ট সনাক্তকরণ (সরাসরি অনলাইন চেক)
-    if (requestUrl.hostname === 'script.google.com' || requestUrl.href.includes('macros')) {
-        // এপিআই রিকোয়েস্ট ক্যাশ মেমরি থেকে লোড হবে না, সরাসরি অনলাইনে গুগল শিট ভ্যালিডেট করবে
-        event.respondWith(fetch(event.request));
+    // ৩.১ শুধুমাত্র HTTP/HTTPS প্রোটোকল হ্যান্ডেল করুন (Browser Extension বাইপাস)
+    if (!event.request.url.startsWith('http')) {
         return;
     }
 
-    // সাধারণ লোকাল ফাইলগুলোর জন্য ক্যাশ-ফার্স্ট পলিসি
+    // ৩.২ শুধুমাত্র GET রিকোয়েস্ট ক্যাশ বা অফলাইন হ্যান্ডেল করুন (POST/Sync সরাসরি সার্ভারে যাবে)
+    if (event.request.method !== 'GET') {
+        return; 
+    }
+
+    const requestUrl = new URL(event.request.url);
+
+    // ৩.৩ গুগল অ্যাপস স্ক্রিপ্ট এপিআই বাইপাস (সরাসরি লাইভ নেটওয়ার্কে রান করবে)
+    if (requestUrl.hostname === 'script.google.com' || requestUrl.href.includes('macros')) {
+        return; 
+    }
+
     event.respondWith(
         caches.match(event.request).then(cachedResponse => {
             if (cachedResponse) {
                 return cachedResponse; // মেমরি ক্যাশ থেকে তাৎক্ষণিক লোড
             }
+
             return fetch(event.request).then(networkResponse => {
-                // নতুন কোনো ফাইল লোড হলে তা মেমরি ক্যাশে যুক্ত করে নেওয়া
-                if (networkResponse.status === 200 && event.request.method === 'GET') {
-                    return caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, networkResponse.clone());
-                        return networkResponse;
+                // রিকোয়েস্ট সফল হলে স্বয়ংক্রিয়ভাবে ক্যাশে সেভ করা
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseClone);
                     });
                 }
                 return networkResponse;
             }).catch(() => {
-                // ইন্টারনেট অফ থাকা অবস্থায় যদি পেজ না পাওয়া যায় তবে মূল ইনডেক্সে ফলব্যাক করবে
+                // অফলাইন ফলব্যাক লজিক (ক্র্যাশ প্রতিরোধক)
                 if (event.request.mode === 'navigate') {
-                    return caches.match('./index.html');
+                    return caches.match('./index.html').then(fallback => {
+                        if (fallback) return fallback;
+                        // যদি কোনো কারণে ইনডেক্স ফাইল ক্যাশে না থাকে, তবে ক্র্যাশ না করে ব্রাউজার রেসপন্স দেখাবে
+                        return new Response(
+                            '<div style="font-family:sans-serif; text-align:center; padding:50px;"><h2>মাদরাসা প্যানেল অফলাইন</h2><p>অ্যাপ্লিকেশনটি খুলতে সক্রিয় ইন্টারনেট সংযোগ প্রয়োজন।</p></div>',
+                            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+                        );
+                    });
                 }
+                return null;
             });
         })
     );
