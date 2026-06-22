@@ -393,28 +393,3 @@ th {
     }
 }
 
-/* রেডিও ইনপুটটি পুরোপুরি হাইড করা */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border-width: 0;
-}
-
-/* আধুনিক টাইলস স্টাইল */
-.modern-radio-tile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 60px;
-    cursor: pointer;
-}
-
-/* যখন চেক করা হবে তখন একটি বাউন্স ইফেক্ট */
-.modern-radio-group input[type="radio"]:checked + .modern-radio-tile {
-    transform: scale(1.05);
-}

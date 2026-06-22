@@ -216,10 +216,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="block text-sm font-bold text-gray-500">হোয়াটসঅ্যাপ নম্বর</label>
-                            <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-emerald-700 font-bold">
-                                <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="window.toggleWhatsappSync()">
-                                <span>একই নাম্বার</span>
-                            </label>
+                            <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-gray-400 font-bold"><input type="checkbox" id="chk-col-parents" checked onchange="window.toggleColumn('col-parents')" class="rounded text-emerald-600"> পিতা ও মাতা</label>
                         </div>
                         <input type="tel" id="student-whatsapp" placeholder="017XXXXXXXX" maxlength="11"
                                oninput="this.value = window.convertToEnglishDigits(this.value)"
@@ -304,8 +301,8 @@
             </div>
         </div>
 
-        <!-- রেসপনসিভ টেবিল কন্টেইনার -->
-        <div class="overflow-x-auto flex-1 max-h-[400px] overflow-y-auto rounded-xl border border-gray-100 custom-scroll">
+        <!-- রেসপনসিভ ডেক্সটপ টেবিল কন্টেইনার -->
+        <div class="hidden md:block overflow-x-auto flex-1 max-h-[400px] overflow-y-auto rounded-xl border border-gray-100 custom-scroll">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                 <tr>
@@ -320,6 +317,10 @@
                 </thead>
                 <tbody id="students-table-body" class="bg-white divide-y divide-gray-100 text-xs"></tbody>
             </table>
+        </div>
+
+        <!-- মোবাইলের জন্য টাচ-ফ্রেন্ডলি কার্ড ভিউ -->
+        <div id="students-mobile-cards" class="block md:hidden space-y-3 max-h-[400px] overflow-y-auto pr-1 custom-scroll">
         </div>
     </div>
 </div>
@@ -425,10 +426,11 @@
 
                 const mergedAddress = `গ্রাম: ${village}, পোস্ট: ${post}, থানা: ${thana}, জেলা: ${district}`;
 
+                const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+                const curUser = user ? user.username : "system";
+
                 try {
-                    const duplicate = await db.students
-                        .where({ class: sClass, roll: roll })
-                        .first();
+                    const duplicate = await db.students.where('[class+roll]').equals([sClass, roll]).first();
 
                     if (duplicate && duplicate.id !== editId && duplicate.is_deleted !== 1) {
                         if (duplicate.branch === sBranch) {
@@ -467,18 +469,25 @@
                     };
 
                     if (editId) {
+                        const existing = await db.students.get(editId);
+                        studentObj.created_by = existing ? (existing.created_by || curUser) : curUser;
+                        studentObj.updated_by = curUser;
+                        studentObj.admission_date = existing ? (existing.admission_date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0];
+
                         await db.students.update(editId, studentObj);
                         showToast("শিক্ষার্থীর তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
                         window.cancelEdit();
                     } else {
+                        studentObj.created_by = curUser;
+                        studentObj.updated_by = curUser;
                         studentObj.admission_date = new Date().toISOString().split('T')[0];
+
                         await db.students.add(studentObj);
                         showToast("নতুন ছাত্র সফলভাবে ভর্তি করা হয়েছে।", "success");
                         form.reset();
                         window.clearLogoUrl();
                     }
 
-                    // রিয়েল-টাইম পেন্ডিং কাউন্টার ট্রিগার
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
                     }
@@ -486,7 +495,6 @@
                     await generateIdAndSerial();
                     await renderStudentsList();
 
-                    // রসিদ পপআপ লোড করা
                     window.showReceiptModal(studentObj);
 
                     if (navigator.onLine && typeof triggerAutoSync === 'function') {
@@ -792,7 +800,8 @@
 
     async function renderStudentsList(searchQuery = '', classQuery = '') {
         const tableBody = document.getElementById('students-table-body');
-        if (!tableBody) return;
+        const mobileContainer = document.getElementById('students-mobile-cards');
+        if (!tableBody || !mobileContainer) return;
 
         try {
             let students = await db.students.reverse().toArray();
@@ -813,16 +822,20 @@
             students.sort((a, b) => (a.serial_no || 0) - (b.serial_no || 0));
 
             if (students.length === 0) {
-                tableBody.innerHTML = `
+                const emptyMsg = `
                     <tr>
                         <td colspan="7" class="px-4 py-8 text-center text-xs text-gray-500 font-medium">
                             কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
+                tableBody.innerHTML = emptyMsg;
+                mobileContainer.innerHTML = `<div class="text-center py-8 text-gray-400 font-bold">কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।</div>`;
                 return;
             }
 
             let htmlContent = '';
+            let mobileHtml = '';
+
             students.forEach(student => {
                 const syncStatusBadge = student.is_synced === 1
                     ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
@@ -832,6 +845,7 @@
                          <i class="fa-solid fa-clock"></i> পেন্ডিং
                        </span>`;
 
+                // ডেক্সটপ রো জেনারেটর
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="px-4 py-3 text-xs text-gray-700 font-bold font-en">
@@ -874,9 +888,48 @@
                             </div>
                         </td>
                     </tr>`;
+
+                // মোবাইল কার্ড জেনারেটর
+                mobileHtml += `
+                    <div class="p-4 rounded-xl border border-gray-150 bg-white shadow-sm space-y-2.5 text-gray-700">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-3">
+                                ${student.photo_url ? `<img class="w-10 h-10 rounded-full object-cover border" src="${student.photo_url}">` : '<div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">St</div>'}
+                                <div>
+                                    <h5 class="font-bold text-gray-800 text-sm">${student.name || 'অজানা'}</h5>
+                                    <p class="text-[10px] text-gray-400 font-bold">রোল: ${student.roll || '-'} | ID: ${student.id}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">${student.class || '-'}</span>
+                                <p class="text-[9px] text-gray-400 font-bold mt-1">Sl: ${student.serial_no || '-'}</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-dashed pt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div><span class="text-gray-400 font-semibold">পিতা:</span> ${student.father_name || '-'}</div>
+                            <div><span class="text-gray-400 font-semibold">শাখা:</span> ${student.branch || '-'}</div>
+                            <div><span class="text-gray-400 font-semibold">মোবাইল:</span> <span class="font-en">${student.parent_phone || '-'}</span></div>
+                            <div><span class="text-gray-400 font-semibold">বেতন:</span> ৳${student.monthly_fee || 0}</div>
+                        </div>
+                        <div class="border-t border-dashed pt-2 flex justify-between items-center text-xs">
+                            ${syncStatusBadge}
+                            <div class="flex gap-1.5 no-print">
+                                <button onclick="window.showReceiptModalFromList('${student.id}')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg border border-emerald-100 transition" title="রসিদ প্রিন্ট">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </button>
+                                <button onclick="window.editStudent('${student.id}')" class="bg-blue-50 text-blue-600 p-1.5 rounded-lg border border-blue-100 transition" title="সংশোধন">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="window.deleteStudent('${student.id}')" class="bg-red-50 text-red-600 p-1.5 rounded-lg border border-red-100 transition" title="মুছে ফেলুন">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
             });
 
             tableBody.innerHTML = htmlContent;
+            mobileContainer.innerHTML = mobileHtml;
 
         } catch (err) {
             console.error("শিক্ষার্থীর তালিকা রেন্ডার করতে সমস্যা হয়েছে:", err);
@@ -1050,7 +1103,6 @@
 
     // ৫. এ৫ সাইজ প্রিন্ট আইসোলেশন সলিউশন (A5 Print Isolated Wrapper)
     window.printAdmissionReceipt = function() {
-        // প্রিন্ট ডায়ালগ ক্লোজ হওয়ার সাথে সাথে বডি ক্লাস মুছে ফেলবে
         const cleanPrintClass = () => {
             document.body.classList.remove('print-mode-a5-receipt');
         };
@@ -1141,16 +1193,16 @@
 
             <div class="flex-1 flex flex-col justify-end pt-10">
                 <div class="flex justify-between items-center text-[10px] text-gray-500">
-                    <div class="text-center w-36 border-t pt-1 border-gray-300">
+                    <div class="text-left">
+                        <p class="font-bold">প্রস্তুতকারক: <span class="font-en font-bold text-gray-700">${student.created_by || 'system'}</span></p>
+                        ${student.updated_by && student.updated_by !== student.created_by ? `<p class="text-[8px] text-gray-400">সংশোধন: <span class="font-en">${student.updated_by}</span></p>` : ''}
+                    </div>
+                    <div class="text-center w-28 border-t pt-1 border-gray-300">
                         <p class="font-bold">অভিভাবকের স্বাক্ষর</p>
                     </div>
-                    <div class="text-center w-36 border-t pt-1 border-emerald-800 text-emerald-800">
+                    <div class="text-center w-28 border-t pt-1 border-emerald-800 text-emerald-800">
                         <p class="font-bold">অনুমোদনকারীর স্বাক্ষর</p>
                     </div>
-                </div>
-                
-                <div class="text-center text-[9px] text-gray-400 pt-6 border-t border-dashed mt-6">
-                    জাজাকুমুল্লাহু খাইরান! আপনার সন্তানের শিক্ষাজীবন সাফল্যমণ্ডিত ও বরকতময় হোক।
                 </div>
             </div>
         `;
@@ -1159,10 +1211,10 @@
         if (modal) modal.classList.remove('hidden');
     };
 
-    window.showReceiptModalFromList = async function(studentId) {
-        const studentObj = await db.students.get(studentId);
-        if (studentObj) {
-            window.showReceiptModal(studentObj);
+    window.showReceiptModalFromList = async function(id) {
+        const student = await db.students.get(id);
+        if (student) {
+            window.showReceiptModal(student);
         }
     };
 

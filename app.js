@@ -18,6 +18,7 @@ db.version(4).stores({
     settings: 'id, madrasah_name, madrasah_address, madrasah_phone, madrasah_pin, madrasah_script_url, is_synced, is_deleted',
     expenses: 'expense_id, branch, category, amount, date, is_synced, is_deleted, created_by, updated_by',
     attendance: 'attendance_id, student_id, date, status, is_synced, is_deleted, created_by, updated_by',
+	logs: '++id, user, action, table, target_id, timestamp, is_synced',
     users: 'username, pin, role, fullname, is_synced, is_deleted' // fullname সহ ডাইনামিক ইউজার টেবিল
 });
 
@@ -39,6 +40,70 @@ window.safeParseFloat = function(val) {
     let parsed = parseFloat(clean);
     return isNaN(parsed) ? 0 : parsed;
 };
+
+// ============================================
+// ৩.১ গ্লোবাল ইউটিলিটি (অডিট লগ ও এক্সেল ইঞ্জিন)
+// ============================================
+
+// অডিট লগ তৈরি করার ফাংশন
+window.addAuditLog = async function(action, table, targetId) {
+    const user = window.currentUser ? window.currentUser.username : "system";
+    const logEntry = {
+        user: user,
+        action: action, 
+        table: table,  
+        target_id: targetId,
+        timestamp: new Date().toLocaleString('bn-BD'), // পড়ার সুবিধার জন্য বাংলা সময়
+        is_synced: 0
+    };
+    try {
+        if (db.logs) {
+            await db.logs.add(logEntry);
+        }
+    } catch (err) {
+        console.error("Audit log failed:", err);
+    }
+};
+
+// ডাটাকে এক্সেল ফাইল হিসেবে এক্সপোর্ট করা
+window.exportToExcel = function(data, fileName = 'Madrasah_Report.xlsx') {
+    if (!data || data.length === 0) {
+        showToast("এক্সপোর্ট করার মতো কোনো ডাটা পাওয়া যায়নি!", "error");
+        return;
+    }
+    try {
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+        XLSX.writeFile(workbook, fileName);
+        window.addAuditLog('এক্সপোর্ট', 'Excel', fileName);
+        showToast("এক্সেল ফাইলটি সফলভাবে তৈরি হয়েছে।", "success");
+    } catch (err) {
+        showToast("এক্সেল তৈরিতে সমস্যা হয়েছে!", "error");
+    }
+};
+
+// এক্সেল ফাইল থেকে ডাটা রিড করা (ইম্পোর্টের জন্য)
+window.importFromExcel = function(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                resolve(jsonData);
+            } catch (err) {
+                reject("ফাইলটি পড়া সম্ভব হয়নি। সঠিক এক্সেল ফাইল দিন।");
+            }
+        };
+        reader.onerror = (err) => reject("ফাইল লোড এরর!");
+        reader.readAsArrayBuffer(file);
+    });
+};
+
 
 // ============================================
 // ৪. রোল ভিত্তিক নেভিগেশন প্যানেল কন্ট্রোলার (RBAC UI)
@@ -89,13 +154,18 @@ async function fetchLocalFile(url) {
 }
 
 function loadModule(moduleName) {
+
     // ১. ভেরিফিকেশন: ব্যবহারকারী লগইন অবস্থায় আছেন কি না
     const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
     if (!user) {
         window.lockApp();
         return;
     }
-
+	// loadModule ফাংশনের শুরুতে এটি যোগ করুন
+const sidebar = document.getElementById('sidebar');
+if (window.innerWidth < 768 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
+    window.toggleSidebar(); // মোবাইলে মেনু সিলেক্ট করলে সাইডবার বন্ধ হয়ে যাবে
+}
     const role = user.role;
 
     // ২. মডিউল অ্যাক্সেস কন্ট্রোল (শিক্ষকদের জন্য ভর্তি ও তালিকা উন্মুক্ত করা হলো)
