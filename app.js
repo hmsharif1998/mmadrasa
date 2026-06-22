@@ -18,7 +18,6 @@ db.version(4).stores({
     settings: 'id, madrasah_name, madrasah_address, madrasah_phone, madrasah_pin, madrasah_script_url, is_synced, is_deleted',
     expenses: 'expense_id, branch, category, amount, date, is_synced, is_deleted, created_by, updated_by',
     attendance: 'attendance_id, student_id, date, status, is_synced, is_deleted, created_by, updated_by',
-	logs: '++id, user, action, table, target_id, timestamp, is_synced',
     users: 'username, pin, role, fullname, is_synced, is_deleted' // fullname সহ ডাইনামিক ইউজার টেবিল
 });
 
@@ -40,70 +39,6 @@ window.safeParseFloat = function(val) {
     let parsed = parseFloat(clean);
     return isNaN(parsed) ? 0 : parsed;
 };
-
-// ============================================
-// ৩.১ গ্লোবাল ইউটিলিটি (অডিট লগ ও এক্সেল ইঞ্জিন)
-// ============================================
-
-// অডিট লগ তৈরি করার ফাংশন
-window.addAuditLog = async function(action, table, targetId) {
-    const user = window.currentUser ? window.currentUser.username : "system";
-    const logEntry = {
-        user: user,
-        action: action, 
-        table: table,  
-        target_id: targetId,
-        timestamp: new Date().toLocaleString('bn-BD'), // পড়ার সুবিধার জন্য বাংলা সময়
-        is_synced: 0
-    };
-    try {
-        if (db.logs) {
-            await db.logs.add(logEntry);
-        }
-    } catch (err) {
-        console.error("Audit log failed:", err);
-    }
-};
-
-// ডাটাকে এক্সেল ফাইল হিসেবে এক্সপোর্ট করা
-window.exportToExcel = function(data, fileName = 'Madrasah_Report.xlsx') {
-    if (!data || data.length === 0) {
-        showToast("এক্সপোর্ট করার মতো কোনো ডাটা পাওয়া যায়নি!", "error");
-        return;
-    }
-    try {
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-        XLSX.writeFile(workbook, fileName);
-        window.addAuditLog('এক্সপোর্ট', 'Excel', fileName);
-        showToast("এক্সেল ফাইলটি সফলভাবে তৈরি হয়েছে।", "success");
-    } catch (err) {
-        showToast("এক্সেল তৈরিতে সমস্যা হয়েছে!", "error");
-    }
-};
-
-// এক্সেল ফাইল থেকে ডাটা রিড করা (ইম্পোর্টের জন্য)
-window.importFromExcel = function(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                resolve(jsonData);
-            } catch (err) {
-                reject("ফাইলটি পড়া সম্ভব হয়নি। সঠিক এক্সেল ফাইল দিন।");
-            }
-        };
-        reader.onerror = (err) => reject("ফাইল লোড এরর!");
-        reader.readAsArrayBuffer(file);
-    });
-};
-
 
 // ============================================
 // ৪. রোল ভিত্তিক নেভিগেশন প্যানেল কন্ট্রোলার (RBAC UI)
@@ -154,18 +89,13 @@ async function fetchLocalFile(url) {
 }
 
 function loadModule(moduleName) {
-
     // ১. ভেরিফিকেশন: ব্যবহারকারী লগইন অবস্থায় আছেন কি না
     const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
     if (!user) {
         window.lockApp();
         return;
     }
-	// loadModule ফাংশনের শুরুতে এটি যোগ করুন
-const sidebar = document.getElementById('sidebar');
-if (window.innerWidth < 768 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
-    window.toggleSidebar(); // মোবাইলে মেনু সিলেক্ট করলে সাইডবার বন্ধ হয়ে যাবে
-}
+
     const role = user.role;
 
     // ২. মডিউল অ্যাক্সেস কন্ট্রোল (শিক্ষকদের জন্য ভর্তি ও তালিকা উন্মুক্ত করা হলো)
@@ -650,24 +580,25 @@ window.checkActiveSession = function() {
     }
 };
 
-// ============================================
-// ১৭. PWA সার্ভিস ওয়ার্কার রেজিস্ট্রেশন (সার্ভার ছাড়াই অফলাইন লোডের জন্য)
-// ============================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-            .catch(err => console.error('Service Worker registration failed:', err));
-    });
-}
-
 window.lockApp = function() {
-    const overlay = document.getElementById('pin-lock-overlay');
-    if (overlay) {
-        overlay.style.display = 'flex'; // পিন লক স্ক্রিন পুনরায় প্রদর্শন
-    }
-    sessionStorage.removeItem('currentUser');
+    sessionStorage.clear();
     window.currentUser = null;
+    const overlay = document.getElementById('pin-lock-overlay');
+    if (overlay) overlay.style.display = 'flex';
+    
+    const userBadge = document.getElementById('user-display-badge');
+    if (userBadge) userBadge.classList.add('hidden');
+    
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+        mainContent.innerHTML = `
+            <div class="flex items-center justify-center h-64 text-gray-400">
+                <div class="text-center">
+                    <i class="fa-solid fa-lock text-5xl text-emerald-600 mb-4 animate-bounce"></i>
+                    <p class="text-lg font-bold">অ্যাপ্লিকেশন লক করা আছে...</p>
+                </div>
+            </div>`;
+    }
 };
 
 // কিবোর্ড ইভেন্ট লিসেনার ও মাউস ইভেন্ট লিসেনার সংযোগ
@@ -683,21 +614,26 @@ window.addEventListener('online', updateConnectionStatus);
 window.addEventListener('offline', updateConnectionStatus);
 
 // ============================================
-// ১৮. PWA কাস্টম পুল-টু-রিফ্রেশ ইঞ্জিন (মোবাইলে নিচে টান দিলে রিলোড হবে)
+// ১৭. PWA কাস্টম পুল-টু-রিফ্রেশ অ্যানিমেশন ইঞ্জিন
 // ============================================
 function initPullToRefresh() {
     const mainContainer = document.querySelector('main');
-    if (!mainContainer) return;
+    const indicator = document.getElementById('pull-to-refresh-indicator');
+    const icon = document.getElementById('refresh-icon');
+    if (!mainContainer || !indicator || !icon) return;
 
     let startY = 0;
     let active = false;
+    let currentPull = 0;
 
-    // টাচ বা টান দেওয়া শুরু করার লিসেনার
+    // টাচ টান দেওয়া শুরু করার লিসেনার
     mainContainer.addEventListener('touchstart', (e) => {
-        // শুধুমাত্র যখন কন্টেইনারের স্ক্রল পজিশন একদম উপরে (scrollTop === 0) থাকবে
+        // শুধুমাত্র যখন কন্টেইনারের স্ক্রল পজিশন একদম উপরে থাকবে
         if (mainContainer.scrollTop === 0) {
             startY = e.touches[0].pageY;
             active = true;
+            indicator.style.transition = 'none'; // টানার সময় ট্রানজিশন অফ থাকবে
+            icon.style.transition = 'none';
         } else {
             active = false;
         }
@@ -709,15 +645,47 @@ function initPullToRefresh() {
         const currentY = e.touches[0].pageY;
         const pullDistance = currentY - startY;
 
-        // ব্যবহারকারী যদি নিচে ১২০ পিক্সেলের বেশি টান বা ড্র্যাগ করেন
-        if (pullDistance > 120) {
-            active = false; // লুপ বা ডাবল রিলোড এড়াতে সাথে সাথে ইন-অ্যাক্টিভ করা
-            showToast("ডাটা রিলোড হচ্ছে...", "info");
-            setTimeout(() => {
-                window.location.reload();
-            }, 600);
+        if (pullDistance > 0) {
+            // টানার অনুভূতি স্বাভাবিক রাখতে রেজিস্ট্যান্স (Dampening) যোগ করা হলো
+            currentPull = Math.min(pullDistance * 0.4, 90); 
+            
+            // ইন্ডিকেটরটিকে স্ক্রিনে নামিয়ে আনা
+            indicator.style.transform = `translateY(${currentPull}px)`;
+            
+            // আইকনটিকে টানার দূরত্বের সাথে ঘোরানো (Rotation Angle)
+            const rotateDeg = currentPull * 4;
+            icon.style.transform = `rotate(${rotateDeg}deg)`;
         }
     }, { passive: true });
+
+    // টাচ ছেড়ে দেওয়ার লিসেনার (অ্যানিমেশন রানিং ও স্পিন লক মেকানিজম)
+    mainContainer.addEventListener('touchend', () => {
+        if (!active) return;
+        active = false;
+
+        // যদি নির্দিষ্ট সীমার বেশি (৬০ পিক্সেল) টানা হয়ে থাকে
+        if (currentPull >= 60) {
+            // ইন্ডিকেটরকে লোডিং পজিশনে লক করা
+            indicator.style.transition = 'transform 0.2s ease';
+            indicator.style.transform = 'translateY(70px)';
+            
+            // স্পিন অ্যানিমেশন ক্লাস চালু
+            icon.style.transition = 'none';
+            icon.classList.add('pull-refresh-spinning');
+            
+            showToast("ডাটা রিলোড হচ্ছে...", "info");
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
+        } else {
+            // যদি টানার সীমা কম হয়, তবে ইন্ডিকেটরকে উপরে ফেরত পাঠানো
+            indicator.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            indicator.style.transform = 'translateY(0px)';
+            icon.style.transform = 'rotate(0deg)';
+            currentPull = 0;
+        }
+    });
 }
 
 // ডোমে লোড হওয়ার পর রিফ্রেশার চালু করা
