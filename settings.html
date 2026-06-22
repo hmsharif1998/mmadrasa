@@ -35,7 +35,7 @@
             <i class="fa-solid fa-sitemap"></i> শাখা ও অ্যাকাডেমিক কাঠামো
         </button>
         <button type="button" onclick="switchTab('fees')" id="tab-btn-fees" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-            <i class="fa-solid fa-wallet"></i> वेतन ও বোর্ডিং গ্রুপ
+            <i class="fa-solid fa-wallet"></i> বেতন ও বোর্ডিং গ্রুপ
         </button>
         <button type="button" onclick="switchTab('users')" id="tab-btn-users" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
             <i class="fa-solid fa-user-gear"></i> ইউজার ম্যানেজমেন্ট (RBAC)
@@ -45,6 +45,10 @@
         </button>
         <button type="button" onclick="switchTab('sync')" id="tab-btn-sync" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
             <i class="fa-solid fa-cloud-arrow-up"></i> সিঙ্ক ও ডায়াগনস্টিকস
+        </button>
+        <!-- অডিট লগ ট্যাব বাটন -->
+        <button type="button" onclick="switchTab('audit')" id="tab-btn-audit" class="w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <i class="fa-solid fa-clock-rotate-left"></i> অ্যাকশন ও অডিট লগ
         </button>
     </div>
 
@@ -177,7 +181,7 @@
             </div>
 
             <!-- -------------------------------------------------- -->
-            <!-- ⚡ ট্যাব ৩: বেতন ও বোর্ডিং গ্রুপ -->
+            <!-- ট্যাব ৩: বেতন ও বোর্ডিং গ্রুপ -->
             <!-- -------------------------------------------------- -->
             <div id="tab-content-fees" class="space-y-4 hidden">
                 <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-1 flex items-center gap-2">
@@ -223,7 +227,7 @@
             </div>
 
             <!-- -------------------------------------------------- -->
-            <!-- 👑 নতুন ট্যাব ৪: ইউজার ম্যানেজমেন্ট ও এক্সেস কন্ট্রোল (RBAC) -->
+            <!-- ট্যাব ৪: ইউজার ম্যানেজমেন্ট ও এক্সেস কন্ট্রোল (RBAC) -->
             <!-- -------------------------------------------------- -->
             <div id="tab-content-users" class="space-y-4 hidden">
                 <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-1 flex items-center gap-2">
@@ -352,6 +356,48 @@
                 </div>
             </div>
 
+            <!-- -------------------------------------------------- -->
+            <!-- 📜 নতুন ট্যাব ৭: অডিট লগ ভিউ (Audit Trails) -->
+            <!-- -------------------------------------------------- -->
+            <div id="tab-content-audit" class="space-y-4 hidden">
+                <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> অ্যাকশন ও অডিট লগ (Audit Trails)
+                </h4>
+                <p class="text-[11px] text-gray-400 mb-3">মাদরাসার প্যানেল ব্যবহারকারীদের সাম্প্রতিক কার্যক্রম ও ডাটাবেজ পরিবর্তনের লগ। শুধুমাত্র মুহতামিম এই সেকশনটি দেখতে পারবেন।</p>
+
+                <div class="flex flex-col md:flex-row gap-2 mb-3">
+                    <input type="text" id="audit-search" oninput="window.filterAuditLogs()" placeholder="ইউজারনেম বা বিবরণ দিয়ে খুঁজুন..." class="px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-emerald-500 flex-1">
+                    <select id="audit-filter-type" onchange="window.filterAuditLogs()" class="px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:border-emerald-500 font-bold text-gray-700">
+                        <option value="all">সকল ক্যাটাগরি</option>
+                        <option value="student">নতুন ভর্তি</option>
+                        <option value="fees">বেতন আদায়</option>
+                        <option value="expense">খরচ এন্ট্রি</option>
+                        <option value="attendance">হাজিরা খাতা</option>
+                    </select>
+                    <button type="button" onclick="window.loadAuditLogs()" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate"></i> রিফ্রেশ
+                    </button>
+                </div>
+
+                <div class="border border-gray-150 rounded-xl overflow-hidden flex flex-col max-h-[400px] overflow-y-auto custom-scroll">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">সময় ও তারিখ</th>
+                                <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">ইউজারনেম</th>
+                                <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">অ্যাকশন টাইপ</th>
+                                <th class="px-4 py-2.5 text-left text-[11px] font-bold text-gray-400 uppercase">বিবরণ / বিস্তারিত</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-logs-table-body" class="bg-white divide-y divide-gray-50 text-xs">
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-400">অডিট লগ লোড হচ্ছে...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- কনফিগারেশন সাবমিট বাটন -->
             <div class="flex gap-2 pt-4 border-t bg-white">
                 <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md shadow-emerald-700/10">
@@ -369,6 +415,7 @@
 (function() {
     let academicStructure = [];
     let feeGroups = [];
+    let rawAuditLogs = []; // ডাইনামিক ফিল্টারড লগের জন্য
 
     let selectedBranchId = null;
     let selectedDeptId = null;
@@ -383,7 +430,7 @@
 
     // ট্যাব সুইচিং কন্ট্রোলার
     window.switchTab = function(tabName) {
-        const tabs = ['general', 'academic', 'fees', 'users', 'security', 'sync'];
+        const tabs = ['general', 'academic', 'fees', 'users', 'security', 'sync', 'audit'];
         tabs.forEach(tab => {
             const btn = document.getElementById(`tab-btn-${tab}`);
             const content = document.getElementById(`tab-content-${tab}`);
@@ -397,6 +444,11 @@
                 }
             }
         });
+
+        // অডিট লগ ট্যাব ওপেন হলে ডাটাবেজ থেকে অ্যাকশন ট্রেইল গ্রুপ আকারে লোড হবে
+        if (tabName === 'audit') {
+            window.loadAuditLogs();
+        }
     };
 
     // লোগো ইউআরএল প্রিভিউ আপডেট
@@ -770,7 +822,7 @@
     };
 
     // --------------------------------------------------
-    // 👑 নতুন ডাইনামিক ইউজার ম্যানেজমেন্ট কোড (RBAC Engine)
+    // ইউজার ম্যানেজমেন্ট কোড (RBAC Engine)
     // --------------------------------------------------
     window.renderUsersTable = async function() {
         const tbody = document.getElementById('users-manage-table');
@@ -937,7 +989,6 @@
             });
             showToast("ইউজার সফলভাবে মুছে ফেলা হয়েছে।", "success");
 
-            // এডিট মুডে রানিং থাকলে রিসেট
             if (document.getElementById('editing-username').value === username) {
                 cancelUserEdit();
             }
@@ -956,6 +1007,175 @@
             console.error("মুছে ফেলতে ব্যর্থ:", err);
             showToast("ইউজারটি মুছে ফেলা সম্ভব হয়নি।", "error");
         }
+    };
+
+    // --------------------------------------------------
+    // ডাইনামিক অডিট ট্রেইলস ইঞ্জিন (Audit Log Aggregator)
+    // --------------------------------------------------
+    window.loadAuditLogs = async function() {
+        const tbody = document.getElementById('audit-logs-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                    <i class="fa-solid fa-spinner animate-spin"></i> ডাটাবেজ থেকে অডিট ট্রেইল সংগ্রহ করা হচ্ছে...
+                </td>
+            </tr>`;
+
+        try {
+            const logs = [];
+
+            // ১. তালিবে ইলম (শিক্ষার্থী) টেবিল থেকে ডেটা সংগ্রহ
+            const students = await db.students.toArray();
+            students.forEach(s => {
+                if (s.admission_date) {
+                    const dateObj = new Date(s.admission_date);
+                    logs.push({
+                        timestamp: isNaN(dateObj.getTime()) ? Date.now() : dateObj.getTime(),
+                        formattedDate: s.admission_date,
+                        user: s.updated_by || s.created_by || 'system',
+                        action: s.updated_by && s.updated_by !== s.created_by ? 'তথ্য সংশোধন' : 'নতুন ভর্তি',
+                        details: `শিক্ষার্থী '${s.name}' (আইডি: ${s.id}, জামাত: ${s.class}, রোল: ${s.roll || '-'}) এর তথ্য সংরক্ষণ করা হয়েছে।`,
+                        type: 'student'
+                    });
+                }
+            });
+
+            // ২. রসিদ আদায় টেবিল থেকে ডেটা সংগ্রহ (রসিদ তৈরির সঠিক সময়সহ)
+            const fees = await db.fees.toArray();
+            fees.forEach(f => {
+                let timestamp = Date.now();
+                let formattedDate = f.payment_date || '';
+                if (f.receipt_id && f.receipt_id.startsWith('R-')) {
+                    const parsedTs = parseInt(f.receipt_id.split('-')[1]);
+                    if (!isNaN(parsedTs)) {
+                        timestamp = parsedTs;
+                        formattedDate = new Date(parsedTs).toLocaleString('bn-BD');
+                    }
+                } else if (f.payment_date) {
+                    timestamp = new Date(f.payment_date).getTime() || Date.now();
+                }
+
+                logs.push({
+                    timestamp: timestamp,
+                    formattedDate: formattedDate,
+                    user: f.updated_by || f.created_by || 'system',
+                    action: f.updated_by && f.updated_by !== f.created_by ? 'রসিদ সংশোধন' : 'বেতন আদায়',
+                    details: `রসিদ নং ${f.receipt_id}: ছাত্র '${f.student_name}' (ID: ${f.student_id})-এর ${f.month} মাসের বেতন ৳${f.total || f.amount} আদায় করা হয়েছে।`,
+                    type: 'fees'
+                });
+            });
+
+            // ৩. খরচ এন্ট্রি টেবিল থেকে ডেটা সংগ্রহ
+            const expenses = await db.expenses.toArray();
+            expenses.forEach(e => {
+                let timestamp = Date.now();
+                let formattedDate = e.date || '';
+                if (e.expense_id && e.expense_id.startsWith('EXP-')) {
+                    const parsedId = parseInt(e.expense_id.replace('EXP-', ''));
+                    if (!isNaN(parsedId)) {
+                        timestamp = parsedId; 
+                    }
+                }
+                const dObj = new Date(e.date);
+                const computedTime = isNaN(dObj.getTime()) ? Date.now() : dObj.getTime();
+
+                logs.push({
+                    timestamp: computedTime,
+                    formattedDate: e.date || '',
+                    user: e.updated_by || e.created_by || 'system',
+                    action: e.updated_by && e.updated_by !== e.created_by ? 'ভাউচার সংশোধন' : 'খরচ এন্ট্রি',
+                    details: `ভাউচার নং ${e.expense_id}: ${e.category} খাতে ৳${e.amount} খরচ পরিশোধ করা হয়েছে (প্রাপক: ${e.paid_to})।`,
+                    type: 'expense'
+                });
+            });
+
+            // ৪. হাজিরা গ্রুপ ট্র্যাকার (স্মার্ট গ্রুপড রেন্ডারিং - flood রোধক)
+            const attendances = await db.attendance.toArray();
+            const attGroupMap = {};
+
+            attendances.forEach(a => {
+                const key = `${a.date}_${a.updated_by || a.created_by || 'system'}`;
+                if (!attGroupMap[key]) {
+                    attGroupMap[key] = {
+                        date: a.date,
+                        user: a.updated_by || a.created_by || 'system',
+                        count: 0
+                    };
+                }
+                attGroupMap[key].count++;
+            });
+
+            for (let key in attGroupMap) {
+                const group = attGroupMap[key];
+                const dateObj = new Date(group.date);
+                logs.push({
+                    timestamp: isNaN(dateObj.getTime()) ? Date.now() : dateObj.getTime(),
+                    formattedDate: group.date,
+                    user: group.user,
+                    action: 'হাজিরা খাতা',
+                    details: `তারিখ ${group.date}: এই দিনের মোট ${group.count} জন শিক্ষার্থীর হাজিরা ডাটাবেজে সংরক্ষণ/আপডেট করা হয়েছে।`,
+                    type: 'attendance'
+                });
+            }
+
+            // কালানুক্রমিকভাবে সাজানো (Newest First)
+            logs.sort((a, b) => b.timestamp - a.timestamp);
+            rawAuditLogs = logs;
+
+            window.filterAuditLogs();
+
+        } catch (err) {
+            console.error("অডিট ট্রেইল লোডে ব্যর্থ:", err);
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-red-500 font-bold">অডিট লগ প্রসেস করতে ত্রুটি হয়েছে।</td></tr>`;
+        }
+    };
+
+    window.filterAuditLogs = function() {
+        const tbody = document.getElementById('audit-logs-table-body');
+        if (!tbody) return;
+
+        const searchQuery = document.getElementById('audit-search').value.toLowerCase().trim();
+        const filterType = document.getElementById('audit-filter-type').value;
+
+        let filtered = rawAuditLogs;
+
+        if (filterType !== 'all') {
+            filtered = filtered.filter(l => l.type === filterType);
+        }
+
+        if (searchQuery) {
+            filtered = filtered.filter(l => 
+                l.user.toLowerCase().includes(searchQuery) || 
+                l.details.toLowerCase().includes(searchQuery) ||
+                l.action.toLowerCase().includes(searchQuery)
+            );
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400">কোনো কাজের লগ খুঁজে পাওয়া যায়নি।</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        filtered.forEach(l => {
+            let badgeClass = 'bg-gray-100 text-gray-800';
+            if (l.type === 'student') badgeClass = 'bg-blue-100 text-blue-800';
+            else if (l.type === 'fees') badgeClass = 'bg-emerald-100 text-emerald-800';
+            else if (l.type === 'expense') badgeClass = 'bg-rose-100 text-rose-800';
+            else if (l.type === 'attendance') badgeClass = 'bg-amber-100 text-amber-800';
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 border-b border-gray-100 transition";
+            tr.innerHTML = `
+                <td class="px-4 py-3 font-semibold text-gray-500 font-en whitespace-nowrap">${l.formattedDate}</td>
+                <td class="px-4 py-3 font-bold text-gray-700 font-en">${l.user}</td>
+                <td class="px-4 py-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${l.action}</span></td>
+                <td class="px-4 py-3 text-gray-600 font-medium leading-relaxed">${l.details}</td>
+            `;
+            tbody.appendChild(tr);
+        });
     };
 
     // --------------------------------------------------
@@ -1036,7 +1256,7 @@
         }
     };
 
-    // সেটিংস ইনিশিয়ালাইজেশন মেইন গেটওয়ে
+    // সেটিংস সেটিংস ইনিশিয়ালাইজেশন মেইন গেটওয়ে
     window.initSettings = async function() {
         try {
             const config = await db.settings.get('madrasah_config_block') || {};

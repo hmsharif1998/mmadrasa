@@ -1,7 +1,7 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    #fees-container {
+    #fees-container, #print-header {
         font-family: 'Hind Siliguri', 'Inter', sans-serif;
     }
     .font-en {
@@ -10,39 +10,35 @@
     .font-mono-receipt {
         font-family: 'JetBrains Mono', monospace;
     }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
 
     /* ========================================================= */
-    /* থার্মাল রোল পেপার (80mm/58mm standard) প্রিন্ট অপ্টিমাইজেশন */
+    /* ৮০মিমি থার্মাল স্লিপ এবং এ৪/এ৫ তালিকা প্রিন্ট আইসোলেশন */
     /* ========================================================= */
     @media print {
-        @page {
-            size: 80mm auto !important; /* ৮০মিমি স্ট্যান্ডার্ড থার্মাল রোল */
-            margin: 0 !important;
-        }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        body * {
+
+        /* ১. ৮০মিমি থার্মাল রোল প্রিন্ট মোড */
+        body.print-mode-thermal * {
             visibility: hidden !important;
         }
-        #sidebar, header, #fees-container, .no-print, button, .border-t {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        html, body, main, #main-content {
-            height: auto !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            display: block !important;
-            background: white !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        #receipt-modal {
+        body.print-mode-thermal #receipt-modal,
+        body.print-mode-thermal #receipt-modal *,
+        body.print-mode-thermal #receipt-print-area,
+        body.print-mode-thermal #receipt-print-area * {
             visibility: visible !important;
+        }
+        body.print-mode-thermal #receipt-modal {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
@@ -51,31 +47,76 @@
             background: white !important;
             border: none !important;
             box-shadow: none !important;
-            margin: 0 !important;
             padding: 0 !important;
+            margin: 0 !important;
         }
-        #receipt-print-area {
-            visibility: visible !important;
+        body.print-mode-thermal #receipt-print-area {
             width: 80mm !important;
             box-sizing: border-box !important;
             padding: 4mm !important;
-            margin: 0 !important;
-            background: white !important;
         }
-        #receipt-print-area * {
+
+        /* ২. এ৪/এ৫ ভাউচার তালিকা রিপোর্ট প্রিন্ট মোড */
+        body.print-mode-a4-list *,
+        body.print-mode-a5-list * {
+            visibility: hidden !important;
+        }
+        body.print-mode-a4-list #print-header,
+        body.print-mode-a4-list #print-header *,
+        body.print-mode-a4-list #fees-list-container,
+        body.print-mode-a4-list #fees-list-container *,
+        body.print-mode-a5-list #print-header,
+        body.print-mode-a5-list #print-header *,
+        body.print-mode-a5-list #fees-list-container,
+        body.print-mode-a5-list #fees-list-container * {
             visibility: visible !important;
         }
-        .no-print, button, .no-print * {
+        body.print-mode-a4-list #print-header,
+        body.print-mode-a5-list #print-header {
+            display: block !important;
+            margin-bottom: 5mm !important;
+            text-align: center !important;
+        }
+        body.print-mode-a4-list #fees-list-container,
+        body.print-mode-a5-list #fees-list-container {
+            position: absolute !important;
+            left: 0 !important;
+            top: 40mm !important;
+            width: 100% !important;
+            display: block !important;
+            background: white !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        body.print-mode-a4-list .no-print,
+        body.print-mode-a5-list .no-print {
             display: none !important;
             visibility: hidden !important;
+        }
+        body.print-mode-a5-list #fees-list-container {
+            top: 25mm !important;
+            font-size: 9px !important;
+        }
+        body.print-mode-a5-list #fees-list-container th,
+        body.print-mode-a5-list #fees-list-container td {
+            padding: 1.5mm 1mm !important;
         }
     }
 </style>
 
+<!-- প্রিন্ট করার সময় রিপোর্টের শিরোনাম দেখানোর জন্য হেডার (A4/A5) -->
+<div id="print-header" class="hidden text-center border-b pb-4 mb-5">
+    <h2 id="print-madrasah-name" class="text-2xl font-bold text-emerald-800">মাদরাসাতুল মদিনা</h2>
+    <p id="print-madrasah-address" class="text-xs text-gray-500">ঢাকা, বাংলাদেশ</p>
+    <h3 class="text-sm font-bold mt-2 text-gray-700">বেতন আদায়ের সাম্প্রতিক রিপোর্ট তালিকা</h3>
+</div>
+
 <div id="fees-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-300">
 
     <!-- বেতন আদায় ফরম -->
-    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-gray-100 h-fit relative">
+    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-gray-100 h-fit relative no-print">
         <h3 id="fee-form-title" class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2 border-b pb-3">
             <i class="fa-solid fa-money-bill-wave text-emerald-600 text-2xl"></i> নতুন বেতন কালেকশন
         </h3>
@@ -116,7 +157,7 @@
                            class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-1">বিশেষ ছাড় (-)</label>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">विशेष ছাড় (-)</label>
                     <input type="text" id="fee-discount" placeholder="০" min="0" value="0" 
                            oninput="this.value = window.convertToEnglishDigits(this.value); window.calculateTotal();"
                            class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-sm font-bold font-en bg-white">
@@ -186,13 +227,42 @@
     </div>
 
     <!-- সাম্প্রতিক বেতন আদায়ের তালিকা -->
-    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col no-print">
-        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
-            <i class="fa-solid fa-receipt text-emerald-600 text-2xl"></i> সাম্প্রতিক বেতন আদায়ের তালিকা
-        </h3>
+    <div id="fees-list-container" class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 mb-4">
+            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-receipt text-emerald-600 text-2xl"></i> সাম্প্রতিক বেতন আদায়ের তালিকা
+            </h3>
+            
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto no-print">
+                <!-- এক্সেল ইম্পোর্ট ফাইল ইনপুট (লুকানো) -->
+                <input type="file" id="import-excel-file" accept=".xlsx, .xls" class="hidden" onchange="window.importFromExcel(event)">
+                
+                <!-- এক্সেল ইম্পোর্ট বাটন -->
+                <button type="button" onclick="document.getElementById('import-excel-file').click()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-import text-blue-600"></i> Excel ইম্পোর্ট
+                </button>
+                
+                <!-- এক্সেল এক্সপোর্ট বাটন -->
+                <button type="button" onclick="window.exportToExcel()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-export text-amber-600"></i> Excel এক্সপোর্ট
+                </button>
+
+                <!-- প্রিন্ট সাইজ ড্রপডাউন -->
+                <select id="print-size-selector" class="bg-gray-150 text-gray-700 px-2 py-2.5 rounded-xl text-xs font-bold border border-gray-200 shadow-sm focus:outline-none">
+                    <option value="A4">A4 সাইজ (Portrait)</option>
+                    <option value="A5">A5 সাইজ (Landscape)</option>
+                </select>
+
+                <!-- প্রিন্ট বাটন -->
+                <button type="button" onclick="window.printFeesList()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-700/10">
+                    <i class="fa-solid fa-print"></i> তালিকা প্রিন্ট
+                </button>
+            </div>
+        </div>
 
         <!-- ফিল্টারসমূহ -->
-        <div class="mb-5 flex flex-col sm:flex-row gap-3">
+        <div class="mb-5 flex flex-col sm:flex-row gap-3 no-print">
             <div class="relative flex-1">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -220,8 +290,8 @@
             </div>
         </div>
 
-        <!-- রেসপনসিভ টেবিল কন্টেইনার -->
-        <div class="overflow-x-auto flex-1 rounded-xl border border-gray-100 max-h-[500px] overflow-y-auto custom-scroll">
+        <!-- ডেক্সটপ টেবিল ভিউ -->
+        <div class="hidden md:block overflow-x-auto flex-1 rounded-xl border border-gray-100 max-h-[500px] overflow-y-auto custom-scroll">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50 font-bold">
                 <tr>
@@ -231,12 +301,16 @@
                     <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">হিসাব বিবরণী</th>
                     <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">মোট আদায়</th>
                     <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                    <th class="px-4 py-3 text-left text-[11px] text-gray-400 uppercase tracking-wider no-print">অ্যাকশন</th>
                 </tr>
                 </thead>
                 <tbody id="fees-table-body" class="bg-white divide-y divide-gray-100 text-xs">
                 </tbody>
             </table>
+        </div>
+
+        <!-- মোবাইলের জন্য কাস্টম কার্ড ভিউ -->
+        <div id="fees-mobile-cards" class="block md:hidden space-y-3 max-h-[600px] overflow-y-auto pr-1 custom-scroll">
         </div>
     </div>
 
@@ -245,7 +319,7 @@
 <!-- ============================================ -->
 <!-- থার্মাল স্লিপ প্রিন্ট মডাল পপআপ -->
 <!-- ============================================ -->
-<div id="receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+<div id="receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative border border-gray-150 flex flex-col max-h-[90vh]">
         
          <div class="overflow-y-auto flex-1 custom-scroll pr-1">
@@ -272,6 +346,7 @@
 (function() {
     let allActiveStudents = [];
     let activePrintedFee = null; 
+    let filteredFeesArray = []; // ফিল্টারকৃত আদায়ের ক্যাশ মেমরি
 
     // ১. গ্লোবাল উইন্ডো অবজেক্টে মূল ইনিশিয়ালাইজার বাইন্ডিং
     window.initFees = async function() {
@@ -281,6 +356,14 @@
         if (dateInput) {
             dateInput.value = new Date().toISOString().split('T')[0];
         }
+
+        const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const address = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
+        
+        const pName = document.getElementById('print-madrasah-name');
+        const pAddr = document.getElementById('print-madrasah-address');
+        if (pName) pName.textContent = name;
+        if (pAddr) pAddr.textContent = address;
 
         await loadActiveStudents();
         await window.renderFeesList();
@@ -367,7 +450,6 @@
                         }
                     }
 
-                    // রিয়েল-টাইম পেন্ডিং কাউন্টার ট্রিগার
                     if (typeof updatePendingCount === 'function') {
                         await updatePendingCount();
                     }
@@ -529,10 +611,11 @@
         window.renderFeesList(searchQuery, monthQuery);
     };
 
-    // ৪. বেতন আদায়ের তালিকা রেন্ডারার
+    // ৪. বেতন আদায়ের তালিকা ও মোবাইল কার্ড রেন্ডারার
     window.renderFeesList = async function(searchQuery = '', monthQuery = '') {
         const tableBody = document.getElementById('fees-table-body');
-        if (!tableBody) return;
+        const mobileContainer = document.getElementById('fees-mobile-cards');
+        if (!tableBody || !mobileContainer) return;
 
         try {
             let fees = await db.fees.reverse().toArray();
@@ -549,6 +632,8 @@
                 fees = fees.filter(fee => fee.month === monthQuery);
             }
 
+            filteredFeesArray = fees; // এক্সেল ও প্রিন্টের জন্য গ্লোবাল স্টেট আপডেট
+
             if (fees.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
@@ -556,10 +641,16 @@
                             কোনো বেতন আদায়ের তথ্য পাওয়া যায়নি।
                         </td>
                     </tr>`;
+                mobileContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400 font-bold">
+                        কোনো পেমেন্ট তথ্য পাওয়া যায়নি
+                    </div>`;
                 return;
             }
 
             let htmlContent = '';
+            let mobileHtml = '';
+
             fees.forEach(fee => {
                 const syncStatusBadge = fee.is_synced === 1
                     ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
@@ -587,6 +678,7 @@
                     methodBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">ক্যাশ</span>`;
                 }
 
+                // ডেস্কটপ রো রেন্ডারিং
                 htmlContent += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                         <td class="px-4 py-3 text-xs font-bold font-en text-gray-700">
@@ -607,7 +699,7 @@
                             ${showFineDiscount}
                         </td>
                         <td class="px-4 py-3 text-xs">${syncStatusBadge}</td>
-                        <td class="px-4 py-3 text-xs">
+                        <td class="px-4 py-3 text-xs no-print">
                             <div class="flex gap-1.5">
                                 <button onclick="window.showReceiptModalFromList('${fee.receipt_id}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 rounded hover:bg-emerald-50 transition" title="রসিদ প্রিন্ট">
                                     <i class="fa-solid fa-print"></i>
@@ -621,9 +713,53 @@
                             </div>
                         </td>
                     </tr>`;
+
+                // মোবাইল কার্ড ভিউ রেন্ডারিং
+                mobileHtml += `
+                    <div class="p-4 rounded-xl border border-gray-100 bg-white shadow-sm space-y-2 text-gray-700">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h5 class="font-bold text-gray-800 text-sm">${fee.student_name}</h5>
+                                <p class="text-[10px] text-gray-400 font-bold">রোল: ${fee.student_roll || '-'} | ID: ${fee.student_id}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-emerald-800 text-sm font-en">৳ ${fee.total || fee.amount}</span>
+                                <p class="text-[9px] text-gray-400 font-en">রসিদ: ${fee.receipt_id}</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-dashed pt-2 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="text-gray-400 font-bold">মাস:</span> 
+                                <span class="font-semibold text-gray-700">${fee.month}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 font-bold">তারিখ:</span> 
+                                <span class="font-semibold font-en text-gray-700">${fee.payment_date}</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 text-[11px]">
+                            <div class="flex gap-1.5 items-center">
+                                ${methodBadge}
+                                ${syncStatusBadge}
+                            </div>
+                            <div class="flex gap-1.5 no-print">
+                                <button onclick="window.showReceiptModalFromList('${fee.receipt_id}')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg border border-emerald-100 transition" title="রসিদ প্রিন্ট">
+                                    <i class="fa-solid fa-print"></i>
+                                </button>
+                                <button onclick="window.editFee('${fee.receipt_id}')" class="bg-blue-50 text-blue-600 p-1.5 rounded-lg border border-blue-100 transition" title="সংশোধন">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="window.deleteFee('${fee.receipt_id}')" class="bg-red-50 text-red-600 p-1.5 rounded-lg border border-red-100 transition" title="মুছে ফেলুন">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${fee.note ? `<div class="text-[10px] text-gray-400 italic bg-gray-50 p-1.5 rounded-lg">নোট: ${fee.note}</div>` : ''}
+                    </div>`;
             });
 
             tableBody.innerHTML = htmlContent;
+            mobileContainer.innerHTML = mobileHtml;
 
         } catch (err) {
             console.error("ফি আদায়ের তালিকা রেন্ডার করতে সমস্যা হয়েছে:", err);
@@ -712,7 +848,6 @@
                 window.cancelFeeEdit();
             }
 
-            // রিয়েল-টাইম পেন্ডিং কাউন্টার ট্রিগার
             if (typeof updatePendingCount === 'function') {
                 await updatePendingCount();
             }
@@ -738,6 +873,154 @@
         
         document.body.classList.add('print-mode-thermal');
         window.print();
+    };
+
+    // ৫.১. ভাউচার তালিকা প্রিন্ট কন্ট্রোলার (A4/A5 PDF List Wrapper)
+    window.printFeesList = function() {
+        const printSize = document.getElementById('print-size-selector').value;
+        
+        const oldStyle = document.getElementById('dynamic-print-page-style');
+        if (oldStyle) oldStyle.remove();
+
+        const styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-print-page-style';
+        
+        if (printSize === 'A4') {
+            document.body.classList.add('print-mode-a4-list');
+            styleEl.innerHTML = `
+                @media print {
+                    @page {
+                        size: A4 portrait !important;
+                        margin: 10mm !important;
+                    }
+                }
+            `;
+        } else if (printSize === 'A5') {
+            document.body.classList.add('print-mode-a5-list');
+            styleEl.innerHTML = `
+                @media print {
+                    @page {
+                        size: A5 landscape !important;
+                        margin: 5mm !important;
+                    }
+                }
+            `;
+        }
+        
+        document.head.appendChild(styleEl);
+        
+        const cleanPrintClass = () => {
+            document.body.classList.remove('print-mode-a4-list', 'print-mode-a5-list');
+            const dynamicStyle = document.getElementById('dynamic-print-page-style');
+            if (dynamicStyle) dynamicStyle.remove();
+        };
+        window.addEventListener('afterprint', cleanPrintClass, { once: true });
+        window.print();
+    };
+
+    // ৫.২. এক্সেল এক্সপোর্ট মেকানিজম (Excel Export Engine)
+    window.exportToExcel = function() {
+        if (filteredFeesArray.length === 0) {
+            showToast("কোনো আদায়ের তথ্য পাওয়া যায়নি!", "error");
+            return;
+        }
+        
+        const data = filteredFeesArray.map(f => ({
+            'Receipt ID': f.receipt_id,
+            'Student ID': f.student_id,
+            'Student Name': f.student_name,
+            'Roll': f.student_roll,
+            'Class': f.student_class,
+            'Amount': f.amount,
+            'Fine': f.fine,
+            'Discount': f.discount,
+            'Total': f.total,
+            'Month': f.month,
+            'Method': f.method,
+            'Payment Date': f.payment_date,
+            'Note': f.note || ''
+        }));
+
+        try {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Fees");
+            XLSX.writeFile(wb, "Fees_Collection_List.xlsx");
+            showToast("এক্সেল ফাইল ডাউনলোড শুরু হয়েছে।", "success");
+        } catch (err) {
+            console.error(err);
+            showToast("এক্সেল তৈরি করতে সমস্যা হয়েছে!", "error");
+        }
+    };
+
+    // ৫.৩. এক্সেল ইম্পোর্ট মেকানিজম (Excel Import Engine)
+    window.importFromExcel = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                if (jsonData.length === 0) {
+                    showToast("এক্সেল ফাইলে কোনো ডাটা পাওয়া যায়নি!", "error");
+                    return;
+                }
+
+                const importData = [];
+                const curUser = window.currentUser ? window.currentUser.username : "system";
+
+                for (let i = 0; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    const rId = row['Receipt ID'] ? row['Receipt ID'].toString() : 'R-' + (Date.now() + i) + '-' + Math.floor(Math.random() * 105);
+                    const sId = row['Student ID'] ? row['Student ID'].toString() : '';
+                    
+                    if (!sId) continue; // Student ID না থাকলে ইম্পোর্ট স্কিপ হবে
+
+                    const amt = parseFloat(row['Amount']) || 0;
+                    const fine = parseFloat(row['Fine']) || 0;
+                    const disc = parseFloat(row['Discount']) || 0;
+                    const tot = parseFloat(row['Total']) || (amt + fine - disc);
+
+                    importData.push({
+                        receipt_id: rId,
+                        student_id: sId,
+                        student_name: (row['Student Name'] || 'অজানা').toString(),
+                        student_class: (row['Class'] || '').toString(),
+                        student_roll: parseInt(row['Roll']) || 0,
+                        amount: amt,
+                        fine: fine,
+                        discount: disc,
+                        total: tot,
+                        month: (row['Month'] || '').toString(),
+                        method: (row['Method'] || 'ক্যাশ').toString(),
+                        payment_date: (row['Payment Date'] || new Date().toISOString().split('T')[0]).toString(),
+                        note: (row['Note'] || '').toString(),
+                        is_synced: 0,
+                        is_deleted: 0,
+                        created_by: curUser,
+                        updated_by: curUser
+                    });
+                }
+
+                await db.fees.bulkPut(importData);
+                showToast(`${importData.length}টি পেমেন্ট রেকর্ড ইমপোর্ট হয়েছে!`, "success");
+                event.target.value = ''; // ইনপুট রিসেট
+
+                if (typeof updatePendingCount === 'function') {
+                    await updatePendingCount();
+                }
+                await window.initFees();
+            } catch (err) {
+                console.error(err);
+                showToast("ফাইল ইমপোর্ট করতে সমস্যা হয়েছে!", "error");
+            }
+        };
+        reader.readAsArrayBuffer(file);
     };
 
     window.showReceiptModal = async function(receiptId) {
