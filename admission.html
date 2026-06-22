@@ -216,7 +216,10 @@
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="block text-sm font-bold text-gray-500">হোয়াটসঅ্যাপ নম্বর</label>
-                            <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-gray-400 font-bold"><input type="checkbox" id="chk-col-parents" checked onchange="window.toggleColumn('col-parents')" class="rounded text-emerald-600"> পিতা ও মাতা</label>
+                            <label class="inline-flex items-center gap-1 cursor-pointer text-[10px] text-emerald-700 font-bold">
+                                <input type="checkbox" id="same-as-mobile" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="window.toggleWhatsappSync()">
+                                <span>একই নাম্বার</span>
+                            </label>
                         </div>
                         <input type="tel" id="student-whatsapp" placeholder="017XXXXXXXX" maxlength="11"
                                oninput="this.value = window.convertToEnglishDigits(this.value)"
@@ -301,7 +304,7 @@
             </div>
         </div>
 
-        <!-- রেসপনসিভ ডেক্সটপ টেবিল কন্টেইনার -->
+        <!-- রেসপনসিভ টেবিল কন্টেইনার -->
         <div class="hidden md:block overflow-x-auto flex-1 max-h-[400px] overflow-y-auto rounded-xl border border-gray-100 custom-scroll">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50 sticky top-0 z-10">
@@ -319,7 +322,7 @@
             </table>
         </div>
 
-        <!-- মোবাইলের জন্য টাচ-ফ্রেন্ডলি কার্ড ভিউ -->
+        <!-- মোবাইলের জন্য কাস্টম কার্ড ভিউ -->
         <div id="students-mobile-cards" class="block md:hidden space-y-3 max-h-[400px] overflow-y-auto pr-1 custom-scroll">
         </div>
     </div>
@@ -575,7 +578,7 @@
         });
     }
 
-    window.onDeptChange = function(id) {
+    window.onDeptChange = async function(id) {
         selectedDeptId = id;
         selectedClassId = "";
         selectedGroupId = "";
@@ -588,6 +591,13 @@
 
         renderDynamicDepartments();
         renderDynamicClasses();
+
+        // ডাইনামিক আইডি জেনারেট ট্রিগার (সেটিংস থেকে আইডি বেস তুলে নেওয়ার মান পাঠানো হচ্ছে)
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const deptObj = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        if (deptObj) {
+            await generateIdAndSerial(deptObj.name);
+        }
     };
 
     function renderDynamicClasses() {
@@ -751,8 +761,8 @@
         }
     };
 
-    // ৪. আইডি ও সিরিয়াল নির্ধারণ
-    async function generateIdAndSerial() {
+    // ৪. ডাইনামিক কনফিগ আইডি ও সিরিয়াল নির্ধারণ
+    async function generateIdAndSerial(deptName = "") {
         try {
             const students = await db.students.toArray();
             const maxSerial = students.reduce((max, s) => ((s.serial_no || 0) > max ? s.serial_no : max), 0);
@@ -762,10 +772,48 @@
             const sId = document.getElementById('student-id');
             
             if (sSerial) sSerial.value = nextSerial;
+            if (!sId) return;
+
+            if (!deptName) {
+                sId.value = "S-XXXX"; // বিভাগ সিলেক্টের আগে টেম্পোরারি হোল্ডার
+                return;
+            }
+
+            // ডাটাবেজের সেটিংস থেকে ডাইনামিক আইডি বেস অবজেক্ট ডিকোড
+            const config = await db.settings.get('madrasah_config_block') || {};
+            const localAcademicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
             
-            const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
-            const generatedId = "S-" + (10000 + nextSerial) + "-" + randomSuffix;
-            if (sId) sId.value = generatedId;
+            let baseNumber = 1000; // ডিফল্ট ব্যাকআপ মান
+            
+            let foundDept = null;
+            for (let b of localAcademicStructure) {
+                const d = b.departments.find(dept => dept.name === deptName);
+                if (d) {
+                    foundDept = d;
+                    break;
+                }
+            }
+            
+            if (foundDept && foundDept.start_id) {
+                baseNumber = parseInt(foundDept.start_id);
+            }
+
+            let maxIdForDept = baseNumber;
+            students.forEach(s => {
+                if (s.department === deptName && s.is_deleted !== 1) {
+                    const match = s.id.match(/\d+/);
+                    if (match) {
+                        const num = parseInt(match[0]);
+                        if (!isNaN(num) && num > maxIdForDept) {
+                            maxIdForDept = num;
+                        }
+                    }
+                }
+            });
+
+            const nextIdNumber = maxIdForDept + 1;
+            sId.value = "S-" + nextIdNumber;
+
         } catch (err) {
             console.error("আইডি ও সিরিয়াল নম্বর জেনারেট করতে ব্যর্থ:", err);
         }
@@ -1211,10 +1259,10 @@
         if (modal) modal.classList.remove('hidden');
     };
 
-    window.showReceiptModalFromList = async function(id) {
-        const student = await db.students.get(id);
-        if (student) {
-            window.showReceiptModal(student);
+    window.showReceiptModalFromList = async function(studentId) {
+        const studentObj = await db.students.get(studentId);
+        if (studentObj) {
+            window.showReceiptModal(studentObj);
         }
     };
 
