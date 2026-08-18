@@ -1,282 +1,70 @@
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    #student-list-container, #profile-modal {
-        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+<!-- Google Fonts & html2pdf.js CDN -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    #student-list-container, #profile-modal, .bangla-font {
+        font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
     .font-en {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif !important;
     }
     .font-mono-receipt {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace !important;
     }
     .custom-scroll::-webkit-scrollbar {
         width: 4px;
+        height: 4px;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
         background-color: #cbd5e1;
         border-radius: 4px;
     }
-
-    /* ========================================================= */
-    /* A4 এবং A5 (একক বায়োডাটা ও তালিকা) প্রিন্ট অপ্টিমাইজেশন */
-    /* ========================================================= */
-    @media print {
-        * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
-        /* সাধারণ রিপোর্ট প্রিন্ট করার সিএসএস */
-        html, body, main, #main-content, #student-list-container {
-            height: auto !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            display: block !important;
-            background: white !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        body * {
-            visibility: hidden !important;
-        }
-        #print-header, #print-header *, #student-list-table-container, #student-list-table-container * {
-            visibility: visible !important;
-        }
-        #print-header {
-            display: block !important;
-            margin-bottom: 5mm !important;
-        }
-        #student-list-table-container {
-            position: absolute !important;
-            left: 0 !important;
-            top: 40mm !important;
-            width: 100% !important;
-            display: block !important;
-        }
-        .no-print, button, .border-b, #column-chooser-wrapper, #profile-modal, #pagination-wrapper, select, input {
-            display: none !important;
-            visibility: hidden !important;
-        }
-
-        /* A5 landscape list style */
-        body.print-mode-a5-list #print-header {
-            display: block !important;
-            visibility: visible !important;
-            text-align: center !important;
-            border-bottom: 2px solid #000000 !important;
-            padding-bottom: 2mm !important;
-            margin-bottom: 3mm !important;
-        }
-        body.print-mode-a5-list #student-list-table-container {
-            position: absolute !important;
-            left: 0 !important;
-            top: 25mm !important;
-            width: 100% !important;
-            display: block !important;
-            font-size: 9px !important;
-        }
-        body.print-mode-a5-list #student-list-table-container th,
-        body.print-mode-a5-list #student-list-table-container td {
-            padding: 1.5mm 1mm !important;
-        }
-
-        /* একক শিক্ষার্থীর বায়োডাটা প্রিন্ট (A5 portrait) */
-        body.print-single-biodata {
-            height: auto !important;
-            overflow: visible !important;
-            background: white !important;
-        }
-        body.print-single-biodata @page {
-            size: A5 portrait !important;
-            margin: 0 !important;
-        }
-        body.print-single-biodata #student-list-container,
-        body.print-single-biodata #sidebar,
-        body.print-single-biodata header,
-        body.print-single-biodata #print-header {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        body.print-single-biodata #profile-modal {
-            display: block !important;
-            visibility: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 148mm !important;
-            height: 210mm !important;
-            background: white !important;
-            z-index: 999999 !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-        body.print-single-biodata #profile-modal * {
-            visibility: visible !important;
-        }
-        body.print-single-biodata #profile-modal-body {
-            visibility: visible !important;
-            width: 148mm !important;
-            height: 210mm !important;
-            box-sizing: border-box !important;
-            padding: 8mm !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            background: white !important;
-        }
-        body.print-single-biodata #profile-modal .mt-6,
-        body.print-single-biodata #profile-modal button {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        body.print-single-biodata #profile-modal-body strong {
-            font-size: 11px !important;
-        }
-        body.print-single-biodata #profile-modal-body span {
-            font-size: 9px !important;
-        }
-        body.print-single-biodata #profile-modal-body img {
-            width: 75px !important;
-            height: 75px !important;
-        }
-    }
-
-    /* মোবাইল কার্ড ভিউ এর জন্য অতিরিক্ত স্টাইল */
-    #student-mobile-cards .card-item {
-        transition: all 0.2s ease;
-        border: 1px solid #f1f5f9;
-        background: white;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    #student-mobile-cards .card-item:last-child {
-        margin-bottom: 0;
-    }
-    #student-mobile-cards .status-badge {
-        font-size: 10px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
-    #student-mobile-cards .status-paid {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    #student-mobile-cards .status-due {
-        background: #fee2e2;
-        color: #991b1b;
-        animation: pulse-due 2s infinite;
-    }
-    @keyframes pulse-due {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    #student-mobile-cards .action-btn {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 8px 12px;
-        border-radius: 10px;
-        border: 1px solid transparent;
-        transition: all 0.15s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        flex: 1;
-    }
-    #student-mobile-cards .action-btn:active {
-        transform: scale(0.96);
-    }
-    #student-mobile-cards .divider-dashed {
-        border-top: 1px dashed #e5e7eb;
-        margin: 8px 0;
-        padding-top: 8px;
-    }
-    #student-mobile-cards .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 11px;
-    }
-    #student-mobile-cards .info-label {
-        color: #9ca3af;
-        font-weight: 600;
-        font-size: 10px;
-    }
-    #student-mobile-cards .info-value {
-        color: #1f2937;
-        font-weight: 600;
-    }
-    #student-mobile-cards .info-value-em {
-        color: #065f46;
-    }
-    #student-mobile-cards .profile-trigger {
-        background: #f3f4f6;
-        border: 1px solid #e5e7eb;
-        color: #4b5563;
-        padding: 6px 14px;
-        border-radius: 10px;
-        font-size: 10px;
-        font-weight: 700;
-        transition: all 0.15s ease;
-    }
-    #student-mobile-cards .profile-trigger:active {
-        background: #e5e7eb;
-    }
 </style>
 
-<!-- প্রিন্ট করার সময় রিপোর্টের শিরোনাম দেখানোর জন্য হেডার (A4/A5) -->
-<div id="print-header" class="hidden text-center border-b pb-4 mb-5">
-    <h2 id="print-madrasah-name" class="text-2xl font-bold text-emerald-800">মাদরাসাতুল মদিনা</h2>
-    <p id="print-madrasah-address" class="text-xs text-gray-500">ঢাকা, বাংলাদেশ</p>
-    <h3 class="text-sm font-bold mt-2 text-gray-700">ফিল্টারকৃত শিক্ষার্থীদের রিপোর্ট তালিকা (<span id="print-report-month"></span>)</h3>
-</div>
+<div id="student-list-container" class="space-y-6 bangla-font pb-12">
 
-<div id="student-list-container" class="space-y-6">
-
-    <!-- পরিসংখ্যান ও প্রগ্রেসবার প্যানেল -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+    <!-- পরিসংখ্যান কার্ডসমূহ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-2xl shadow-sm border border-blue-100 flex items-center justify-between">
             <div>
                 <p class="text-xs text-blue-800 font-bold uppercase tracking-wider">ফিল্টারকৃত মোট ছাত্র</p>
                 <h4 class="text-3xl font-extrabold text-blue-950 mt-1 font-en" id="stat-total">0</h4>
             </div>
-            <div class="bg-blue-600 text-white p-3.5 rounded-full shadow-md shadow-blue-500/10">
+            <div class="bg-blue-600 text-white p-3.5 rounded-full shadow-md">
                 <i class="fa-solid fa-graduation-cap text-xl"></i>
             </div>
         </div>
         
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-5 rounded-2xl shadow-sm border border-emerald-100 flex items-center justify-between">
             <div>
-                <p class="text-xs text-emerald-800 font-bold uppercase tracking-wider">বেতন পরিশোধ করেছে</p>
+                <p class="text-xs text-emerald-800 font-bold uppercase tracking-wider">চলতি মাসে পরিশোধিত</p>
                 <h4 class="text-3xl font-extrabold text-emerald-950 mt-1 font-en" id="stat-paid">0</h4>
             </div>
-            <div class="bg-emerald-600 text-white p-3.5 rounded-full shadow-md shadow-emerald-500/10">
+            <div class="bg-emerald-600 text-white p-3.5 rounded-full shadow-md">
                 <i class="fa-solid fa-circle-check text-xl"></i>
             </div>
         </div>
         
         <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-5 rounded-2xl shadow-sm border border-rose-100 flex items-center justify-between">
             <div>
-                <p class="text-xs text-rose-800 font-bold uppercase tracking-wider">বেতন বকেয়া আছে</p>
+                <p class="text-xs text-rose-800 font-bold uppercase tracking-wider">চলতি মাসে বকেয়া</p>
                 <h4 class="text-3xl font-extrabold text-rose-950 mt-1 font-en" id="stat-due">0</h4>
             </div>
-            <div class="bg-rose-600 text-white p-3.5 rounded-full shadow-md shadow-rose-500/10">
+            <div class="bg-rose-600 text-white p-3.5 rounded-full shadow-md">
                 <i class="fa-solid fa-circle-xmark text-xl"></i>
             </div>
         </div>
         
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
             <div class="flex justify-between items-center mb-2">
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">আদায়ের হার (চলতি মাসে)</p>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">আদায়ের গড় হার</p>
                 <span id="stat-ratio" class="text-sm font-extrabold text-emerald-700 font-en">0%</span>
             </div>
             <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
@@ -285,253 +73,304 @@
         </div>
     </div>
 
-    <!-- ফিল্টারিং ও সার্চ কন্টেইনার -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 no-print space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- ফিল্টারিং ও টুলবার -->
+    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
             <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
                 <i class="fa-solid fa-filter text-emerald-600 text-lg"></i> ফিল্টারিং ও কলাম কাস্টমাইজেশন
             </h3>
             
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                <!-- এক্সেল ইম্পোর্ট ফাইল ইনপুট (লুকানো) -->
                 <input type="file" id="import-excel-file" accept=".xlsx, .xls" class="hidden" onchange="window.importFromExcel(event)">
                 
-                <!-- এক্সেল ইম্পোর্ট বাটন -->
-                <button type="button" onclick="document.getElementById('import-excel-file').click()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-file-import text-blue-600"></i> Excel ইম্পোর্ট
+                <button type="button" onclick="document.getElementById('import-excel-file').click()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-import text-blue-600"></i> Excel ইমপোর্ট
                 </button>
                 
-                <!-- এক্সেল এক্সপোর্ট বাটন -->
-                <button type="button" onclick="window.exportToExcel()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <button type="button" onclick="window.exportToExcel()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-file-export text-amber-600"></i> Excel এক্সপোর্ট
                 </button>
 
-                <!-- কলাম কাস্টমাইজেশন বাটন -->
+                <!-- কলাম কাস্টমাইজ বাটন -->
                 <div class="relative inline-block text-left" id="column-chooser-wrapper">
-                    <button type="button" onclick="window.toggleColumnMenu()" class="bg-gray-150 hover:bg-gray-200 text-gray-700 px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-gray-200 shadow-sm">
-                        <i class="fa-solid fa-table-columns text-gray-500"></i> কলাম কাস্টমাইজ
+                    <button type="button" onclick="window.toggleColumnMenu()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-gray-200 shadow-sm">
+                        <i class="fa-solid fa-table-columns text-gray-500"></i> কলাম
                     </button>
-                    <!-- কলাম সিলেক্টর চেকবক্স লিস্ট -->
-                    <div id="column-chooser-menu" class="hidden absolute right-0 mt-2 bg-white border border-gray-150 rounded-xl shadow-xl p-4 z-30 w-48 space-y-2 text-xs">
-                        <h5 class="font-bold border-b pb-1.5 mb-2 text-gray-400">কলাম প্রদর্শন সেট করুন</h5>
+                    <div id="column-chooser-menu" class="hidden absolute right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl p-4 z-30 w-52 space-y-2 text-xs">
+                        <h5 class="font-bold border-b pb-1.5 mb-2 text-gray-500">প্রদর্শনযোগ্য কলাম নির্ধারণ</h5>
                         <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-roll-id" checked onchange="window.toggleColumn('col-roll-id')" class="rounded text-emerald-600"> রোল ও আইডি</label>
-                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-student" checked onchange="window.toggleColumn('col-student')" class="rounded text-emerald-600"> শিক্ষার্থীর পরিচিতি</label>
-                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-parents" checked onchange="window.toggleColumn('col-parents')" class="rounded text-emerald-600"> পিতা ও মাতা</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-student" checked onchange="window.toggleColumn('col-student')" class="rounded text-emerald-600"> তালিবে ইলম</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-parents" checked onchange="window.toggleColumn('col-parents')" class="rounded text-emerald-600"> অভিভাবক</label>
                         <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-academic" checked onchange="window.toggleColumn('col-academic')" class="rounded text-emerald-600"> শাখা ও জামাত</label>
-                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-contact" checked onchange="window.toggleColumn('col-contact')" class="rounded text-emerald-600"> যোগাযোগ ও ফিস</label>
+                        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-contact" checked onchange="window.toggleColumn('col-contact')" class="rounded text-emerald-600"> যোগাযোগ ও ফি গ্রুপ</label>
                         <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-status" checked onchange="window.toggleColumn('col-status')" class="rounded text-emerald-600"> বেতন স্ট্যাটাস</label>
                         <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700"><input type="checkbox" id="chk-col-actions" checked onchange="window.toggleColumn('col-actions')" class="rounded text-emerald-600"> অ্যাকশন</label>
                     </div>
                 </div>
 
-                <!-- প্রিন্ট সাইজ ড্রপডাউন -->
-                <select id="print-size-selector" class="bg-gray-150 text-gray-700 px-2 py-2.5 rounded-xl text-xs font-bold border border-gray-200 shadow-sm focus:outline-none">
-                    <option value="A4">A4 সাইজ (Portrait)</option>
-                    <option value="A5">A5 সাইজ (Landscape)</option>
-                </select>
-
-                <!-- প্রিন্ট বাটন -->
-                <button onclick="window.printStudentList()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-700/10">
-                    <i class="fa-solid fa-print"></i> তালিকা প্রিন্ট
+                <button onclick="window.downloadStudentListReportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-file-pdf text-sm"></i> রিপোর্ট পিডিএফ (A4)
                 </button>
             </div>
         </div>
 
-        <!-- ফিল্টার গ্রিড ৬ কলাম বিশিষ্ট পেজিনেশন ও সার্চ সহ -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+        <!-- ফিল্টার গ্রিড -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2.5">
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">ছাত্র খুঁজুন</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                    </span>
-                    <input type="text" id="search-student-list" oninput="window.renderFilteredStudents()" placeholder="নাম, আইডি বা মোবাইল..."
-                           class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-semibold bg-gray-50/50">
-                </div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">খুঁজুন</label>
+                <input type="text" id="search-student-list" oninput="window.renderFilteredStudents()" placeholder="নাম, আইডি, রোল, মোবাইল..."
+                       class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white focus:border-emerald-500">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">শাখা (Branch)</label>
-                <select id="filter-branch-list" onchange="window.renderFilteredStudents()"
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                <label class="block text-xs font-bold text-gray-600 mb-1">শিক্ষাবর্ষ (Session)</label>
+                <select id="filter-session-list" onchange="window.renderFilteredStudents()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold font-en cursor-pointer">
+                    <!-- ডাইনামিক সেশন লোড হবে -->
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">শাখা (Branch)</label>
+                <select id="filter-branch-list" onchange="window.onBranchFilterChange()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
                     <option value="">সকল শাখা</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">শ্রেণী/জামাত</label>
-                <select id="filter-class-list" onchange="window.renderFilteredStudents()"
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                <label class="block text-xs font-bold text-gray-600 mb-1">জামাত/শ্রেণী</label>
+                <select id="filter-class-list" onchange="window.renderFilteredStudents()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
                     <option value="">সকল জামাত</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">বেতনের মাস</label>
-                <select id="filter-month" onchange="window.renderFilteredStudents()"
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
-                    <option value="জানুয়ারি">জানুয়ারি</option>
-                    <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
-                    <option value="মার্চ">মার্চ</option>
-                    <option value="এপ্রিল">এপ্রিল</option>
-                    <option value="মে">মে</option>
-                    <option value="জুন">জুন</option>
-                    <option value="জুলাই">জুলাই</option>
-                    <option value="আগস্ট">আগস্ট</option>
-                    <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
-                    <option value="অক্টোবর">অক্টোবর</option>
-                    <option value="নভেম্বর">নভেম্বর</option>
-                    <option value="ডিসেম্বর">ডিসেম্বর</option>
+                <label class="block text-xs font-bold text-gray-600 mb-1">বেতন ও ফিস গ্রুপ</label>
+                <select id="filter-fee-group-list" onchange="window.renderFilteredStudents()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                    <option value="">সকল ফি গ্রুপ</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">বেতন স্ট্যাটাস</label>
-                <select id="filter-status-list" onchange="window.renderFilteredStudents()"
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
-                    <option value="all">সবাই</option>
-                    <option value="paid">পরিশোধিত</option>
-                    <option value="due">বকেয়া</option>
-                </select>
+                <label class="block text-xs font-bold text-gray-600 mb-1">বেতনের মাস ও স্ট্যাটাস</label>
+                <div class="grid grid-cols-2 gap-1">
+                    <select id="filter-month" onchange="window.renderFilteredStudents()" class="w-full px-2 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="জানুয়ারি">জানুয়ারি</option>
+                        <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                        <option value="মার্চ">মার্চ</option>
+                        <option value="এপ্রিল">এপ্রিল</option>
+                        <option value="মে">মে</option>
+                        <option value="জুন">জুন</option>
+                        <option value="জুলাই">জুলাই</option>
+                        <option value="আগস্ট">আগস্ট</option>
+                        <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                        <option value="অক্টোবর">অক্টোবর</option>
+                        <option value="নভেম্বর">নভেম্বর</option>
+                        <option value="ডিসেম্বর">ডিসেম্বর</option>
+                    </select>
+                    <select id="filter-payment-status" onchange="window.renderFilteredStudents()" class="w-full px-1.5 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল</option>
+                        <option value="paid">পরিশোধিত</option>
+                        <option value="due">বকেয়া</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- ডাইনামিক পেজ সাইজ ড্রপডাউন (Pagination Size Selector) -->
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">প্রতি পেজে রেকর্ড</label>
-                <select id="filter-page-size" onchange="window.onPageSizeChange()"
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
-                    <option value="10">১০ জন</option>
+                <label class="block text-xs font-bold text-gray-600 mb-1">প্রতি পেজে রেকর্ড</label>
+                <select id="filter-page-size" onchange="window.onPageSizeChange()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                    <option value="15">১৫ জন</option>
                     <option value="30">৩০ জন</option>
                     <option value="50">৫০ জন</option>
                     <option value="100">১০০ জন</option>
+                    <option value="10000">সবাই</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- ছাত্রদের ডাটা টেবিল কন্টেইনার -->
-    <div id="student-list-table-container" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col font-sans">
-        <!-- ডেস্কটপ টেবিল ভিউ -->
-        <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100 max-h-[500px] overflow-y-auto custom-scroll">
-            <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50 sticky top-0 z-10">
+    <!-- ডাটা টেবিল কন্টেইনার -->
+    <div id="student-list-table-container" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+        <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+            <table class="min-w-full divide-y divide-gray-100 text-xs">
+                <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-roll-id">রোল ও আইডি</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-student">শিক্ষার্থীর পরিচিতি</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-parents">পিতা ও মাতা</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-academic">শাখা ও জামাত</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-contact">যোগাযোগ ও ফিস</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-status">বেতন স্ট্যাটাস</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider col-actions no-print">অ্যাকশন</th>
+                    <th class="px-3 py-3 text-left col-roll-id">রোল ও আইডি</th>
+                    <th class="px-3 py-3 text-left col-student">তালিবে ইলম</th>
+                    <th class="px-3 py-3 text-left col-parents">অভিভাবকের তথ্য</th>
+                    <th class="px-3 py-3 text-left col-academic">শাখা ও জামাত</th>
+                    <th class="px-3 py-3 text-left col-contact">যোগাযোগ ও ফিস</th>
+                    <th class="px-3 py-3 text-left col-status">বেতন স্ট্যাটাস</th>
+                    <th class="px-3 py-3 text-right col-actions">অ্যাকশন</th>
                 </tr>
                 </thead>
-                <tbody id="student-list-table-body" class="bg-white divide-y divide-gray-100 text-xs">
-                </tbody>
+                <tbody id="student-list-table-body" class="bg-white divide-y divide-gray-100"></tbody>
             </table>
         </div>
 
-        <!-- মোবাইলের জন্য টাচ-ফ্রেন্ডলি কার্ড ভিউ (আপডেটেড) -->
-        <div id="student-mobile-cards" class="block md:hidden space-y-3 max-h-[600px] overflow-y-auto pr-1 custom-scroll">
-        </div>
+        <div id="student-mobile-cards" class="block md:hidden space-y-2.5 max-h-[520px] overflow-y-auto pr-1 custom-scroll"></div>
 
-        <!-- ৫. পেজিনেশন বাটন ও ইন্ডিকেটর বার (Pagination Toolbar) -->
-        <div id="pagination-wrapper" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-gray-100 no-print">
+        <!-- পেজিনেশন বার -->
+        <div id="pagination-wrapper" class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 pt-3 border-t border-gray-150">
             <div class="text-xs text-gray-500 font-semibold">
                 মোট রেকর্ড: <span id="pag-total-records" class="font-bold font-en text-emerald-800">০</span> এর মধ্যে দেখছেন <span id="pag-range-start" class="font-bold font-en">০</span> - <span id="pag-range-end" class="font-bold font-en">০</span>
             </div>
-            <div class="flex items-center gap-1" id="pagination-buttons">
-                <!-- ডাইনামিক Prev/Next এবং পেজ নাম্বার বাটনসমূহ স্ক্রিপ্ট দিয়ে লোড হবে -->
-            </div>
+            <div class="flex items-center gap-1" id="pagination-buttons"></div>
         </div>
     </div>
 </div>
 
-<!-- মডাল ১: শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল (A5 Biodata Layout) -->
-<div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
-    <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl relative border border-gray-100 animate-fadeIn">
-        <h4 class="text-sm font-extrabold text-emerald-850 border-b pb-3 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-address-card text-emerald-600 text-lg"></i> শিক্ষার্থীর বিস্তারিত বায়োডাটা
-        </h4>
-        
-        <div id="profile-modal-body" class="space-y-4 text-xs text-gray-700 leading-relaxed">
-            <!-- ডাইনামিক প্রোফাইল ডাটা স্ক্রিপ্ট দিয়ে লোড হবে -->
+<!-- মডাল: তালিবে ইলমের বায়োডাটা মডাল (A5 Layout) -->
+<div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 max-w-lg w-full shadow-2xl relative border border-gray-150 flex flex-col justify-between max-h-[96vh]">
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <div id="profile-modal-body" class="bg-white p-4 space-y-2.5 text-gray-800 leading-normal bangla-font border border-gray-200 rounded-xl max-w-[140mm] mx-auto text-xs">
+                <!-- ডাইনামিক A5 বায়োডাটা লোড হবে -->
+            </div>
         </div>
         
-        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
-            <button id="btn-modal-edit" onclick="" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+        <div class="mt-3 flex justify-end gap-2 border-t pt-2.5 bg-white">
+            <button id="btn-modal-edit" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
                 <i class="fa-solid fa-pen-to-square"></i> তথ্য সম্পাদন
             </button>
-            <button onclick="window.printSingleBiodata()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-print"></i> বায়োডাটা প্রিন্ট করুন (A5)
+            <button onclick="window.downloadSingleBiodataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-pdf"></i> বায়োডাটা পিডিএফ (A5)
             </button>
-            <button onclick="window.closeProfileModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs transition border">
+            <button onclick="window.closeProfileModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs transition border border-gray-200">
                 বন্ধ করুন
             </button>
         </div>
     </div>
 </div>
 
+<!-- হিডেন কনটেইনার: A4 স্টুডেন্ট লিস্ট রিপোর্ট পিডিএফ জেনারেট করার জন্য -->
+<div id="hidden-student-report-area" class="hidden"></div>
+
 <script>
 (function() {
-    let allActiveStudents = [];
-    let filteredStudentsArray = []; // ফিল্টারকৃত সকল ছাত্রদের ক্যাশ মেমরি
+    let filteredStudentsArray = [];
+    let allStudentsCache = [];
+    let academicStructure = [];
+    let feeGroups = [];
+    let madrasahConfig = {};
+    let activeProfileStudent = null;
 
-    // পেজিনেশন ভেরিয়েবলসমূহ
     let currentPage = 1;
-    let pageSize = 10;
+    let pageSize = 15;
 
-    // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
+    async function fetchMadrasahConfig() {
+        try {
+            let config = await db.settings.get('madrasah_config_block');
+            if (!config) {
+                const allSettings = await db.settings.toArray();
+                if (allSettings && allSettings.length > 0) config = allSettings[0];
+            }
+            madrasahConfig = config || {};
+        } catch(e) {
+            madrasahConfig = {};
+        }
+        return madrasahConfig;
+    }
+
+    // ইউনিভার্সাল ইনিশিয়ালাইজেশন
     window.initStudentlist = async function() {
-        const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
-        const address = localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
-        
-        const pName = document.getElementById('print-madrasah-name');
-        const pAddr = document.getElementById('print-madrasah-address');
-        if (pName) pName.textContent = name;
-        if (pAddr) pAddr.textContent = address;
+        await window.initStudentList();
+    };
 
-        const config = await db.settings.get('madrasah_config_block') || {};
-        const academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
-        populateDynamicFilters(academicStructure);
+    window.initStudentList = async function() {
+        const config = await fetchMadrasahConfig();
+        academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+        feeGroups = config.fee_groups ? JSON.parse(config.fee_groups) : [];
+
+        await loadDynamicSessions(config.current_session);
+        populateDynamicFilters();
 
         const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
-        const currentMonthName = bnMonths[new Date().getMonth()];
         const monthSelect = document.getElementById('filter-month');
-        if (monthSelect) {
-            monthSelect.value = currentMonthName;
-        }
+        if (monthSelect) monthSelect.value = bnMonths[new Date().getMonth()];
 
-        // পেজ সাইজ ড্রপডাউন ইনিশিয়ালাইজ
         const sizeSelect = document.getElementById('filter-page-size');
-        if (sizeSelect) {
-            pageSize = parseInt(sizeSelect.value) || 10;
-        }
+        if (sizeSelect) pageSize = parseInt(sizeSelect.value, 10) || 15;
 
-        currentPage = 1; // রি-লোড বা এন্ট্রি করার সময় ১ম পেজ
-
+        currentPage = 1;
         window.loadColumnChooserSettings();
         await window.renderFilteredStudents();
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('column-chooser-menu');
+            const wrapper = document.getElementById('column-chooser-wrapper');
+            if (menu && wrapper && !wrapper.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    };
+
+    async function loadDynamicSessions(defaultSession) {
+        const sSelect = document.getElementById('filter-session-list');
+        if (!sSelect) return;
+
+        let sessionsSet = new Set();
+        const currentYear = new Date().getFullYear();
+        sessionsSet.add(currentYear.toString());
+        sessionsSet.add((currentYear + 1).toString());
+        if (defaultSession) sessionsSet.add(defaultSession.toString());
+
+        try {
+            const students = await db.students.toArray();
+            students.forEach(s => { if (s.session_year) sessionsSet.add(s.session_year.toString()); });
+        } catch(e){}
+
+        const sorted = Array.from(sessionsSet).sort((a, b) => b.localeCompare(a));
+        sSelect.innerHTML = sorted.map(s => `<option value="${s}">${s}</option>`).join('');
+        sSelect.value = defaultSession || currentYear.toString();
+    }
+
+    function populateDynamicFilters() {
+        const bSelect = document.getElementById('filter-branch-list');
+        const cSelect = document.getElementById('filter-class-list');
+        const fgSelect = document.getElementById('filter-fee-group-list');
+
+        if (bSelect) {
+            bSelect.innerHTML = `<option value="">সকল শাখা</option>`;
+            academicStructure.forEach(b => bSelect.innerHTML += `<option value="${b.name}">${b.name}</option>`);
+        }
+
+        if (cSelect) {
+            cSelect.innerHTML = `<option value="">সকল জামাত</option>`;
+            const classesSet = new Set();
+            academicStructure.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name))));
+            classesSet.forEach(c => cSelect.innerHTML += `<option value="${c}">${c}</option>`);
+        }
+
+        if (fgSelect) {
+            fgSelect.innerHTML = `<option value="">সকল ফি গ্রুপ</option>`;
+            feeGroups.forEach(fg => fgSelect.innerHTML += `<option value="${fg.name}">${fg.name}</option>`);
+        }
+    }
+
+    window.onBranchFilterChange = function() {
+        const bVal = document.getElementById('filter-branch-list')?.value || '';
+        const cSelect = document.getElementById('filter-class-list');
+        if (!cSelect) return;
+
+        cSelect.innerHTML = `<option value="">সকল জামাত</option>`;
+        const classesSet = new Set();
+
+        const branchesToSearch = bVal ? academicStructure.filter(b => b.name === bVal) : academicStructure;
+        branchesToSearch.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name))));
+        classesSet.forEach(c => cSelect.innerHTML += `<option value="${c}">${c}</option>`);
+
+        window.renderFilteredStudents();
     };
 
     window.toggleColumnMenu = function() {
-        const menu = document.getElementById('column-chooser-menu');
-        if (menu) menu.classList.toggle('hidden');
+        document.getElementById('column-chooser-menu')?.classList.toggle('hidden');
     };
-
-    document.addEventListener('click', function(e) {
-        const wrapper = document.getElementById('column-chooser-wrapper');
-        const menu = document.getElementById('column-chooser-menu');
-        if (wrapper && !wrapper.contains(e.target) && menu) {
-            menu.classList.add('hidden');
-        }
-    });
 
     window.toggleColumn = function(colClass) {
         const chk = document.getElementById(`chk-${colClass}`);
         if (!chk) return;
         const isChecked = chk.checked;
-        const elements = document.querySelectorAll(`.${colClass}`);
-        elements.forEach(el => {
+        document.querySelectorAll(`.${colClass}`).forEach(el => {
             if (isChecked) el.classList.remove('hidden');
             else el.classList.add('hidden');
         });
@@ -539,8 +378,7 @@
     };
 
     window.loadColumnChooserSettings = function() {
-        const columns = ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'];
-        columns.forEach(col => {
+        ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'].forEach(col => {
             const savedState = localStorage.getItem(`col_visible_${col}`);
             const chk = document.getElementById(`chk-${col}`);
             if (savedState !== null && chk) {
@@ -549,67 +387,23 @@
         });
     };
 
-    function populateDynamicFilters(academicStructure) {
-        const branchSelect = document.getElementById('filter-branch-list');
-        const classSelect = document.getElementById('filter-class-list');
-        if (!branchSelect || !classSelect) return;
-        
-        branchSelect.innerHTML = `<option value="">সকল শাখা</option>`;
-        classSelect.innerHTML = `<option value="">সকল জামাত</option>`;
-
-        const classesSet = new Set();
-
-        academicStructure.forEach(branch => {
-            branchSelect.innerHTML += `<option value="${branch.name}">${branch.name}</option>`;
-            branch.departments.forEach(dept => {
-                dept.classes.forEach(cls => {
-                    classesSet.add(cls.name);
-                });
-            });
-        });
-
-        classesSet.forEach(clsName => {
-            classSelect.innerHTML += `<option value="${clsName}">${clsName}</option>`;
-        });
-    }
-
-    window.callPhoneNumber = function(phone) {
-        if (!phone) return;
-        let clean = String(phone).replace(/\D/g, '');
-        if (clean.startsWith('8801')) {
-            clean = clean.substring(2);
-        }
-        if (!clean.startsWith('01') && clean.length === 10) {
-            clean = '0' + clean;
-        }
-        window.location.href = `tel:${clean}`;
-    };
-
-    // ২. পেজ সাইজ পরিবর্তনের ইভেন্ট
     window.onPageSizeChange = async function() {
         const sizeSelect = document.getElementById('filter-page-size');
-        if (sizeSelect) {
-            pageSize = parseInt(sizeSelect.value) || 10;
-        }
-        currentPage = 1; // প্রতি পেজ সাইজ আপডেটে ১ম পেজে নিয়ে যাবে
-        await window.renderFilteredStudents(true); // পূর্ববর্তী ফিল্টার বজায় রাখবে
+        if (sizeSelect) pageSize = parseInt(sizeSelect.value, 10) || 15;
+        currentPage = 1;
+        await window.renderFilteredStudents(true);
     };
 
-    // ৩. পেজ চেঞ্জ হ্যান্ডলার
-    window.changePage = async function(pageNumber) {
-        currentPage = pageNumber;
-        await window.renderFilteredStudents(true); // ফিল্টার ঠিক রেখে পেজ চেইঞ্জ
+    window.changePage = async function(p) {
+        currentPage = p;
+        await window.renderFilteredStudents(true);
     };
 
-    // ৪. ডাইনামিক পেজিনেশন কন্ট্রোলস জেনারেটর (Prev/Next Page Controller)
     function renderPaginationControls(totalRecords) {
         const totalPages = Math.ceil(totalRecords / pageSize);
-        const pagWrapper = document.getElementById('pagination-wrapper');
         const pagButtons = document.getElementById('pagination-buttons');
-        
-        if (!pagWrapper || !pagButtons) return;
+        if (!pagButtons) return;
 
-        // পেজ রেঞ্জ নির্ধারণ
         const startRange = totalRecords > 0 ? (currentPage - 1) * pageSize + 1 : 0;
         const endRange = Math.min(currentPage * pageSize, totalRecords);
 
@@ -617,506 +411,467 @@
         document.getElementById('pag-range-start').textContent = startRange.toLocaleString('bn-BD');
         document.getElementById('pag-range-end').textContent = endRange.toLocaleString('bn-BD');
 
-        if (totalRecords === 0) {
+        if (totalRecords === 0 || totalPages <= 1) {
             pagButtons.innerHTML = '';
             return;
         }
 
-        let html = '';
+        let html = `<button onclick="window.changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-xl border text-xs font-bold ${currentPage === 1 ? 'bg-gray-50 text-gray-300' : 'bg-white hover:bg-gray-50 text-gray-700'}">পূর্ববর্তী</button>`;
 
-        // Prev বাটন
-        html += `
-            <button onclick="window.changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} 
-                    class="px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold transition ${currentPage === 1 ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}">
-                পূর্ববর্তী
-            </button>
-        `;
-
-        // সংখ্যাযুক্ত পেজ বাটনসমূহ
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                html += `
-                    <button onclick="window.changePage(${i})" 
-                            class="px-3 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold font-en transition ${currentPage === i ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white hover:bg-gray-50 text-gray-700'}">
-                        ${i}
-                    </button>
-                `;
+                html += `<button onclick="window.changePage(${i})" class="px-3 py-1.5 rounded-xl border text-xs font-bold font-en ${currentPage === i ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white hover:bg-gray-50 text-gray-700'}">${i}</button>`;
             } else if (i === currentPage - 3 || i === currentPage + 3) {
                 html += `<span class="px-1 text-gray-400 text-xs">...</span>`;
             }
         }
 
-        // Next বাটন
-        html += `
-            <button onclick="window.changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} 
-                    class="px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-bold transition ${currentPage === totalPages ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}">
-                পরবর্তী
-            </button>
-        `;
-
+        html += `<button onclick="window.changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-xl border text-xs font-bold ${currentPage === totalPages ? 'bg-gray-50 text-gray-300' : 'bg-white hover:bg-gray-50 text-gray-700'}">পরবর্তী</button>`;
         pagButtons.innerHTML = html;
     }
 
-    // ৫. ছাত্র তালিকা ফিল্টারিং ও রেন্ডারিং গেটওয়ে (Pagination Integration Added)
     window.renderFilteredStudents = async function(preservePage = false) {
         const tableBody = document.getElementById('student-list-table-body');
         const mobileContainer = document.getElementById('student-mobile-cards');
         if (!tableBody) return;
 
-        // ফিল্টারিং করা হলে ১ম পেজে রিসেট করবে (যদি না পেজ বাটন ক্লিক করে কল করা হয়)
-        if (!preservePage) {
-            currentPage = 1;
-        }
+        if (!preservePage) currentPage = 1;
 
-        const sList = document.getElementById('search-student-list');
-        const bList = document.getElementById('filter-branch-list');
-        const cList = document.getElementById('filter-class-list');
-        const mList = document.getElementById('filter-month');
-        const stList = document.getElementById('filter-status-list');
-
-        const searchQuery = sList ? sList.value.toLowerCase().trim() : '';
-        const branchQuery = bList ? bList.value : '';
-        const classQuery = cList ? cList.value : '';
-        const monthQuery = mList ? mList.value : '';
-        const statusQuery = stList ? stList.value : 'all';
-
-        const pRepMonth = document.getElementById('print-report-month');
-        if (pRepMonth) pRepMonth.textContent = monthQuery;
+        const searchQuery = document.getElementById('search-student-list')?.value.toLowerCase().trim() || '';
+        const sessionQuery = document.getElementById('filter-session-list')?.value || '';
+        const branchQuery = document.getElementById('filter-branch-list')?.value || '';
+        const classQuery = document.getElementById('filter-class-list')?.value || '';
+        const feeGroupQuery = document.getElementById('filter-fee-group-list')?.value || '';
+        const monthQuery = document.getElementById('filter-month')?.value || '';
+        const paymentStatusQuery = document.getElementById('filter-payment-status')?.value || '';
 
         try {
             let students = await db.students.toArray();
-            students = students.filter(student => student.is_deleted !== 1);
-            allActiveStudents = students;
+            students = students.filter(s => s.is_deleted !== 1);
+            allStudentsCache = students;
 
             let fees = await db.fees.toArray();
-            const activeFees = fees.filter(fee => fee.is_deleted !== 1);
-
             const paidMap = {};
-            activeFees.forEach(fee => {
-                if (fee.month === monthQuery) {
-                    paidMap[fee.student_id] = fee;
-                }
+            fees.filter(f => f.is_deleted !== 1 && f.month === monthQuery && (!sessionQuery || f.session_year == sessionQuery)).forEach(f => {
+                paidMap[f.student_id] = f;
             });
 
-            // ১. ফিল্টারিং প্রসেস শুরু
             let filtered = students;
 
+            if (sessionQuery) filtered = filtered.filter(s => s.session_year == sessionQuery || !s.session_year);
             if (searchQuery) {
                 filtered = filtered.filter(s =>
                     (s.name || '').toLowerCase().includes(searchQuery) ||
                     (s.id || '').toLowerCase().includes(searchQuery) ||
+                    String(s.roll || '').includes(searchQuery) ||
                     (s.parent_phone || '').includes(searchQuery) ||
-                    (s.father_name && s.father_name.toLowerCase().includes(searchQuery))
+                    (s.whatsapp_number || '').includes(searchQuery)
                 );
             }
+            if (branchQuery) filtered = filtered.filter(s => s.branch === branchQuery);
+            if (classQuery) filtered = filtered.filter(s => s.class === classQuery);
+            if (feeGroupQuery) filtered = filtered.filter(s => (s.fee_group_name === feeGroupQuery) || (s.boarding_type === feeGroupQuery));
 
-            if (branchQuery) {
-                filtered = filtered.filter(s => s.branch === branchQuery);
+            if (paymentStatusQuery === 'paid') {
+                filtered = filtered.filter(s => !!paidMap[s.id]);
+            } else if (paymentStatusQuery === 'due') {
+                filtered = filtered.filter(s => !paidMap[s.id]);
             }
 
-            if (classQuery) {
-                filtered = filtered.filter(s => s.class === classQuery);
-            }
+            filtered.sort((a, b) => (parseInt(a.roll, 10) || 0) - (parseInt(b.roll, 10) || 0));
+            filteredStudentsArray = filtered;
 
-            if (statusQuery === 'paid') {
-                filtered = filtered.filter(s => paidMap[s.id] !== undefined);
-            } else if (statusQuery === 'due') {
-                filtered = filtered.filter(s => paidMap[s.id] === undefined);
-            }
-
-            filtered.sort((a, b) => (a.roll || 0) - (b.roll || 0));
-            filteredStudentsArray = filtered; // ক্যাশ মেমরিতে সেভ
-
-            // ২. পরিসংখ্যান কাউন্টার আপডেট
-            let totalPaid = 0;
-            let totalDue = 0;
-            filtered.forEach(s => {
-                if (paidMap[s.id]) totalPaid++;
-                else totalDue++;
-            });
-
+            let totalPaid = 0, totalDue = 0;
+            filtered.forEach(s => { if (paidMap[s.id]) totalPaid++; else totalDue++; });
             const collectionRate = filtered.length > 0 ? Math.round((totalPaid / filtered.length) * 100) : 0;
 
-            const sTotal = document.getElementById('stat-total');
-            const sPaid = document.getElementById('stat-paid');
-            const sDue = document.getElementById('stat-due');
-            const sRatio = document.getElementById('stat-ratio');
-            const sBar = document.getElementById('stat-progress-bar');
-
-            if (sTotal) sTotal.textContent = filtered.length;
-            if (sPaid) sPaid.textContent = totalPaid;
-            if (sDue) sDue.textContent = totalDue;
-            if (sRatio) sRatio.textContent = collectionRate + "%";
-            if (sBar) sBar.style.width = collectionRate + "%";
+            document.getElementById('stat-total').textContent = filtered.length.toLocaleString('bn-BD');
+            document.getElementById('stat-paid').textContent = totalPaid.toLocaleString('bn-BD');
+            document.getElementById('stat-due').textContent = totalDue.toLocaleString('bn-BD');
+            document.getElementById('stat-ratio').textContent = collectionRate + "%";
+            document.getElementById('stat-progress-bar').style.width = collectionRate + "%";
 
             if (filtered.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500 font-medium">
-                            কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি।
-                        </td>
-                    </tr>`;
-                if (mobileContainer) {
-                    mobileContainer.innerHTML = `
-                        <div class="text-center py-12">
-                            <i class="fa-solid fa-users-slash text-4xl text-gray-300 mb-3 block"></i>
-                            <p class="text-gray-400 font-bold text-sm">কোনো শিক্ষার্থী পাওয়া যায়নি</p>
-                        </div>
-                    `;
-                }
+                tableBody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-xs text-gray-500 font-bold">কোনো তালিবে ইলমের তথ্য পাওয়া যায়নি।</td></tr>`;
+                mobileContainer.innerHTML = `<div class="text-center py-8 text-gray-400 font-bold">কোনো শিক্ষার্থী পাওয়া যায়নি।</div>`;
                 renderPaginationControls(0);
                 return;
             }
 
-            // ৩. পেজিনেশন স্লাইসিং মেকানিজম (Array Slicing)
             const paginatedStudents = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
             let html = '';
+            let mobileHtml = '';
+
             paginatedStudents.forEach(s => {
                 const feeObj = paidMap[s.id];
-                let statusCell = '';
-                let actionButton = '';
-
-                const sName = s.name || "অজানা";
-                const sRoll = s.roll || "-";
-                const sClass = s.class || "-";
-                const sGroup = s.group || "-";
-                const sId = s.id || "";
-                const sFather = s.father_name || "-";
-                const sPhone = s.parent_phone || "";
-                const sWhatsapp = s.whatsapp_no || sPhone || "";
-
-                if (feeObj) {
-                    statusCell = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                         <i class="fa-solid fa-circle-check"></i> পরিশোধিত (৳${feeObj.total || feeObj.amount})
-                       </span>`;
-                    actionButton = `
-                        <span class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-receipt"></i> ${feeObj.receipt_id}</span>
-                    `;
-                } else {
-                    statusCell = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-red-800 animate-pulse">
-                         <i class="fa-solid fa-circle-xmark"></i> বকেয়া
-                       </span>`;
-                    
-                    let waNumber = String(sWhatsapp).replace(/\D/g, '');
-                    if (waNumber.startsWith('0')) waNumber = '88' + waNumber;
-
-                    const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
-                    const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
-
-                    actionButton = `
-                        <div class="flex gap-1">
-                            <button onclick="window.collectFeeFor('${sId}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-150 transition flex items-center gap-1 text-[10px]" title="বেতন নিন">
-                                <i class="fa-solid fa-wallet"></i> বেতন
-                            </button>
-                            <a href="${wpUrl}" target="_blank" class="bg-green-50 hover:bg-green-100 text-green-600 font-bold px-2 py-1 rounded-lg border border-green-150 transition flex items-center justify-center text-[10px]" title="হোয়াটসঅ্যাপ রিমাইন্ডার">
-                                <i class="fa-brands fa-whatsapp text-xs"></i> বকেয়া
-                            </a>
-                        </div>
-                    `;
-                }
+                const statusCell = feeObj
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-circle-check"></i> পরিশোধিত (${feeObj.method || 'ক্যাশ'})</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 animate-pulse"><i class="fa-solid fa-circle-xmark"></i> বকেয়া</span>`;
 
                 html += `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="px-4 py-3 text-xs col-roll-id">
-                            <div class="font-bold text-gray-700 font-en">রোল: ${sRoll}</div>
-                            <div class="text-[10px] text-gray-400 font-bold font-en">${sId}</div>
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100 text-gray-700">
+                        <td class="px-3 py-2.5 text-xs col-roll-id font-bold font-en">
+                            <div class="text-emerald-950 font-bold text-xs">রোল: ${s.roll || '-'}</div>
+                            <div class="text-[10px] text-gray-400 font-bold">${s.id}</div>
                         </td>
-                        <td class="px-4 py-3 text-xs col-student">
+                        <td class="px-3 py-2.5 text-xs col-student">
                             <div class="flex items-center gap-2">
-                                ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold font-en text-[10px]">St</div>'}
+                                ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border border-emerald-200" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-[10px]">St</div>'}
                                 <div>
-                                    <button onclick="window.showStudentProfile('${sId}')" class="text-emerald-700 hover:text-emerald-900 font-bold text-sm text-left truncate max-w-[120px] block">${sName}</button>
-                                    <div class="text-[10px] text-gray-400 font-bold"> Sl: ${s.serial_no || '-'} </div>
+                                    <button onclick="window.showStudentProfile('${s.id}')" class="text-emerald-950 hover:text-emerald-700 font-bold text-xs text-left truncate block">${s.name || 'অজানা'}</button>
+                                    <div class="text-[9px] text-gray-400 font-en">Sl: ${s.serial_no || '-'}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-xs text-gray-600 col-parents">
-                            <div class="font-medium">পিতা: ${sFather}</div>
-                            <div class="text-[10px] text-gray-400 font-semibold">মাতা: ${s.mother_name || '-'}</div>
+                        <td class="px-3 py-2.5 text-xs text-gray-600 col-parents">
+                            <div class="font-bold text-gray-800">${s.father_name || '-'}</div>
+                            <div class="text-[10px] text-gray-400">${s.mother_name || '-'}</div>
                         </td>
-                        <td class="px-4 py-3 text-xs text-gray-700 font-bold col-academic">
-                            <div class="text-emerald-950">${sClass} ${sGroup !== '-' ? `(${sGroup})` : ''}</div>
-                            <div class="text-[10px] text-gray-400 font-normal">${s.branch || '-'} | ${s.department || '-'}</div>
+                        <td class="px-3 py-2.5 text-xs font-bold col-academic">
+                            <div class="text-emerald-950">${s.class} ${s.group && s.group !== '-' ? `(${s.group})` : ''}</div>
+                            <div class="text-[10px] text-gray-400 font-normal">${s.branch}</div>
                         </td>
-                        <td class="px-4 py-3 text-[11px] text-gray-600 font-en col-contact">
-                            <div class="flex items-center gap-1.5 font-bold text-gray-700">
-                                <span>${sPhone || '-'}</span>
-                                ${sPhone ? `<button onclick="window.callPhoneNumber('${sPhone}')" class="text-emerald-600 hover:text-emerald-800 p-1 rounded hover:bg-emerald-50"><i class="fa-solid fa-phone"></i></button>` : ''}
+                        <td class="px-3 py-2.5 text-xs col-contact">
+                            <div class="font-en font-bold text-gray-800">${s.parent_phone || '-'}</div>
+                            <div class="text-[10px] text-emerald-800 font-bold">${s.fee_group_name || s.boarding_type || 'সাধারণ'} (৳${s.monthly_fee || 0})</div>
+                        </td>
+                        <td class="px-3 py-2.5 text-xs col-status">${statusCell}</td>
+                        <td class="px-3 py-2.5 text-xs text-right col-actions">
+                            <div class="flex gap-1.5 justify-end">
+                                <button onclick="window.sendParentPortalLinkWA('${s.id}')" class="bg-green-50 text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition" title="অভিভাবক লিঙ্ক হোয়াটসঅ্যাপ করুন">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </button>
+                                <button onclick="window.showStudentProfile('${s.id}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-1.5 rounded-lg transition" title="বায়োডাটা ও A5 পিডিএফ">
+                                    <i class="fa-solid fa-file-pdf text-sm"></i>
+                                </button>
+                                <button onclick="window.editStudentFromList('${s.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 p-1.5 rounded-lg transition" title="সম্পাদন করুন">
+                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                </button>
                             </div>
-                            <div class="text-[10px] font-bold text-emerald-800">${s.fee_group_name || 'সাধারণ'}: ৳${s.monthly_fee || 0}</div>
                         </td>
-                        <td class="px-4 py-3 text-xs col-status">${statusCell}</td>
-                        <td class="px-4 py-3 text-xs no-print col-actions">${actionButton}</td>
                     </tr>`;
+
+                mobileHtml += `
+                    <div class="p-3.5 rounded-xl border border-gray-150 bg-white shadow-sm space-y-2 text-xs">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                ${s.photo_url ? `<img class="w-9 h-9 rounded-full object-cover border border-emerald-200" src="${s.photo_url}">` : '<div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">St</div>'}
+                                <div>
+                                    <h5 class="font-bold text-gray-900 text-xs">${s.name}</h5>
+                                    <p class="text-[10px] text-gray-400 font-en">রোল: ${s.roll} | ID: ${s.id}</p>
+                                </div>
+                            </div>
+                            ${statusCell}
+                        </div>
+                        <div class="border-t border-dashed pt-1.5 flex justify-between items-center text-[11px] text-gray-600">
+                            <div><span class="text-gray-400">জামাত:</span> ${s.class} (${s.branch})</div>
+                            <div class="flex gap-1.5">
+                                <button onclick="window.sendParentPortalLinkWA('${s.id}')" class="bg-green-50 text-green-600 p-1.5 rounded" title="হোয়াটসঅ্যাপ"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button onclick="window.showStudentProfile('${s.id}')" class="bg-emerald-50 text-emerald-700 p-1.5 rounded" title="বায়োডাটা"><i class="fa-solid fa-file-pdf"></i></button>
+                                <button onclick="window.editStudentFromList('${s.id}')" class="bg-blue-50 text-blue-700 p-1.5 rounded" title="এডিট"><i class="fa-solid fa-pen-to-square"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
             });
 
             tableBody.innerHTML = html;
-
-            // ৪. মোবাইল কার্ড ভিউ রেন্ডারিং (আপডেটেড - আরও সুন্দর ও কার্যকর)
-            if (mobileContainer) {
-                let mobileHtml = '';
-                paginatedStudents.forEach(s => {
-                    const feeObj = paidMap[s.id];
-                    let statusBadge = '';
-                    let actionBtn = '';
-
-                    const sName = s.name || "অজানা";
-                    const sRoll = s.roll || "-";
-                    const sClass = s.class || "-";
-                    const sGroup = s.group || "-";
-                    const sId = s.id || "";
-                    const sPhone = s.parent_phone || "";
-                    const sWhatsapp = s.whatsapp_no || sPhone || "";
-                    const sFather = s.father_name || "-";
-                    const sMother = s.mother_name || "-";
-                    const sBranch = s.branch || "-";
-                    const sFeeGroup = s.fee_group_name || 'সাধারণ';
-                    const sMonthlyFee = s.monthly_fee || 0;
-
-                    if (feeObj) {
-                        statusBadge = `<span class="status-badge status-paid">
-                            <i class="fa-solid fa-circle-check"></i> পরিশোধিত (৳${feeObj.total || feeObj.amount})
-                        </span>`;
-                        actionBtn = `
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-receipt"></i> ${feeObj.receipt_id}</span>
-                            </div>
-                        `;
-                    } else {
-                        statusBadge = `<span class="status-badge status-due">
-                            <i class="fa-solid fa-circle-xmark"></i> বকেয়া
-                        </span>`;
-                        
-                        let waNumber = String(sWhatsapp).replace(/\D/g, '');
-                        if (waNumber.startsWith('0')) waNumber = '88' + waNumber;
-
-                        const wpMessage = `আসসালামু আলাইকুম। ${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${sName} (শ্রেণী: ${sClass}, রোল: ${sRoll})-এর ${monthQuery} মাসের বেতন বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
-                        const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
-
-                        actionBtn = `
-                            <div class="flex gap-2 w-full">
-                                <button onclick="window.collectFeeFor('${sId}')" class="action-btn bg-red-50 text-red-600 border-red-200 hover:bg-red-100 active:bg-red-200">
-                                    <i class="fa-solid fa-wallet"></i> বেতন নিন
-                                </button>
-                                <a href="${wpUrl}" target="_blank" class="action-btn bg-green-50 text-green-600 border-green-200 hover:bg-green-100 active:bg-green-200">
-                                    <i class="fa-brands fa-whatsapp"></i> রিমাইন্ডার
-                                </a>
-                            </div>
-                        `;
-                    }
-
-                    mobileHtml += `
-                        <div class="card-item">
-                            <!-- হেডার: ছবি, নাম, রোল, স্ট্যাটাস -->
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="flex items-center gap-3 flex-1 min-w-0">
-                                    ${s.photo_url ? 
-                                        `<img class="w-12 h-12 rounded-full object-cover border-2 border-gray-100 flex-shrink-0" src="${s.photo_url}">` : 
-                                        `<div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base flex-shrink-0">${sName.charAt(0)}</div>`
-                                    }
-                                    <div class="min-w-0 flex-1">
-                                        <button onclick="window.showStudentProfile('${sId}')" class="font-bold text-gray-800 text-sm hover:text-emerald-700 transition truncate w-full text-left">
-                                            ${sName}
-                                        </button>
-                                        <div class="flex items-center gap-2 text-[10px] text-gray-400 font-bold">
-                                            <span>রোল: ${sRoll}</span>
-                                            <span>|</span>
-                                            <span class="font-en">${sId}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    ${statusBadge}
-                                </div>
-                            </div>
-
-                            <!-- তথ্য বিভাগ -->
-                            <div class="divider-dashed">
-                                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                                    <div class="info-row">
-                                        <span class="info-label">পিতা</span>
-                                        <span class="info-value">${sFather}</span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">মাতা</span>
-                                        <span class="info-value">${sMother}</span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">শাখা</span>
-                                        <span class="info-value">${sBranch}</span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">জামাত</span>
-                                        <span class="info-value">${sClass} ${sGroup !== '-' ? `(${sGroup})` : ''}</span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">মোবাইল</span>
-                                        <span class="info-value flex items-center gap-1">
-                                            ${sPhone || '-'}
-                                            ${sPhone ? `<button onclick="window.callPhoneNumber('${sPhone}')" class="text-emerald-600 hover:text-emerald-800 p-0.5"><i class="fa-solid fa-phone text-xs"></i></button>` : ''}
-                                        </span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">বেতন</span>
-                                        <span class="info-value-em font-bold">${sFeeGroup}: ৳${sMonthlyFee}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- অ্যাকশন বাটন -->
-                            <div class="pt-2 flex items-center gap-2">
-                                ${actionBtn}
-                                <button onclick="window.showStudentProfile('${sId}')" class="profile-trigger">
-                                    <i class="fa-regular fa-address-card"></i> প্রোফাইল
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                mobileContainer.innerHTML = mobileHtml;
-            }
-
-            // ৫. পেজ ইন্ডিকেটর ও বাটনসমূহ রেন্ডার
+            mobileContainer.innerHTML = mobileHtml;
             renderPaginationControls(filtered.length);
 
             window.loadColumnChooserSettings();
-            const cols = ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'];
-            cols.forEach(window.toggleColumn);
+            ['col-roll-id', 'col-student', 'col-parents', 'col-academic', 'col-contact', 'col-status', 'col-actions'].forEach(window.toggleColumn);
 
         } catch (err) {
-            console.error("তালিকা প্রস্তুত করতে ত্রুটি:", err);
+            console.error(err);
         }
     };
 
-    // ৪. একক শিক্ষার্থীর বিস্তারিত প্রোফাইল মডাল লোডার (A5 Layout)
+    window.sendParentPortalLinkWA = function(studentId) {
+        const s = allStudentsCache.find(item => item.id === studentId);
+        if (!s) return;
+
+        let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
+
+        const msg = `আসসালামু আলাইকুম।
+${mName} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর প্রোফাইল ও রেজাল্ট লিঙ্ক: ${portalUrl}
+
+প্যানেলে প্রবেশ করতে আপনার নিবন্ধিত মোবাইল নম্বরের শেষ ৪ ডিজিট পিন হিসেবে ব্যবহার করুন। ধন্যবাদ।`;
+
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // A5 বায়োডাটা ভিউ মডাল
     window.showStudentProfile = async function(studentId) {
         try {
             const s = await db.students.get(studentId);
             if (!s) return;
 
+            activeProfileStudent = s;
+            const config = await fetchMadrasahConfig();
+
+            const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            const mAddr = config.madrasah_address || localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
+            const logoUrl = config.madrasah_logo || localStorage.getItem('madrasah_logo') || '';
+
             const modalBody = document.getElementById('profile-modal-body');
-            if (!modalBody) return;
-            
-            const feeGroupName = s.fee_group_name || 'সাধারণ বেতন';
-            const monthlyFee = s.monthly_fee ? parseFloat(s.monthly_fee).toLocaleString('bn-BD') : '০';
-
             modalBody.innerHTML = `
-                <div class="flex items-center gap-4 border-b pb-3 mb-3">
-                    <div class="shrink-0">
-                        ${s.photo_url ? `<img class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md bg-gray-50" src="${s.photo_url}">` : '<div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-2xl">St</div>'}
+                <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        ${logoUrl ? `<img class="w-11 h-11 rounded-xl object-cover border border-emerald-200" crossorigin="anonymous" src="${logoUrl}">` : '<div class="w-11 h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-lg font-bold font-sans"><i class="fa-solid fa-mosque"></i></div>'}
+                        <div>
+                            <h2 class="text-base font-bold text-emerald-950 leading-tight">${mName}</h2>
+                            <p class="text-[10px] text-gray-600">${mAddr}</p>
+                            <span class="inline-block bg-emerald-100 text-emerald-900 text-[9px] px-2 py-0.5 rounded font-bold mt-0.5">তালিবে ইলম পূর্ণাঙ্গ তথ্যবিবরণী</span>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="text-sm font-extrabold text-gray-800">${s.name || "অজানা"}</h5>
-                        <p class="text-[10px] text-gray-400 font-bold tracking-wider font-en">ভর্তি আইডি: ${s.id || ""}</p>
+                    <div class="text-right">
+                        ${s.photo_url ? `<img src="${s.photo_url}" crossorigin="anonymous" class="w-14 h-14 rounded-lg object-cover border border-emerald-600 shadow-sm inline-block">` : `<div class="w-14 h-14 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center text-gray-400 text-[9px] text-center pt-3.5">ছবি নেই</div>`}
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3 text-gray-700">
-                    <div><span class="text-gray-400 font-bold block text-[10px]">পিতার নাম:</span> <strong class="text-gray-850">${s.father_name || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">মাতার নাম:</span> <strong class="text-gray-850">${s.mother_name || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">জন্ম তারিখ:</span> <strong class="font-en">${s.dob || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">রক্তের গ্রুপ:</span> <strong class="text-rose-600">${s.blood_group || '-'}</strong></div>
+                <div class="grid grid-cols-4 gap-1.5 py-2 bg-emerald-50/50 p-2 rounded-lg text-[10px] border border-emerald-100">
+                    <div><span class="text-gray-500 block text-[8px]">ভর্তি আইডি:</span><strong class="font-en text-emerald-900 text-xs">${s.id}</strong></div>
+                    <div><span class="text-gray-500 block text-[8px]">শিক্ষাবর্ষ:</span><strong class="font-en text-gray-800">${s.session_year || '2026'}</strong></div>
+                    <div><span class="text-gray-500 block text-[8px]">জামাত ও শাখা:</span><strong class="text-gray-800">${s.class} (${s.branch})</strong></div>
+                    <div><span class="text-gray-500 block text-[8px]">রোল নম্বর:</span><strong class="font-en text-emerald-800 text-xs">${s.roll || '-'}</strong></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-4 gap-y-2 border-b pb-3 text-gray-700">
-                    <div><span class="text-gray-400 font-bold block text-[10px]">শ্রেণী ও শাখা:</span> <strong class="text-emerald-800">${s.class} (${s.branch})</strong></div>
-                    <div><span class="text-gray-400 block text-[10px]">রোল নম্বর:</span> <strong class="font-en">${s.roll || '-'}</strong></div>
-                    <div><span class="text-gray-400 block text-[10px]">বেতন গ্রুপ:</span> <strong class="text-emerald-800">${feeGroupName}</strong></div>
-                    <div><span class="text-gray-400 block text-[10px]">মাসিক ফিস (বেতন):</span> <strong class="text-emerald-800 font-en">৳ ${monthlyFee}</strong></div>
+                <div class="grid grid-cols-2 gap-2 text-[10.5px]">
+                    <div class="space-y-1 border border-gray-200 p-2 rounded-lg bg-white">
+                        <h6 class="font-bold text-emerald-800 border-b pb-0.5 text-[10px] flex items-center gap-1"><i class="fa-solid fa-user text-[9px]"></i> ব্যক্তিগত ও অভিভাবক</h6>
+                        <div><span class="text-gray-500">নাম:</span> <strong class="text-gray-900">${s.name}</strong></div>
+                        <div><span class="text-gray-500">পিতা:</span> <strong class="text-gray-900">${s.father_name}</strong></div>
+                        <div><span class="text-gray-500">মাতা:</span> <strong class="text-gray-900">${s.mother_name || '-'}</strong></div>
+                        <div><span class="text-gray-500">জন্ম তারিখ:</span> <strong class="font-en">${s.dob || '-'}</strong></div>
+                        <div><span class="text-gray-500">রক্তের গ্রুপ:</span> <strong class="font-en">${s.blood_group || '-'}</strong></div>
+                    </div>
+
+                    <div class="space-y-1 border border-gray-200 p-2 rounded-lg bg-white">
+                        <h6 class="font-bold text-blue-800 border-b pb-0.5 text-[10px] flex items-center gap-1"><i class="fa-solid fa-phone text-[9px]"></i> যোগাযোগ ও ফিস</h6>
+                        <div><span class="text-gray-500">মোবাইল:</span> <strong class="font-en text-emerald-850">${s.parent_phone || '-'}</strong></div>
+                        <div><span class="text-gray-500">হোয়াটসঅ্যাপ:</span> <strong class="font-en text-green-700">${s.whatsapp_number || s.parent_phone || '-'}</strong></div>
+                        <div><span class="text-gray-500">প্যারেন্ট পিন:</span> <strong class="font-en">${s.parent_pin || '-'}</strong></div>
+                        <div><span class="text-gray-500">ফি গ্রুপ:</span> <strong class="text-gray-900">${s.fee_group_name || s.boarding_type || 'সাধারণ'}</strong></div>
+                        <div><span class="text-gray-500">মাসিক ফিস:</span> <strong class="font-en text-emerald-800">৳ ${s.monthly_fee || 0}</strong></div>
+                    </div>
                 </div>
 
-                <div class="space-y-1.5 text-gray-700">
-                    <div><span class="text-gray-400 font-bold block text-[10px]">জন্ম নিবন্ধন নম্বর:</span> <strong class="font-en">${s.birth_reg || '-'}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">অভিভাবকের মোবাইল:</span> <strong class="font-en">${s.parent_phone || ""}</strong></div>
-                    <div><span class="text-gray-400 font-bold block text-[10px]">বর্তমান ঠিকানা:</span> <strong>গ্রাম: ${s.village || '-'}, পোস্ট: ${s.post || '-'}, থানা: ${s.thana || '-'}, জেলা: ${s.district || '-'}</strong></div>
+                <div class="text-[10px] space-y-0.5 border border-gray-200 p-2 rounded-lg bg-white">
+                    <h6 class="font-bold text-gray-800 border-b pb-0.5 text-[10px] flex items-center gap-1"><i class="fa-solid fa-map-marker-alt text-[9px] text-emerald-700"></i> ঠিকানা সংক্রান্ত তথ্য</h6>
+                    <div><span class="text-gray-500">স্থায়ী ঠিকানা:</span> <strong class="text-gray-900">${s.permanent_address || s.address || '-'}</strong></div>
+                    <div><span class="text-gray-500">বর্তমান ঠিকানা:</span> <strong class="text-gray-900">${s.present_address || s.address || '-'}</strong></div>
                 </div>
-            `;
+
+                ${s.note ? `
+                <div class="text-[10px] bg-amber-50/70 p-2 rounded-lg border border-amber-200">
+                    <strong class="text-amber-900 block text-[9px]">ভর্তি সংক্রান্ত বিশেষ নোট:</strong>
+                    <p class="text-gray-700">${s.note}</p>
+                </div>` : ''}
+
+                <div class="flex justify-between items-center text-[9px] text-gray-500 pt-6">
+                    <div class="text-center w-24 border-t pt-0.5 border-gray-400">নাযিমে তালিমাত</div>
+                    <div class="text-center w-24 border-t pt-0.5 border-gray-400">হিসাবরক্ষক</div>
+                    <div class="text-center w-24 border-t pt-0.5 border-emerald-800 text-emerald-800 font-bold">মুহতামিম</div>
+                </div>`;
 
             const editBtn = document.getElementById('btn-modal-edit');
-            if (editBtn) {
-                editBtn.onclick = () => window.editStudentFromList(s.id);
-            }
+            if (editBtn) editBtn.onclick = () => window.editStudentFromList(s.id);
 
-            const modal = document.getElementById('profile-modal');
-            if (modal) modal.classList.remove('hidden');
+            document.getElementById('profile-modal')?.classList.remove('hidden');
 
         } catch (err) {
-            console.error("প্রোফাইল লোড করতে সমস্যা:", err);
-            showToast("প্রোফাইল ডাটা লোড করা সম্ভব হয়নি।", "error");
+            console.error(err);
         }
     };
 
     window.closeProfileModal = function() {
-        const modal = document.getElementById('profile-modal');
-        if (modal) modal.classList.add('hidden');
+        document.getElementById('profile-modal')?.classList.add('hidden');
     };
 
-    window.printSingleBiodata = function() {
-        document.body.classList.add('print-single-biodata');
-        window.print();
-        document.body.classList.remove('print-single-biodata');
+    // A5 বায়োডাটা পিডিএফ ডাউনলোড
+    window.downloadSingleBiodataPDF = function() {
+        if (!activeProfileStudent) return;
+        const element = document.getElementById('profile-modal-body');
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `${activeProfileStudent.id}_${activeProfileStudent.name}_Biodata.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        showToast("A5 বায়োডাটা পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast("বায়োডাটা পিডিএফ ডাউনলোড সম্পন্ন!", "success");
+        }).catch(err => {
+            console.error("PDF সমস্যা:", err);
+            showToast("পিডিএফ ডাউনলোডে সমস্যা হয়েছে!", "error");
+        });
+    };
+
+    // ★ ফিল্টারের সকল তথ্যসহ A4 স্টুডেন্ট লিস্ট রিপোর্ট পিডিএফ ডাউনলোড ★
+    window.downloadStudentListReportPDF = async function() {
+        if (filteredStudentsArray.length === 0) {
+            showToast("কোনো তালিবে ইলমের তথ্য পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
+        
+        // সকল সক্রিয় ফিল্টার ডাটা সংগ্রহ
+        const sessionYear = document.getElementById('filter-session-list')?.value || 'সকল সেশন';
+        const branchVal = document.getElementById('filter-branch-list')?.value || 'সকল শাখা';
+        const classVal = document.getElementById('filter-class-list')?.value || 'সকল জামাত';
+        const feeGroupVal = document.getElementById('filter-fee-group-list')?.value || 'সকল ফি গ্রুপ';
+        const monthVal = document.getElementById('filter-month')?.value || 'চলতি মাস';
+        const paymentStatusVal = document.getElementById('filter-payment-status')?.value || '';
+        const searchVal = document.getElementById('search-student-list')?.value.trim() || '';
+
+        // পেমেন্ট স্ট্যাটাস টেক্সট
+        let statusText = 'সকল (পরিশোধিত ও বকেয়া)';
+        if (paymentStatusVal === 'paid') statusText = 'পরিশোধিত তালিকা';
+        else if (paymentStatusVal === 'due') statusText = 'বকেয়া তালিকা';
+
+        const rowsHtml = filteredStudentsArray.map((s, i) => `
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 5px 6px; text-align: center;">${i + 1}</td>
+                <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; font-weight: bold; color: #064e3b;">${s.roll || '-'}<br><small style="color: #6b7280;">${s.id}</small></td>
+                <td style="padding: 5px 6px;"><strong>${s.name}</strong><br><small style="color: #4b5563;">পিতা: ${s.father_name || '-'}</small></td>
+                <td style="padding: 5px 6px;">${s.class} ${s.group && s.group !== '-' ? `(${s.group})` : ''}<br><small style="color: #6b7280;">${s.branch}</small></td>
+                <td style="padding: 5px 6px; font-family: 'Inter', sans-serif;">${s.parent_phone || '-'}<br><small style="color: #065f46; font-weight: bold;">${s.fee_group_name || s.boarding_type || 'সাধারণ'}</small></td>
+                <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; text-align: right; font-weight: bold; color: #065f46;">৳ ${s.monthly_fee || 0}</td>
+            </tr>`).join('');
+
+        const container = document.getElementById('hidden-student-report-area');
+        container.innerHTML = `
+            <div style="padding: 16px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                
+                <!-- হেডার ও লোগো -->
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 10px;">
+                    <h2 style="font-size: 19px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10.5px; color: #4b5563; margin: 2px 0;">${mAddr}</p>
+                    <h3 style="font-size: 13px; font-weight: bold; color: #1f2937; margin: 6px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        তালিবে ইলমদের তথ্য রিপোর্ট
+                    </h3>
+                </div>
+
+                <!-- বিস্তারিত ফিল্টার সারসংক্ষেপ বক্স (সকল ফিল্টারের তথ্য) -->
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 10px; line-height: 1.6;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        <div><strong style="color: #64748b;">শিক্ষাবর্ষ:</strong> <span style="font-weight: bold; color: #0f172a;">${sessionYear}</span></div>
+                        <div><strong style="color: #64748b;">শাখা:</strong> <span style="font-weight: bold; color: #0f172a;">${branchVal}</span></div>
+                        <div><strong style="color: #64748b;">জামাত/শ্রেণী:</strong> <span style="font-weight: bold; color: #0f172a;">${classVal}</span></div>
+                        <div><strong style="color: #64748b;">ফি গ্রুপ:</strong> <span style="font-weight: bold; color: #0f172a;">${feeGroupVal}</span></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                        <div><strong style="color: #64748b;">বেতনের মাস:</strong> <span style="font-weight: bold; color: #0f172a;">${monthVal}</span></div>
+                        <div><strong style="color: #64748b;">স্ট্যাটাস:</strong> <span style="font-weight: bold; color: ${paymentStatusVal === 'due' ? '#dc2626' : '#059669'};">${statusText}</span></div>
+                        <div><strong style="color: #64748b;">রিপোর্ট তৈরির তারিখ:</strong> <span style="font-weight: bold; color: #0f172a; font-family: 'Inter', sans-serif;">${window.getLocalDateString()}</span></div>
+                        <div><strong style="color: #64748b;">মোট শিক্ষার্থী:</strong> <span style="font-weight: bold; color: #065f46; font-family: 'Inter', sans-serif;">${filteredStudentsArray.length} জন</span></div>
+                    </div>
+                    ${searchVal ? `<div style="margin-top: 3px; color: #64748b;"><strong>অনুসন্ধান কি-ওয়ার্ড:</strong> "${searchVal}"</div>` : ''}
+                </div>
+
+                <!-- মূল ডাটা টেবিল -->
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 6px; width: 30px; text-align: center;">#</th>
+                            <th style="padding: 6px; width: 85px;">রোল ও আইডি</th>
+                            <th style="padding: 6px;">তালিবে ইলমের নাম ও পিতা</th>
+                            <th style="padding: 6px;">জামাত ও শাখা</th>
+                            <th style="padding: 6px;">মোবাইল ও ফি গ্রুপ</th>
+                            <th style="padding: 6px; text-align: right; width: 70px;">মাসিক ফি</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #ecfdf5; font-weight: bold; border-top: 2px solid #065f46;">
+                            <td colspan="5" style="padding: 6px 8px; text-align: right;">সর্বমোট শিক্ষার্থী:</td>
+                            <td style="padding: 6px 8px; text-align: right; font-family: 'Inter', sans-serif; font-size: 11px; color: #064e3b;">${filteredStudentsArray.length} জন</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- স্বাক্ষর সেকশন -->
+                <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 9.5px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">হিসাবরক্ষক</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 3px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `Student_Report_${sessionYear}_${classVal}_${monthVal}_${paymentStatusVal || 'all'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        showToast("রিপোর্ট পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("রিপোর্ট পিডিএফ ডাউনলোড সম্পন্ন হয়েছে!", "success");
+            container.innerHTML = '';
+        }).catch(err => {
+            console.error("রিপোর্ট PDF সমস্যা:", err);
+            showToast("রিপোর্ট পিডিএফ ডাউনলোডে সমস্যা হয়েছে!", "error");
+        });
     };
 
     window.editStudentFromList = function(id) {
         window.closeProfileModal();
         window.preselectedStudentId = id; 
         loadModule('admission');
-        
-        setTimeout(async () => {
-            if (typeof editStudent === 'function') {
-                editStudent(id);
-            }
-        }, 800);
     };
 
-    window.collectFeeFor = function(studentId) {
-        window.preselectedStudentId = studentId;
-        loadModule('fees');
-    };
-
-    // ============================================
-    // ৬. এক্সেল এক্সপোর্ট লজিক (SheetJS Integration)
-    // ============================================
     window.exportToExcel = function() {
         if (filteredStudentsArray.length === 0) {
-            showToast("কোনো শিক্ষার্থী পাওয়া যায়নি!", "error");
+            showToast("কোনো তালিবে ইলম পাওয়া যায়নি!", "error");
             return;
         }
-        
+
         const data = filteredStudentsArray.map(s => ({
             'ID': s.id,
-            'Serial No': s.serial_no,
+            'Session Year': s.session_year || '2026',
             'Name': s.name,
             'Roll': s.roll,
             'Class': s.class,
             'Branch': s.branch,
-            'Department': s.department,
-            'Group': s.group,
+            'Group': s.group || '',
+            'Fee Group': s.fee_group_name || s.boarding_type || '',
             'Father Name': s.father_name,
             'Mother Name': s.mother_name,
             'Phone': s.parent_phone,
-            'WhatsApp': s.whatsapp_no,
-            'Date of Birth': s.dob,
+            'WhatsApp': s.whatsapp_number || s.parent_phone,
             'Monthly Fee': s.monthly_fee,
-            'Address': s.address || ''
+            'Previous Due': s.previous_due || 0,
+            'Address': s.permanent_address || s.address || ''
         }));
 
         try {
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Students");
-            XLSX.writeFile(wb, "Student_List.xlsx");
+            XLSX.writeFile(wb, `Student_List_${window.getLocalDateString()}.xlsx`);
             showToast("এক্সেল ফাইল ডাউনলোড শুরু হয়েছে।", "success");
         } catch (err) {
-            console.error(err);
             showToast("এক্সেল তৈরি করতে সমস্যা হয়েছে!", "error");
         }
     };
 
-    // ============================================
-    // ৭. এক্সেল ইম্পোর্ট লজিক
-    // ============================================
     window.importFromExcel = function(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1126,105 +881,42 @@
             try {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                
-                if (jsonData.length === 0) {
-                    showToast("এক্সেল ফাইলে কোনো ডাটা পাওয়া যায়নি!", "error");
-                    return;
-                }
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
-                const importData = [];
                 const curUser = window.currentUser ? window.currentUser.username : "system";
-
-                for (let i = 0; i < jsonData.length; i++) {
-                    const row = jsonData[i];
-                    const sId = row['ID'] ? row['ID'].toString() : 'S-' + (Date.now() + i) + '-' + Math.floor(Math.random() * 100);
-                    
-                    importData.push({
-                        id: sId,
-                        serial_no: parseInt(row['Serial No']) || i + 1,
-                        name: (row['Name'] || 'অজানা').toString(),
-                        roll: parseInt(row['Roll']) || 0,
-                        class: (row['Class'] || '').toString(),
-                        branch: (row['Branch'] || '').toString(),
-                        department: (row['Department'] || '').toString(),
-                        group: (row['Group'] || '-').toString(),
-                        father_name: (row['Father Name'] || '').toString(),
-                        mother_name: (row['Mother Name'] || '').toString(),
-                        parent_phone: (row['Phone'] || '').toString(),
-                        whatsapp_no: (row['WhatsApp'] || '').toString(),
-                        dob: (row['Date of Birth'] || '').toString(),
-                        monthly_fee: parseFloat(row['Monthly Fee']) || 500,
-                        address: (row['Address'] || '').toString(),
-                        is_synced: 0,
-                        is_deleted: 0,
-                        created_by: curUser,
-                        updated_by: curUser,
-                        admission_date: new Date().toISOString().split('T')[0]
-                    });
-                }
+                const importData = jsonData.map((row, i) => ({
+                    id: row['ID'] ? row['ID'].toString() : 'S-' + (Date.now() + i),
+                    session_year: (row['Session Year'] || '2026').toString(),
+                    name: (row['Name'] || 'অজানা').toString(),
+                    roll: parseInt(row['Roll'], 10) || 0,
+                    class: (row['Class'] || '').toString(),
+                    branch: (row['Branch'] || '').toString(),
+                    group: (row['Group'] || '-').toString(),
+                    fee_group_name: (row['Fee Group'] || 'সাধারণ').toString(),
+                    father_name: (row['Father Name'] || '').toString(),
+                    mother_name: (row['Mother Name'] || '').toString(),
+                    parent_phone: (row['Phone'] || '').toString(),
+                    whatsapp_number: (row['WhatsApp'] || row['Phone'] || '').toString(),
+                    monthly_fee: parseFloat(row['Monthly Fee']) || 500,
+                    previous_due: parseFloat(row['Previous Due']) || 0,
+                    address: (row['Address'] || '').toString(),
+                    permanent_address: (row['Address'] || '').toString(),
+                    is_synced: 0,
+                    is_deleted: 0,
+                    created_by: curUser,
+                    updated_by: curUser,
+                    admission_date: window.getLocalDateString()
+                }));
 
                 await db.students.bulkPut(importData);
-                showToast(`${importData.length} জন শিক্ষার্থীর ডাটা ইমপোর্ট হয়েছে!`, "success");
-                event.target.value = ''; // ইনপুট রিসেট
-
-                if (typeof updatePendingCount === 'function') {
-                    await updatePendingCount();
-                }
-                await window.initStudentlist();
+                showToast(`${importData.length} জন তালিবে ইলমের ডাটা ইমপোর্ট হয়েছে!`, "success");
+                if (typeof updatePendingCount === 'function') await updatePendingCount();
+                await window.initStudentList();
             } catch (err) {
-                console.error(err);
                 showToast("ফাইল ইমপোর্ট করতে সমস্যা হয়েছে!", "error");
             }
         };
         reader.readAsArrayBuffer(file);
-    };
-
-    // ============================================
-    // ৮. কাস্টম প্রিন্ট সাইজ কন্ট্রোলার
-    // ============================================
-    window.printStudentList = function() {
-        const printSize = document.getElementById('print-size-selector').value;
-        
-        // ডাইনামিক স্টাইল শিট বা রেন্ডারিং ক্লিয়ারেন্স
-        const oldStyle = document.getElementById('dynamic-print-page-style');
-        if (oldStyle) oldStyle.remove();
-
-        const styleEl = document.createElement('style');
-        styleEl.id = 'dynamic-print-page-style';
-        
-        if (printSize === 'A4') {
-            document.body.classList.add('print-mode-a4');
-            styleEl.innerHTML = `
-                @media print {
-                    @page {
-                        size: A4 portrait !important;
-                        margin: 10mm !important;
-                    }
-                }
-            `;
-        } else if (printSize === 'A5') {
-            document.body.classList.add('print-mode-a5-list');
-            styleEl.innerHTML = `
-                @media print {
-                    @page {
-                        size: A5 landscape !important;
-                        margin: 5mm !important;
-                    }
-                }
-            `;
-        }
-        
-        document.head.appendChild(styleEl);
-        
-        const cleanPrintClass = () => {
-            document.body.classList.remove('print-mode-a4', 'print-mode-a5-list');
-            const dynamicStyle = document.getElementById('dynamic-print-page-style');
-            if (dynamicStyle) dynamicStyle.remove();
-        };
-        window.addEventListener('afterprint', cleanPrintClass, { once: true });
-        window.print();
     };
 })();
 </script>

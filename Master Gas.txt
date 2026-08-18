@@ -1,0 +1,141 @@
+/* ==========================================================================
+   Master Sheet - Robust JSON-Engine (Fixed Login & Setup)
+   ========================================================================== */
+
+function doPost(e) {
+  try {
+    var params = {};
+    
+    // ১. ব্রাউজার থেকে আসা JSON ডাটা নিখুঁতভাবে পড়া
+    if (e && e.postData && e.postData.contents) {
+      try {
+        params = JSON.parse(e.postData.contents);
+      } catch(err) {
+        var qs = e.postData.contents;
+        var pairs = qs.split('&');
+        for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split('=');
+          if (pair.length === 2) {
+            params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
+          }
+        }
+      }
+    } else if (e && e.parameter) {
+      params = e.parameter;
+    }
+
+    var action = params.action;
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Tenants") || ss.getSheets()[0];
+    
+    var table = getSheetDataAsObjects(sheet);
+    var rows = table.rows;
+    var headers = table.headers;
+
+    // ২. লগইন ও ওয়ান-টাইম সেটআপ যাচাই
+    if (action === "verify_login_or_setup") {
+      var mId = String(params.madrasah_id || "").trim().toUpperCase();
+      var inputUser = String(params.username || "").trim().toLowerCase();
+      var inputPass = String(params.password || "").trim();
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var rowMId = String(row.madrasah_id || "").trim().toUpperCase();
+
+        if (rowMId === mId) {
+          var rowStatus = String(row.status || "").trim().toLowerCase();
+          if (rowStatus !== "active") {
+            return responseJSON({ status: "error", message: "মাদরাসার অ্যাকাউন্টটি সক্রিয় (Active) নেই!" });
+          }
+
+          var isInstalled = (row.is_installed === true || String(row.is_installed).trim().toUpperCase() === "TRUE");
+
+          // ক. যদি প্রথমবার সেটআপ হয় (is_installed খালি বা FALSE)
+          if (!isInstalled) {
+            var setupUser = String(row.setup_username || "").trim().toLowerCase();
+            var setupPass = String(row.setup_password || "").trim();
+
+            // ইউজারনেম ও পাসওয়ার্ড মিলিয়ে দেখা
+            if (inputUser === setupUser && inputPass === setupPass) {
+              return responseJSON({
+                status: "success",
+                is_first_time: true,
+                script_id: String(row.script_id || "").trim(),
+                madrasah_name: String(row.madrasah_name || "").trim()
+              });
+            } else {
+              return responseJSON({ 
+                status: "error", 
+                message: "মাস্টার শিটের সেটআপ ইউজারনেম বা পাসওয়ার্ড মেলেনি!" 
+              });
+            }
+          }
+
+          // খ. যদি পূর্বে ইনস্টল করা হয়ে থাকে (Regular Mode)
+          return responseJSON({
+            status: "success",
+            is_first_time: false,
+            script_id: String(row.script_id || "").trim(),
+            madrasah_name: String(row.madrasah_name || "").trim()
+          });
+        }
+      }
+      return responseJSON({ status: "error", message: "মাদরাসা আইডি (" + mId + ") খুঁজে পাওয়া যায়নি!" });
+    }
+
+    // ৩. ইনস্টলেশন শেষে মাস্টার শিট লকডাউন
+    if (action === "lockdown_installation") {
+      var mId = String(params.madrasah_id || "").trim().toUpperCase();
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        if (String(row.madrasah_id || "").trim().toUpperCase() === mId) {
+          var rowNumber = row._rowNumber;
+          setCellValueByHeader(sheet, headers, rowNumber, "setup_password", "");
+          setCellValueByHeader(sheet, headers, rowNumber, "is_installed", true);
+          setCellValueByHeader(sheet, headers, rowNumber, "installed_at", new Date());
+
+          return responseJSON({ status: "success", message: "মাস্টার লকডাউন সম্পন্ন!" });
+        }
+      }
+      return responseJSON({ status: "error", message: "মাদরাসা আইডি মেলেনি!" });
+    }
+
+    return responseJSON({ status: "error", message: "অজানা অ্যাকশন!" });
+
+  } catch (err) {
+    return responseJSON({ status: "error", message: err.toString() });
+  }
+}
+
+// শিটের ডাটা অবজেক্টে রূপান্তর
+function getSheetDataAsObjects(sheet) {
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return { headers: [], rows: [] };
+
+  var headers = values[0].map(function(h) {
+    return String(h).trim().toLowerCase();
+  });
+
+  var rows = [];
+  for (var r = 1; r < values.length; r++) {
+    var rowObj = { _rowNumber: r + 1 };
+    for (var c = 0; c < headers.length; c++) {
+      if (headers[c]) rowObj[headers[c]] = values[r][c];
+    }
+    rows.push(rowObj);
+  }
+  return { headers: headers, rows: rows };
+}
+
+function setCellValueByHeader(sheet, headers, rowNumber, headerName, value) {
+  var colIndex = headers.indexOf(headerName.toLowerCase());
+  if (colIndex !== -1) {
+    sheet.getRange(rowNumber, colIndex + 1).setValue(value);
+  }
+}
+
+function responseJSON(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}

@@ -1,0 +1,1061 @@
+
+<div id="installer-container" data-title="মাদরাসা অনবোর্ডিং ও প্রাথমিক সেটআপ উইজার্ড" class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden my-4 md:my-6 transition-all duration-300">
+    
+    <!-- উইজার্ড হেডার -->
+    <div class="bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-900 text-white p-6 text-center relative shadow-inner">
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-white/10 rounded-2xl mb-3 border border-white/20 shadow-md">
+            <i class="fa-solid fa-mosque text-3xl text-yellow-300"></i>
+        </div>
+        <h3 class="text-xl md:text-2xl font-extrabold flex items-center justify-center gap-2">
+            মাদরাসা অনবোর্ডিং ও প্রাথমিক সেটআপ উইজার্ড
+        </h3>
+        <p class="text-xs text-emerald-200 mt-1">প্রতিষ্ঠান কনফিগারেশন, জামাত প্রিসেট, ফিস ও মুহতামিম অ্যাকাউন্ট সেটআপ</p>
+        
+        <!-- প্রোগ্রেস ইন্ডিকেটর (৪টি ধাপ) -->
+        <div class="flex justify-center items-center gap-3 md:gap-6 mt-6 text-[11px] md:text-xs font-bold overflow-x-auto custom-scroll pb-2 select-none">
+            <div id="step-ind-1" class="flex items-center gap-1.5 text-yellow-300 border-b-2 border-yellow-300 pb-1 whitespace-nowrap transition">
+                <span class="w-5 h-5 rounded-full bg-yellow-300 text-emerald-950 flex items-center justify-center text-[10px] font-bold font-en">1</span> ১. প্রোফাইল ও সেশন
+            </div>
+            <div id="step-ind-2" class="flex items-center gap-1.5 text-emerald-300 opacity-60 whitespace-nowrap transition">
+                <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold font-en">2</span> ২. অ্যাকাডেমিক প্রিসেট
+            </div>
+            <div id="step-ind-3" class="flex items-center gap-1.5 text-emerald-300 opacity-60 whitespace-nowrap transition">
+                <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold font-en">3</span> ৩. ফিস গ্রুপ
+            </div>
+            <div id="step-ind-4" class="flex items-center gap-1.5 text-emerald-300 opacity-60 whitespace-nowrap transition">
+                <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold font-en">4</span> ৪. প্রিভিউ ও সমাপ্তি
+            </div>
+        </div>
+    </div>
+
+    <!-- মূল ইনস্টলার ফর্ম -->
+    <form id="installer-form" class="p-6 md:p-8 space-y-6">
+
+        <!-- ========================================================== -->
+        <!-- স্টেপ ১: মাদরাসার মূল প্রোফাইল -->
+        <!-- ========================================================== -->
+        <div id="install-step-1" class="space-y-4 animate-fadeIn">
+            <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-building"></i> ১. মাদরাসার মূল প্রোফাইল ও শিক্ষাবর্ষ
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">মাদরাসার নাম *</label>
+                    <input type="text" id="inst-name" required placeholder="মাদরাসার পূর্ণ নাম লিখুন"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">হেল্পলাইন/ফোন নম্বর *</label>
+                    <input type="tel" id="inst-phone" required placeholder="017XXXXXXXX"
+                           oninput="this.value = window.convertToEnglishDigits(this.value)"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold font-en">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">মাদরাসার পূর্ণাঙ্গ ঠিকানা *</label>
+                <input type="text" id="inst-address" required placeholder="গ্রাম/রোড, ডাকঘর, থানা, জেলা"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">মুহতামিম সাহেবের নাম *</label>
+                    <input type="text" id="inst-principal" required placeholder="মুহতামিম সাহেবের নাম"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">প্রাথমিক শিক্ষাবর্ষ (Session) *</label>
+                    <input type="text" id="inst-session-year" required value="2026" placeholder="যেমন: 2026"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold font-en">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">লোগো লিংক (Logo URL)</label>
+                    <input type="text" id="inst-logo" placeholder="https://..."
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-mono">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- স্টেপ ২: প্রিসেট ও অ্যাকাডেমিক বিল্ডার (With Edit buttons) -->
+        <!-- ========================================================== -->
+        <div id="install-step-2" class="space-y-5 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap"></i> ২. প্রিসেট নির্বাচন ও অ্যাকাডেমিক বিল্ডার
+                </h4>
+                <span class="text-[11px] text-gray-500 font-normal">যেকোনো আইটেমে ক্লিক করে এডিট ও পরিবর্তন করতে পারেন</span>
+            </div>
+
+            <!-- প্রিসেট টাইলস -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <label class="flex items-start gap-2.5 p-3.5 bg-gray-50 hover:bg-emerald-50/50 border border-gray-200 hover:border-emerald-300 rounded-2xl cursor-pointer transition select-none">
+                    <input type="checkbox" id="preset-noorani" onchange="window.applySelectedPresets()" class="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                    <div>
+                        <strong class="text-xs text-gray-800 block">নূরানী ও কিন্ডারগার্টেন</strong>
+                        <span class="text-[10px] text-gray-400">নার্সারি, ১ম থেকে ৫ম শ্রেণি</span>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-2.5 p-3.5 bg-gray-50 hover:bg-emerald-50/50 border border-gray-200 hover:border-emerald-300 rounded-2xl cursor-pointer transition select-none">
+                    <input type="checkbox" id="preset-hifz" checked onchange="window.applySelectedPresets()" class="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                    <div>
+                        <strong class="text-xs text-gray-800 block">হিফজুল কুরআন ও নাজেরা</strong>
+                        <span class="text-[10px] text-gray-400">নাজেরা ও হেফজখানা</span>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-2.5 p-3.5 bg-gray-50 hover:bg-emerald-50/50 border border-gray-200 hover:border-emerald-300 rounded-2xl cursor-pointer transition select-none">
+                    <input type="checkbox" id="preset-kitab" checked onchange="window.applySelectedPresets()" class="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                    <div>
+                        <strong class="text-xs text-gray-800 block">কওমি কিতাব বিভাগ</strong>
+                        <span class="text-[10px] text-gray-400">সালে আউয়াল হতে দাওরা</span>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-2.5 p-3.5 bg-gray-50 hover:bg-emerald-50/50 border border-gray-200 hover:border-emerald-300 rounded-2xl cursor-pointer transition select-none">
+                    <input type="checkbox" id="preset-girls" onchange="window.applySelectedPresets()" class="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                    <div>
+                        <strong class="text-xs text-gray-800 block">মহিলা / বালিকা শাখা</strong>
+                        <span class="text-[10px] text-gray-400">আউয়াল হতে দাওরা</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- ৪ কলাম এডিটেবল বিল্ডার -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                <!-- কলাম ১: শাখা -->
+                <div class="bg-gray-50/90 p-3.5 rounded-2xl border border-gray-200 flex flex-col justify-between min-h-[320px] shadow-sm">
+                    <div>
+                        <h5 class="text-xs font-bold text-emerald-950 mb-2 flex items-center justify-between border-b pb-1.5">
+                            <span>১. শাখা সমূহ *</span>
+                            <span id="cnt-inst-branches" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-en font-bold">0</span>
+                        </h5>
+                        <div id="inst-branch-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scroll"></div>
+                    </div>
+                    <div class="flex gap-1.5 pt-2 border-t mt-2">
+                        <input type="text" id="new-inst-branch-name" placeholder="নতুন শাখা..." class="min-w-0 flex-1 px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-emerald-500 bg-white">
+                        <button type="button" onclick="window.addInstallerBranch()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">+</button>
+                    </div>
+                </div>
+
+                <!-- কলাম ২: বিভাগ -->
+                <div class="bg-gray-50/90 p-3.5 rounded-2xl border border-gray-200 flex flex-col justify-between min-h-[320px] shadow-sm">
+                    <div>
+                        <h5 class="text-xs font-bold text-blue-950 mb-2 flex items-center justify-between border-b pb-1.5">
+                            <span>২. বিভাগ সমূহ *</span>
+                            <span id="cnt-inst-depts" class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-en font-bold">0</span>
+                        </h5>
+                        <div id="inst-dept-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scroll"></div>
+                    </div>
+                    <div class="space-y-1.5 pt-2 border-t mt-2">
+                        <input type="text" id="new-inst-dept-name" placeholder="বিভাগের নাম..." class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-blue-500 bg-white">
+                        <div class="flex gap-1.5">
+                            <input type="number" id="new-inst-dept-id" placeholder="আইডি বেস (১০০০)" class="min-w-0 flex-1 px-2 py-1.5 rounded-xl border border-gray-300 text-xs font-en focus:outline-none focus:border-blue-500 bg-white">
+                            <button type="button" onclick="window.addInstallerDept()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- কলাম ৩: জামাত / শ্রেণী -->
+                <div class="bg-gray-50/90 p-3.5 rounded-2xl border border-gray-200 flex flex-col justify-between min-h-[320px] shadow-sm">
+                    <div>
+                        <h5 class="text-xs font-bold text-amber-950 mb-2 flex items-center justify-between border-b pb-1.5">
+                            <span>৩. জামাত / শ্রেণী *</span>
+                            <span id="cnt-inst-classes" class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-en font-bold">0</span>
+                        </h5>
+                        <div id="inst-class-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scroll"></div>
+                    </div>
+                    <div class="flex gap-1.5 pt-2 border-t mt-2">
+                        <input type="text" id="new-inst-class-name" placeholder="জামাতের নাম..." class="min-w-0 flex-1 px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-amber-500 bg-white">
+                        <button type="button" onclick="window.addInstallerClass()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">+</button>
+                    </div>
+                </div>
+
+                <!-- কলাম ৪: গ্রুপ / সেকশন -->
+                <div class="bg-gray-50/90 p-3.5 rounded-2xl border border-gray-200 flex flex-col justify-between min-h-[320px] shadow-sm">
+                    <div>
+                        <h5 class="text-xs font-bold text-purple-950 mb-2 flex items-center justify-between border-b pb-1.5">
+                            <span>৪. গ্রুপ / সেকশন</span>
+                            <span id="cnt-inst-groups" class="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-en font-bold">0</span>
+                        </h5>
+                        <div id="inst-group-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scroll"></div>
+                    </div>
+                    <div class="flex gap-1.5 pt-2 border-t mt-2">
+                        <input type="text" id="new-inst-group-name" placeholder="যেমন: ক গ্রুপ" class="min-w-0 flex-1 px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-purple-500 bg-white">
+                        <button type="button" onclick="window.addInstallerGroup()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- স্টেপ ৩: ফিস গ্রুপ কনফিগারেশন (Simplified) -->
+        <!-- ========================================================== -->
+        <div id="install-step-3" class="space-y-4 hidden animate-fadeIn">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-wave"></i> ৩. মাসিক বেতন ও ফিস গ্রুপ কনফিগারেশন
+                </h4>
+                <span class="text-[11px] text-gray-500">ভর্তির সময় এই ক্যাটাগরিগুলো নির্বাচন করা হবে</span>
+            </div>
+
+            <div class="bg-gray-50/90 p-5 rounded-2xl border border-gray-200 space-y-4 shadow-sm max-w-2xl mx-auto">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="text-xs font-bold text-gray-700">বিদ্যমান ফিস গ্রুপ তালিকা:</span>
+                    <span id="cnt-fee-groups" class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-bold font-en">3</span>
+                </div>
+
+                <!-- ফিস গ্রুপ তালিকা -->
+                <div id="inst-fee-list" class="space-y-2 max-h-60 overflow-y-auto custom-scroll"></div>
+
+                <!-- নতুন ফিস গ্রুপ যোগ -->
+                <div class="pt-3 border-t space-y-2">
+                    <div class="text-xs font-bold text-emerald-900">নতুন ফিস গ্রুপ যুক্ত করুন:</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="new-fee-name" placeholder="গ্রুপের নাম (যেমন: ডে-কেয়ার)" class="px-3 py-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-500 bg-white font-bold">
+                        <input type="text" id="new-fee-amount" placeholder="টাকার পরিমাণ (৳)" oninput="this.value=window.convertToEnglishDigits(this.value)" class="px-3 py-2 border rounded-xl text-xs font-en font-bold focus:outline-none focus:border-emerald-500 bg-white">
+                    </div>
+                    <button type="button" onclick="window.addInstallerFeeGroup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> ফিস গ্রুপ যোগ করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- স্টেপ ৪: অ্যাডমিন অ্যাকাউন্ট ও লাইভ প্রিভিউ সামারি -->
+        <!-- ========================================================== -->
+        <div id="install-step-4" class="space-y-5 hidden animate-fadeIn">
+            <h4 class="text-sm font-bold text-emerald-800 border-b pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-user-shield"></i> ৪. প্রধান প্রশাসক (মুহতামিম) একাউন্ট ও চূড়ান্ত প্রিভিউ
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">এডমিনের পূর্ণ নাম *</label>
+                    <input type="text" id="inst-admin-fullname" required placeholder="যেমন: মাওলানা আব্দুর রহমান"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">লগইন ইউজারনেম *</label>
+                    <input type="text" id="inst-admin-username" required placeholder="যেমন: admin"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">গোপন ৪ সংখ্যার পিন কোড (PIN) *</label>
+                    <input type="password" id="inst-admin-pin" required maxlength="4" placeholder="••••"
+                           oninput="this.value = window.convertToEnglishDigits(this.value)"
+                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none text-xs font-bold font-en text-center tracking-widest bg-white">
+                </div>
+            </div>
+
+            <!-- সার্বিক কনফিগারেশন লাইভ প্রিভিউ কার্ড -->
+            <div class="bg-gradient-to-br from-gray-50 to-emerald-50/30 p-5 rounded-2xl border border-emerald-200/60 shadow-sm space-y-4">
+                <h5 class="text-xs font-extrabold text-emerald-950 flex items-center justify-between border-b pb-2">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-list-check text-emerald-600"></i> সার্বিক কনফিগারেশন প্রিভিউ (Setup Summary)</span>
+                    <span class="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">যাচাই করুন</span>
+                </h5>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="bg-white p-3 rounded-xl border border-gray-150 shadow-sm">
+                        <span class="text-[10px] text-gray-400 block font-bold">মাদরাসার নাম ও আইডি</span>
+                        <strong id="prev-madrasah-name" class="text-emerald-900 block truncate mt-0.5">-</strong>
+                        <span id="prev-madrasah-id" class="text-[10px] text-gray-500 font-en font-bold">-</span>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-gray-150 shadow-sm">
+                        <span class="text-[10px] text-gray-400 block font-bold">মুহতামিম সাহেব ও শিক্ষাবর্ষ</span>
+                        <strong id="prev-principal" class="text-emerald-900 block truncate mt-0.5">-</strong>
+                        <span id="prev-session" class="text-[10px] text-gray-500 font-en font-bold">সেশন: -</span>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-gray-150 shadow-sm">
+                        <span class="text-[10px] text-gray-400 block font-bold">যোগাযোগ ও হেল্পলাইন</span>
+                        <strong id="prev-phone" class="text-emerald-900 font-en block mt-0.5">-</strong>
+                        <span id="prev-address" class="text-[10px] text-gray-500 truncate block">-</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                    <!-- অ্যাকাডেমিক কাঠামো সামারি -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-150 shadow-sm space-y-2">
+                        <strong class="text-xs text-gray-800 flex items-center justify-between border-b pb-1">
+                            <span>শাখা ও বিভাগসমূহ:</span>
+                            <span id="prev-total-classes" class="text-[10px] text-blue-700 font-en font-bold">0 জামাত</span>
+                        </strong>
+                        <div id="prev-academic-tree" class="text-[11px] text-gray-600 space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1"></div>
+                    </div>
+
+                    <!-- ফিস গ্রুপ সামারি -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-150 shadow-sm space-y-2">
+                        <strong class="text-xs text-gray-800 flex items-center justify-between border-b pb-1">
+                            <span>নির্ধারিত ফিস গ্রুপসমূহ:</span>
+                            <span id="prev-total-fees" class="text-[10px] text-emerald-700 font-en font-bold">0 গ্রুপ</span>
+                        </strong>
+                        <div id="prev-fee-list" class="text-[11px] text-gray-600 space-y-1 max-h-36 overflow-y-auto custom-scroll pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- উইজার্ড নেভিগেশন বাটনসমূহ -->
+        <div class="flex justify-between items-center pt-4 border-t">
+            <button type="button" id="btn-wizard-prev" onclick="window.navigateWizard(-1)" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-2.5 rounded-xl text-xs transition">
+                <i class="fa-solid fa-arrow-left mr-1"></i> পূর্ববর্তী
+            </button>
+
+            <button type="button" id="btn-wizard-next" onclick="window.navigateWizard(1)" class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition">
+                পরবর্তী <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <button type="submit" id="btn-wizard-submit" class="hidden ml-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl text-xs md:text-sm flex items-center gap-2 shadow-lg hover:shadow-xl transition transform active:scale-95">
+                <i class="fa-solid fa-circle-check"></i> সব ঠিক আছে, সেটআপ শুরু করি, বিসমিল্লাহ...
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    let currentStep = 1;
+    let selectedBranchId = null;
+    let selectedDeptId = null;
+    let selectedClassId = null;
+
+    let academicStructure = [];
+    let feeGroupList = [
+        { id: 'fg-1', name: "বাড়ি", amount: 700 },
+        { id: 'fg-2', name: "সাধারণ বোর্ডিং", amount: 3000 },
+        { id: 'fg-3', name: "বিশেষ বোর্ডিং", amount: 4500 }
+    ];
+
+    const PRESETS = {
+        noorani: {
+            name: "নূরানী ও কিন্ডারগার্টেন",
+            departments: [
+                {
+                    id: 'd-nr',
+                    name: "নূরানী বিভাগ",
+                    start_id: 100,
+                    classes: [
+                        { id: 'c-nr-1', name: "নূরানী নার্সারি", groups: [] },
+                        { id: 'c-nr-2', name: "১ম শ্রেণি", groups: [] },
+                        { id: 'c-nr-3', name: "২য় শ্রেণি", groups: [] },
+                        { id: 'c-nr-4', name: "৩য় শ্রেণি", groups: [] },
+                        { id: 'c-nr-5', name: "৪র্থ শ্রেণি", groups: [] },
+                        { id: 'c-nr-6', name: "৫ম শ্রেণি", groups: [] }
+                    ]
+                }
+            ]
+        },
+        hifz: {
+            name: "হিফজুল কুরআন ও নাজেরা",
+            departments: [
+                {
+                    id: 'd-hfz',
+                    name: "হেফজ বিভাগ",
+                    start_id: 9000,
+                    classes: [
+                        { id: 'c-hfz-1', name: "নাজেরা জামাত", groups: [] },
+                        { id: 'c-hfz-2', name: "হিফজুল কুরআন", groups: [] }
+                    ]
+                }
+            ]
+        },
+        kitab: {
+            name: "কওমি কিতাব বিভাগ",
+            departments: [
+                {
+                    id: 'd-ktb',
+                    name: "কিতাব বিভাগ",
+                    start_id: 1000,
+                    classes: [
+                        { id: 'c-ktb-1', name: "সালে আউয়াল", groups: [] },
+                        { id: 'c-ktb-2', name: "সালে দুয়ম", groups: [] },
+                        { id: 'c-ktb-3', name: "খুসুসী", groups: [] },
+                        { id: 'c-ktb-4', name: "তাইসীর", groups: [] },
+                        { id: 'c-ktb-5', name: "মিযান", groups: [] },
+                        { id: 'c-ktb-6', name: "নাহবেমীর", groups: [] },
+                        { id: 'c-ktb-7', name: "হিদায়াতুন নাহু", groups: [] },
+                        { id: 'c-ktb-8', name: "কাফিয়া", groups: [] },
+                        { id: 'c-ktb-9', name: "শরহে জামী", groups: [] },
+                        { id: 'c-ktb-10', name: "শরহে বেকায়া", groups: [] },
+                        { id: 'c-ktb-11', name: "জালালাইন", groups: [] },
+                        { id: 'c-ktb-12', name: "মিশকাত", groups: [] },
+                        { id: 'c-ktb-13', name: "দাওরা", groups: [] }
+                    ]
+                }
+            ]
+        },
+        girls: {
+            name: "মহিলা শাখা (বালিকা মাদরাসা)",
+            departments: [
+                {
+                    id: 'd-grl',
+                    name: "বালিকা কিতাব বিভাগ",
+                    start_id: 5000,
+                    classes: [
+                        { id: 'c-grl-1', name: "আউয়াল", groups: [] },
+                        { id: 'c-grl-2', name: "ছানী", groups: [] },
+                        { id: 'c-grl-3', name: "ছালেছ", groups: [] },
+                        { id: 'c-grl-4', name: "রাবে", groups: [] },
+                        { id: 'c-grl-5', name: "খামেস", groups: [] },
+                        { id: 'c-grl-6', name: "মিযান", groups: [] },
+                        { id: 'c-grl-7', name: "নাহবেমীর", groups: [] },
+                        { id: 'c-grl-8', name: "কুদুরী", groups: [] },
+                        { id: 'c-grl-9', name: "শরহে বেকায়া", groups: [] },
+                        { id: 'c-grl-10', name: "হেদায়া", groups: [] },
+                        { id: 'c-grl-11', name: "মিশকাত", groups: [] },
+                        { id: 'c-grl-12', name: "দাওরা", groups: [] }
+                    ]
+                }
+            ]
+        }
+    };
+
+    window.initInstaller = function() {
+        currentStep = 1;
+
+        // মাস্টার শিটের তথ্য প্রিফিল
+        const savedName = localStorage.getItem('madrasah_name');
+        if (savedName) document.getElementById('inst-name').value = savedName;
+
+        window.applySelectedPresets();
+        renderFeeGroupList();
+        updateWizardUI();
+
+        const formEl = document.getElementById('installer-form');
+        if (formEl) {
+            formEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT' && currentStep < 4) {
+                    e.preventDefault();
+                    window.navigateWizard(1);
+                }
+            });
+
+            formEl.onsubmit = async (e) => {
+                e.preventDefault();
+                await handleFinalInstallation();
+            };
+        }
+    };
+
+    // প্রিসেট নির্বাচন
+    window.applySelectedPresets = function() {
+        const isNoorani = document.getElementById('preset-noorani')?.checked;
+        const isHifz = document.getElementById('preset-hifz')?.checked;
+        const isKitab = document.getElementById('preset-kitab')?.checked;
+        const isGirls = document.getElementById('preset-girls')?.checked;
+
+        academicStructure = [];
+
+        const mainBranch = { id: 'b-main', name: "মূল ক্যাম্পাস (বালক)", departments: [] };
+        if (isNoorani) mainBranch.departments.push(JSON.parse(JSON.stringify(PRESETS.noorani.departments[0])));
+        if (isHifz) mainBranch.departments.push(JSON.parse(JSON.stringify(PRESETS.hifz.departments[0])));
+        if (isKitab) mainBranch.departments.push(JSON.parse(JSON.stringify(PRESETS.kitab.departments[0])));
+
+        if (mainBranch.departments.length > 0) academicStructure.push(mainBranch);
+
+        if (isGirls) {
+            academicStructure.push({
+                id: 'b-girls',
+                name: "মহিলা শাখা (বালিকা ক্যাম্পাস)",
+                departments: JSON.parse(JSON.stringify(PRESETS.girls.departments))
+            });
+        }
+
+        if (academicStructure.length === 0) {
+            academicStructure.push({ id: 'b-main', name: "মূল শাখা", departments: [] });
+        }
+
+        selectedBranchId = academicStructure[0].id;
+        selectedDeptId = (academicStructure[0].departments.length > 0) ? academicStructure[0].departments[0].id : null;
+        selectedClassId = (selectedDeptId && academicStructure[0].departments[0].classes.length > 0) ? academicStructure[0].departments[0].classes[0].id : null;
+
+        renderAcademicBuilder();
+    };
+
+    function renderAcademicBuilder() {
+        renderInstallerBranches();
+        renderInstallerDepartments();
+        renderInstallerClasses();
+        renderInstallerGroups();
+    }
+
+    // ১. শাখা রেন্ডার ও এডিট
+    function renderInstallerBranches() {
+        const list = document.getElementById('inst-branch-list');
+        const cnt = document.getElementById('cnt-inst-branches');
+        if (cnt) cnt.textContent = academicStructure.length;
+        if (!list) return;
+
+        list.innerHTML = academicStructure.map(b => {
+            const isActive = selectedBranchId === b.id;
+            return `
+                <div onclick="window.selectInstBranch('${b.id}')" class="p-2 rounded-xl border cursor-pointer transition flex justify-between items-center text-xs font-bold ${isActive ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-200'}">
+                    <span class="truncate">${b.name}</span>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="event.stopPropagation(); window.editInstBranch('${b.id}')" title="এডিট" class="${isActive ? 'text-white/90 hover:text-white' : 'text-blue-600'} p-0.5"><i class="fa-solid fa-pen-to-square text-[10px]"></i></button>
+                        ${academicStructure.length > 1 ? `<button type="button" onclick="event.stopPropagation(); window.removeInstBranch('${b.id}')" title="মুছুন" class="${isActive ? 'text-white/90 hover:text-white' : 'text-red-500'} p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    window.selectInstBranch = function(id) {
+        selectedBranchId = id;
+        const branch = academicStructure.find(b => b.id === id);
+        selectedDeptId = (branch && branch.departments.length > 0) ? branch.departments[0].id : null;
+        selectedClassId = (branch && selectedDeptId && branch.departments[0].classes.length > 0) ? branch.departments[0].classes[0].id : null;
+        renderAcademicBuilder();
+    };
+
+    window.editInstBranch = function(id) {
+        const branch = academicStructure.find(b => b.id === id);
+        if (!branch) return;
+        const newName = prompt("শাখার নতুন নাম লিখুন:", branch.name);
+        if (newName && newName.trim()) {
+            branch.name = newName.trim();
+            renderAcademicBuilder();
+        }
+    };
+
+    window.addInstallerBranch = function() {
+        const input = document.getElementById('new-inst-branch-name');
+        const val = input.value.trim();
+        if (val) {
+            const newId = 'b-' + Date.now();
+            academicStructure.push({ id: newId, name: val, departments: [] });
+            selectedBranchId = newId;
+            input.value = '';
+            renderAcademicBuilder();
+        }
+    };
+
+    window.removeInstBranch = function(id) {
+        if (academicStructure.length > 1) {
+            academicStructure = academicStructure.filter(b => b.id !== id);
+            selectedBranchId = academicStructure[0].id;
+            renderAcademicBuilder();
+        }
+    };
+
+    // ২. বিভাগ রেন্ডার ও এডিট
+    function renderInstallerDepartments() {
+        const list = document.getElementById('inst-dept-list');
+        const cnt = document.getElementById('cnt-inst-depts');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const depts = activeBranch ? activeBranch.departments : [];
+        if (cnt) cnt.textContent = depts.length;
+        if (!list) return;
+
+        if (depts.length === 0) {
+            list.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">কোনো বিভাগ নেই</div>`;
+            return;
+        }
+
+        list.innerHTML = depts.map(d => {
+            const isActive = selectedDeptId === d.id;
+            return `
+                <div onclick="window.selectInstDept('${d.id}')" class="p-2 rounded-xl border cursor-pointer transition flex justify-between items-center text-xs font-bold ${isActive ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-200'}">
+                    <div class="truncate">
+                        <span>${d.name}</span>
+                        <span class="text-[9px] ${isActive ? 'text-blue-200' : 'text-gray-400'} font-en block">ID: ${d.start_id || 1000}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="event.stopPropagation(); window.editInstDept('${d.id}')" title="এডিট" class="${isActive ? 'text-white/90 hover:text-white' : 'text-emerald-700'} p-0.5"><i class="fa-solid fa-pen-to-square text-[10px]"></i></button>
+                        <button type="button" onclick="event.stopPropagation(); window.removeInstDept('${d.id}')" title="মুছুন" class="${isActive ? 'text-white/90 hover:text-white' : 'text-red-500'} p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    window.selectInstDept = function(id) {
+        selectedDeptId = id;
+        const branch = academicStructure.find(b => b.id === selectedBranchId);
+        const dept = branch ? branch.departments.find(d => d.id === id) : null;
+        selectedClassId = (dept && dept.classes.length > 0) ? dept.classes[0].id : null;
+        renderAcademicBuilder();
+    };
+
+    window.editInstDept = function(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const dept = activeBranch ? activeBranch.departments.find(d => d.id === id) : null;
+        if (!dept) return;
+
+        const newName = prompt("বিভাগের নতুন নাম:", dept.name);
+        if (newName && newName.trim()) dept.name = newName.trim();
+
+        const newStartId = prompt("আইডি শুরুর নম্বর (Base ID):", dept.start_id || 1000);
+        if (newStartId && !isNaN(parseInt(newStartId))) dept.start_id = parseInt(newStartId);
+
+        renderAcademicBuilder();
+    };
+
+    window.addInstallerDept = function() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        if (!activeBranch) return;
+
+        const nameInput = document.getElementById('new-inst-dept-name');
+        const idInput = document.getElementById('new-inst-dept-id');
+        const nameVal = nameInput.value.trim();
+        const startId = parseInt(idInput.value) || 1000;
+
+        if (nameVal) {
+            const newId = 'd-' + Date.now();
+            activeBranch.departments.push({ id: newId, name: nameVal, start_id: startId, classes: [] });
+            selectedDeptId = newId;
+            nameInput.value = ''; idInput.value = '';
+            renderAcademicBuilder();
+        }
+    };
+
+    window.removeInstDept = function(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        if (activeBranch) {
+            activeBranch.departments = activeBranch.departments.filter(d => d.id !== id);
+            selectedDeptId = (activeBranch.departments.length > 0) ? activeBranch.departments[0].id : null;
+            renderAcademicBuilder();
+        }
+    };
+
+    // ৩. জামাত রেন্ডার ও এডিট
+    function renderInstallerClasses() {
+        const list = document.getElementById('inst-class-list');
+        const cnt = document.getElementById('cnt-inst-classes');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const classes = activeDept ? activeDept.classes : [];
+        if (cnt) cnt.textContent = classes.length;
+        if (!list) return;
+
+        if (classes.length === 0) {
+            list.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">কোনো জামাত নেই</div>`;
+            return;
+        }
+
+        list.innerHTML = classes.map(c => {
+            const isActive = selectedClassId === c.id;
+            return `
+                <div onclick="window.selectInstClass('${c.id}')" class="p-2 rounded-xl border cursor-pointer transition flex justify-between items-center text-xs font-bold ${isActive ? 'bg-amber-600 text-white border-amber-600 shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-200'}">
+                    <span class="truncate">${c.name}</span>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="event.stopPropagation(); window.editInstClass('${c.id}')" title="এডিট" class="${isActive ? 'text-white/90 hover:text-white' : 'text-blue-600'} p-0.5"><i class="fa-solid fa-pen-to-square text-[10px]"></i></button>
+                        <button type="button" onclick="event.stopPropagation(); window.removeInstClass('${c.id}')" title="মুছুন" class="${isActive ? 'text-white/90 hover:text-white' : 'text-red-500'} p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    window.selectInstClass = function(id) {
+        selectedClassId = id;
+        renderAcademicBuilder();
+    };
+
+    window.editInstClass = function(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const cls = activeDept ? activeDept.classes.find(c => c.id === id) : null;
+        if (!cls) return;
+
+        const newName = prompt("জামাতের নতুন নাম লিখুন:", cls.name);
+        if (newName && newName.trim()) {
+            cls.name = newName.trim();
+            renderAcademicBuilder();
+        }
+    };
+
+    window.addInstallerClass = function() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        if (!activeDept) return;
+
+        const input = document.getElementById('new-inst-class-name');
+        const val = input.value.trim();
+        if (val) {
+            const newId = 'c-' + Date.now();
+            activeDept.classes.push({ id: newId, name: val, groups: [] });
+            selectedClassId = newId;
+            input.value = '';
+            renderAcademicBuilder();
+        }
+    };
+
+    window.removeInstClass = function(id) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        if (activeDept) {
+            activeDept.classes = activeDept.classes.filter(c => c.id !== id);
+            selectedClassId = (activeDept.classes.length > 0) ? activeDept.classes[0].id : null;
+            renderAcademicBuilder();
+        }
+    };
+
+    // ৪. গ্রুপ রেন্ডার ও এডিট
+    function renderInstallerGroups() {
+        const list = document.getElementById('inst-group-list');
+        const cnt = document.getElementById('cnt-inst-groups');
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        const groups = activeClass ? (activeClass.groups || []) : [];
+        if (cnt) cnt.textContent = groups.length;
+        if (!list) return;
+
+        if (groups.length === 0) {
+            list.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">কোনো গ্রুপ নেই</div>`;
+            return;
+        }
+
+        list.innerHTML = groups.map((g, idx) => `
+            <div class="p-2 bg-white border border-gray-200 rounded-xl flex justify-between items-center shadow-sm text-xs font-bold text-gray-700">
+                <span class="truncate">${g}</span>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="window.editInstGroup(${idx})" title="এডিট" class="text-blue-600 p-0.5"><i class="fa-solid fa-pen-to-square text-[10px]"></i></button>
+                    <button type="button" onclick="window.removeInstGroup(${idx})" title="মুছুন" class="text-red-500 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                </div>
+            </div>`).join('');
+    }
+
+    window.editInstGroup = function(idx) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        if (!activeClass || !activeClass.groups) return;
+
+        const newName = prompt("গ্রুপের নতুন নাম লিখুন:", activeClass.groups[idx]);
+        if (newName && newName.trim()) {
+            activeClass.groups[idx] = newName.trim();
+            renderInstallerGroups();
+        }
+    };
+
+    window.addInstallerGroup = function() {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        if (!activeClass) return;
+
+        const input = document.getElementById('new-inst-group-name');
+        const val = input.value.trim();
+        if (val) {
+            if (!activeClass.groups) activeClass.groups = [];
+            activeClass.groups.push(val);
+            input.value = '';
+            renderInstallerGroups();
+        }
+    };
+
+    window.removeInstGroup = function(idx) {
+        const activeBranch = academicStructure.find(b => b.id === selectedBranchId);
+        const activeDept = activeBranch ? activeBranch.departments.find(d => d.id === selectedDeptId) : null;
+        const activeClass = activeDept ? activeDept.classes.find(c => c.id === selectedClassId) : null;
+        if (activeClass && activeClass.groups) {
+            activeClass.groups.splice(idx, 1);
+            renderInstallerGroups();
+        }
+    };
+
+    // ৫. ফিস গ্রুপ রেন্ডার ও এডিট
+    function renderFeeGroupList() {
+        const list = document.getElementById('inst-fee-list');
+        const cnt = document.getElementById('cnt-fee-groups');
+        if (cnt) cnt.textContent = feeGroupList.length;
+        if (!list) return;
+
+        list.innerHTML = feeGroupList.map((fg, idx) => `
+            <div class="p-3 bg-white border border-gray-200 rounded-xl flex justify-between items-center shadow-sm text-xs font-bold text-gray-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-en text-[11px]">${idx + 1}</span>
+                    <span class="text-gray-800 font-bold">${fg.name}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-en text-emerald-800 font-extrabold bg-emerald-50 px-2 py-1 rounded border border-emerald-100">৳ ${fg.amount}</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="window.editFeeGroup('${fg.id}')" title="এডিট" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                        ${feeGroupList.length > 1 ? `<button type="button" onclick="window.removeFeeGroup('${fg.id}')" title="মুছুন" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    window.addInstallerFeeGroup = function() {
+        const nameInput = document.getElementById('new-fee-name');
+        const amountInput = document.getElementById('new-fee-amount');
+        const nameVal = nameInput.value.trim();
+        const amountVal = parseFloat(amountInput.value) || 0;
+
+        if (nameVal) {
+            feeGroupList.push({ id: 'fg-' + Date.now(), name: nameVal, amount: amountVal });
+            nameInput.value = '';
+            amountInput.value = '';
+            renderFeeGroupList();
+        }
+    };
+
+    window.editFeeGroup = function(id) {
+        const fg = feeGroupList.find(f => f.id === id);
+        if (!fg) return;
+
+        const newName = prompt("ফিস গ্রুপের নাম:", fg.name);
+        if (newName && newName.trim()) fg.name = newName.trim();
+
+        const newAmount = prompt("টাকার পরিমাণ (৳):", fg.amount);
+        if (newAmount !== null && !isNaN(parseFloat(newAmount))) fg.amount = parseFloat(newAmount);
+
+        renderFeeGroupList();
+    };
+
+    window.removeFeeGroup = function(id) {
+        if (feeGroupList.length > 1) {
+            feeGroupList = feeGroupList.filter(f => f.id !== id);
+            renderFeeGroupList();
+        }
+    };
+
+    // ৬. নেভিগেশন ও সামারি প্রিভিউ জেনারেটর
+    window.navigateWizard = function(direction) {
+        if (direction === 1) {
+            if (currentStep === 1) {
+                const name = document.getElementById('inst-name').value.trim();
+                const phone = document.getElementById('inst-phone').value.trim();
+                const addr = document.getElementById('inst-address').value.trim();
+                const princ = document.getElementById('inst-principal').value.trim();
+                const session = document.getElementById('inst-session-year').value.trim();
+                if (!name || !phone || !addr || !princ || !session) {
+                    showToast("সকল প্রয়োজনীয় তথ্য ও শিক্ষাবর্ষ পূরণ করুন!", "error");
+                    return;
+                }
+            }
+
+            if (currentStep === 2) {
+                if (academicStructure.length === 0) {
+                    showToast("অন্তত একটি শাখা থাকতে হবে!", "error");
+                    return;
+                }
+                const hasValidDepts = academicStructure.some(b => b.departments && b.departments.length > 0);
+                if (!hasValidDepts) {
+                    showToast("শাখার অধীনে অন্তত একটি বিভাগ যুক্ত করুন!", "error");
+                    return;
+                }
+                const hasValidClasses = academicStructure.some(b => b.departments.some(d => d.classes && d.classes.length > 0));
+                if (!hasValidClasses) {
+                    showToast("বিভাগের অধীনে অন্তত একটি জামাত/শ্রেণী যুক্ত করুন!", "error");
+                    return;
+                }
+            }
+
+            if (currentStep === 3) {
+                if (feeGroupList.length === 0) {
+                    showToast("অন্তত একটি ফিস গ্রুপ থাকতে হবে!", "error");
+                    return;
+                }
+            }
+        }
+
+        currentStep += direction;
+        if (currentStep < 1) currentStep = 1;
+        if (currentStep > 4) currentStep = 4;
+
+        if (currentStep === 4) {
+            renderFinalPreviewSummary();
+        }
+
+        updateWizardUI();
+    };
+
+    function renderFinalPreviewSummary() {
+        const mName = document.getElementById('inst-name').value.trim() || '-';
+        const mId = localStorage.getItem('active_madrasah_id') || 'M101';
+        const princ = document.getElementById('inst-principal').value.trim() || '-';
+        const session = document.getElementById('inst-session-year').value.trim() || '2026';
+        const phone = document.getElementById('inst-phone').value.trim() || '-';
+        const addr = document.getElementById('inst-address').value.trim() || '-';
+
+        document.getElementById('prev-madrasah-name').textContent = mName;
+        document.getElementById('prev-madrasah-id').textContent = `ID: ${mId}`;
+        document.getElementById('prev-principal').textContent = princ;
+        document.getElementById('prev-session').textContent = `শিক্ষাবর্ষ: ${session}`;
+        document.getElementById('prev-phone').textContent = phone;
+        document.getElementById('prev-address').textContent = addr;
+
+        // অ্যাকাডেমিক ট্রি তৈরি
+        let totalClassesCount = 0;
+        let treeHtml = '';
+        academicStructure.forEach(b => {
+            treeHtml += `<div class="font-bold text-emerald-900"><i class="fa-solid fa-mosque text-[10px]"></i> ${b.name}</div>`;
+            (b.departments || []).forEach(d => {
+                const classNames = (d.classes || []).map(c => c.name).join(', ');
+                totalClassesCount += (d.classes || []).length;
+                treeHtml += `
+                    <div class="pl-3 text-[10px]">
+                        <span class="text-blue-800 font-bold">• ${d.name}:</span> 
+                        <span class="text-gray-500">${classNames || 'কোনো জামাত নেই'}</span>
+                    </div>`;
+            });
+        });
+        document.getElementById('prev-total-classes').textContent = `${totalClassesCount}টি জামাত`;
+        document.getElementById('prev-academic-tree').innerHTML = treeHtml;
+
+        // ফিস তালিকা
+        document.getElementById('prev-total-fees').textContent = `${feeGroupList.length}টি গ্রুপ`;
+        document.getElementById('prev-fee-list').innerHTML = feeGroupList.map(fg => `
+            <div class="flex justify-between items-center py-0.5 border-b border-gray-100 last:border-0">
+                <span class="font-bold text-gray-700">${fg.name}</span>
+                <span class="font-en text-emerald-800 font-bold">৳ ${fg.amount}</span>
+            </div>`).join('');
+    }
+
+    function updateWizardUI() {
+        for (let i = 1; i <= 4; i++) {
+            const stepEl = document.getElementById(`install-step-${i}`);
+            const indEl = document.getElementById(`step-ind-${i}`);
+            if (stepEl) {
+                if (i === currentStep) stepEl.classList.remove('hidden');
+                else stepEl.classList.add('hidden');
+            }
+            if (indEl) {
+                if (i === currentStep) {
+                    indEl.className = "flex items-center gap-1.5 text-yellow-300 border-b-2 border-yellow-300 pb-1 whitespace-nowrap font-bold";
+                } else {
+                    indEl.className = "flex items-center gap-1.5 text-emerald-300 opacity-60 whitespace-nowrap font-bold";
+                }
+            }
+        }
+
+        const prevBtn = document.getElementById('btn-wizard-prev');
+        const nextBtn = document.getElementById('btn-wizard-next');
+        const submitBtn = document.getElementById('btn-wizard-submit');
+
+        if (prevBtn) {
+            if (currentStep > 1) prevBtn.classList.remove('hidden');
+            else prevBtn.classList.add('hidden');
+        }
+
+        if (currentStep === 4) {
+            if (nextBtn) nextBtn.classList.add('hidden');
+            if (submitBtn) submitBtn.classList.remove('hidden');
+        } else {
+            if (nextBtn) nextBtn.classList.remove('hidden');
+            if (submitBtn) submitBtn.classList.add('hidden');
+        }
+    }
+
+    // ৭. চূড়ান্ত সেটআপ ও মাস্টার শিট লকডাউন
+    async function handleFinalInstallation() {
+        const adminFullname = document.getElementById('inst-admin-fullname').value.trim();
+        const adminUsername = document.getElementById('inst-admin-username').value.trim().toLowerCase();
+        const adminPin = window.convertToEnglishDigits(document.getElementById('inst-admin-pin').value.trim());
+
+        if (!adminFullname || !adminUsername || adminPin.length !== 4 || isNaN(adminPin)) {
+            showToast("সঠিক এডমিন নাম, ইউজারনেম ও ৪ সংখ্যার পিন প্রদান করুন!", "error");
+            return;
+        }
+
+        const submitBtn = document.getElementById('btn-wizard-submit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> সেটআপ সম্পন্ন হচ্ছে...`;
+        }
+
+        const name = document.getElementById('inst-name').value.trim();
+        const phone = document.getElementById('inst-phone').value.trim();
+        const address = document.getElementById('inst-address').value.trim();
+        const principal = document.getElementById('inst-principal').value.trim();
+        const sessionYear = document.getElementById('inst-session-year').value.trim() || '2026';
+        const logo = document.getElementById('inst-logo').value.trim();
+        const mId = localStorage.getItem('active_madrasah_id') || 'M101';
+
+        try {
+            // ডিফল্ট বোর্ডিং প্রকার
+            const boardingTypes = ["মুকিম (আবাসিক)", "গায়রে-মুকিম (অনাবাসিক)"];
+            const mealTypes = ["আম-খানা", "লিল্লাহ/ফ্রি", "হাফ-ফ্রি"];
+
+            const configBlock = {
+                id: 'madrasah_config_block',
+                madrasah_name: name,
+                madrasah_phone: phone,
+                madrasah_address: address,
+                principal_name: principal,
+                madrasah_logo: logo,
+                current_session: sessionYear,
+                academic_structure: JSON.stringify(academicStructure),
+                boarding_types: JSON.stringify(boardingTypes),
+                meal_types: JSON.stringify(mealTypes),
+                fee_groups: JSON.stringify(feeGroupList),
+                is_synced: 0,
+                is_deleted: 0
+            };
+
+            const adminUserObj = {
+                username: adminUsername,
+                fullname: adminFullname,
+                pin: adminPin,
+                role: 'muhtamim',
+                is_synced: 0,
+                is_deleted: 0
+            };
+
+            await db.settings.put(configBlock);
+            await db.users.put(adminUserObj);
+
+            localStorage.setItem('madrasah_name', name);
+            localStorage.setItem('madrasah_address', address);
+            localStorage.setItem('madrasah_phone', phone);
+            localStorage.setItem('current_session', sessionYear);
+            if (logo) localStorage.setItem('madrasah_logo', logo);
+
+            // মাস্টার শিট ওয়ান-টাইম পাসওয়ার্ড লকডাউন
+            if (navigator.onLine && App.masterUrl) {
+                try {
+                    const lockdownPayload = new URLSearchParams({
+                        action: 'lockdown_installation',
+                        madrasah_id: mId
+                    }).toString();
+
+                    await fetch(App.masterUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: lockdownPayload
+                    });
+                } catch(e){}
+            }
+
+            const sessionUser = {
+                username: adminUserObj.username,
+                role: adminUserObj.role,
+                fullname: adminUserObj.fullname
+            };
+            sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
+            App.currentUser = sessionUser;
+            window.currentUser = sessionUser;
+
+            showToast("আলহামদুলিল্লাহ! মাদরাসা সেটআপ সফলভাবে সম্পন্ন হয়েছে।", "success");
+
+            if (typeof window.applyGlobalSettings === 'function') {
+                window.applyGlobalSettings();
+            }
+
+            if (navigator.onLine && typeof triggerAutoSync === 'function') {
+                triggerAutoSync();
+            }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
+        } catch (err) {
+            console.error("ইনস্টলেশন ত্রুটি:", err);
+            showToast("কনফিগারেশন সেভ করতে সমস্যা হয়েছে!", "error");
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সব ঠিক আছে, সেটআপ শুরু করি, বিসমিল্লাহ...`;
+            }
+        }
+    }
+})();
+</script>

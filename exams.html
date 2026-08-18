@@ -1,0 +1,1717 @@
+
+<!-- Google Fonts & html2pdf.js CDN (পিডিএফ ও ফন্ট অপ্টিমাইজেশন) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    #exams-container, #marksheet-modal, .bangla-font {
+        font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif !important;
+    }
+    .font-mono-num {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+</style>
+
+<div id="exams-container" class="space-y-6 bangla-font pb-12">
+
+    <!-- নেভিগেশন সাব-ট্যাবসমূহ -->
+    <div class="flex flex-wrap border-b border-gray-200 bg-white p-2 rounded-2xl shadow-sm gap-1">
+        <button type="button" onclick="window.switchExamTab('setup')" id="tab-btn-exam-setup" class="py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl bg-emerald-50/50">
+            <i class="fa-solid fa-file-pen text-sm"></i> ১. পরীক্ষা, জামাত ও গ্রেডিং সেটআপ
+        </button>
+        <button type="button" onclick="window.switchExamTab('roster')" id="tab-btn-exam-roster" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-user-check text-sm"></i> ২. পরীক্ষার্থী তালিকা (যুক্ত / বাদ)
+        </button>
+        <button type="button" onclick="window.switchExamTab('entry')" id="tab-btn-exam-entry" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-table-cells text-sm"></i> ৩. নম্বর ইনপুট (Excel Grid)
+        </button>
+        <button type="button" onclick="window.switchExamTab('ledger')" id="tab-btn-exam-ledger" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-clipboard-list text-sm"></i> ৪. ফলাফল ও তাবলীক লেজার
+        </button>
+        <button type="button" onclick="window.switchExamTab('admit')" id="tab-btn-exam-admit" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-id-card-clip text-sm"></i> ৫. প্রবেশপত্র ও সিট প্ল্যান
+        </button>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ১. পরীক্ষা, বিষয় ও কাস্টম গ্রেডিং সেটআপ ট্যাব -->
+    <!-- ============================================ -->
+    <div id="exam-pane-setup" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- বামে: নতুন পরীক্ষা ফরম -->
+        <div class="lg:col-span-1 bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 h-fit space-y-4">
+            <h4 class="text-base font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
+                <i class="fa-solid fa-plus-circle text-emerald-600 text-lg"></i> নতুন পরীক্ষা ও বিষয় সেটআপ
+            </h4>
+
+            <form id="exam-setup-form" class="space-y-3.5 text-xs">
+                <!-- পরীক্ষার গ্রুপ ও নাম -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">পরীক্ষার গ্রুপ / টাইপ *</label>
+                        <select id="setup-exam-group" class="w-full px-2.5 py-2 rounded-xl border border-gray-300 font-bold bg-white cursor-pointer" onchange="window.onExamGroupSelectChange(this.value)">
+                            <option value="১ম সাময়িক পরীক্ষা">১ম সাময়িক পরীক্ষা</option>
+                            <option value="২য় সাময়িক পরীক্ষা">২য় সাময়িক পরীক্ষা</option>
+                            <option value="বার্ষিক পরীক্ষা">বার্ষিক পরীক্ষা</option>
+                            <option value="মাসিক মূল্যায়ন">মাসিক মূল্যায়ন</option>
+                            <option value="সাপ্তাহিক টেস্ট">সাপ্তাহিক টেস্ট</option>
+                            <option value="custom">+ নতুন গ্রুপ লিখুন</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">পরীক্ষার পূর্ণ নাম *</label>
+                        <input type="text" id="setup-exam-name" required placeholder="যেমন: ১ম সাময়িক পরীক্ষা ২০২৬" class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold bg-white">
+                    </div>
+                </div>
+
+                <div id="custom-exam-group-container" class="hidden">
+                    <label class="block font-bold text-emerald-800 mb-1">নতুন পরীক্ষার গ্রুপের নাম লিখুন *</label>
+                    <input type="text" id="setup-custom-group-name" placeholder="যেমন: প্রস্তুতিমূলক পরীক্ষা" class="w-full px-3 py-2 rounded-xl border border-emerald-300 font-bold bg-emerald-50/40">
+                </div>
+
+                <!-- শিক্ষাবর্ষ, শাখা ও জামাত (নতুন জামাত তৈরির অপশনসহ) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">শিক্ষাবর্ষ *</label>
+                        <select id="setup-session-year" required class="w-full px-2 py-2 rounded-xl border border-gray-300 font-bold bg-white font-en cursor-pointer"></select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">শাখা *</label>
+                        <select id="setup-branch-name" required class="w-full px-2 py-2 rounded-xl border border-gray-300 font-bold bg-white cursor-pointer" onchange="window.onSetupBranchChange(this.value)">
+                            <option value="">শাখা সিলেক্ট</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">জামাত / শ্রেণী *</label>
+                        <select id="setup-class-name" required class="w-full px-2 py-2 rounded-xl border border-gray-300 font-bold bg-white cursor-pointer" onchange="window.onSetupClassChange(this.value)">
+                            <option value="">জামাত সিলেক্ট</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- নতুন জামাত লেখার ইনপুট -->
+                <div id="custom-class-container" class="hidden">
+                    <label class="block font-bold text-emerald-800 mb-1">নতুন জামাত / শ্রেণীর নাম লিখুন *</label>
+                    <input type="text" id="setup-custom-class-name" placeholder="যেমন: সানাবিয়া ১ম বর্ষ বা তাখাসসুস" class="w-full px-3 py-2 rounded-xl border border-emerald-300 font-bold bg-emerald-50/40">
+                </div>
+
+                <!-- বিষয়সমূহ ও পাস মার্ক তালিকা -->
+                <div class="border-t pt-2.5 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block font-bold text-emerald-950">বিষয়সমূহ ও পূর্ণমান বন্টন *</label>
+                        <button type="button" onclick="window.addSubjectRow()" class="text-xs text-emerald-700 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-plus text-[10px]"></i> বিষয় যোগ
+                        </button>
+                    </div>
+                    <div id="subject-input-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll pr-1">
+                        <div class="flex gap-1.5 items-center">
+                            <input type="text" placeholder="বিষয়ের নাম (যেমন: কুরআনুল কারীম)" class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs font-bold sub-name-input bg-white" required>
+                            <input type="number" placeholder="পূর্ণমান" value="100" class="w-16 px-1.5 py-1.5 border rounded-lg text-xs font-en font-bold text-center sub-total-input" required>
+                            <input type="number" placeholder="পাস" value="33" class="w-16 px-1.5 py-1.5 border rounded-lg text-xs font-en font-bold text-center sub-pass-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- কাস্টম গ্রেডিং ও দরজাত স্কেল বিল্ডার -->
+                <div class="border-t pt-2.5 space-y-2 bg-emerald-50/30 p-2.5 rounded-xl border border-emerald-100">
+                    <div class="flex justify-between items-center">
+                        <label class="font-bold text-emerald-950">কাস্টম গ্রেড ও দরজাত স্কেল (%)</label>
+                        <span class="text-[10px] text-gray-500 font-bold">নম্বর রেঞ্জ কাস্টমাইজ করুন</span>
+                    </div>
+                    <div class="space-y-1 text-[10px]">
+                        <div class="grid grid-cols-4 gap-1 items-center bg-white p-1 rounded border">
+                            <strong class="text-emerald-800">মুমতাজ (A+)</strong>
+                            <span class="text-gray-400 text-center">শুরু %:</span>
+                            <input type="number" id="grade-mumtaz-min" value="80" class="border rounded px-1 py-0.5 font-en font-bold text-center text-xs bg-white">
+                            <span class="text-gray-500 text-center font-en">হতে ১০০</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 items-center bg-white p-1 rounded border">
+                            <strong class="text-blue-800">জায়্যিদ জিদ্দান (A)</strong>
+                            <span class="text-gray-400 text-center">শুরু %:</span>
+                            <input type="number" id="grade-jayyid-jiddan-min" value="65" class="border rounded px-1 py-0.5 font-en font-bold text-center text-xs bg-white">
+                            <span class="text-gray-500 text-center font-en">হতে ৭৯</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 items-center bg-white p-1 rounded border">
+                            <strong class="text-amber-800">জায়্যিদ (B)</strong>
+                            <span class="text-gray-400 text-center">শুরু %:</span>
+                            <input type="number" id="grade-jayyid-min" value="50" class="border rounded px-1 py-0.5 font-en font-bold text-center text-xs bg-white">
+                            <span class="text-gray-500 text-center font-en">হতে ৬৪</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 items-center bg-white p-1 rounded border">
+                            <strong class="text-slate-800">মাকবুল (C)</strong>
+                            <span class="text-gray-400 text-center">শুরু %:</span>
+                            <input type="number" id="grade-maqbul-min" value="33" class="border rounded px-1 py-0.5 font-en font-bold text-center text-xs bg-white">
+                            <span class="text-gray-500 text-center font-en">হতে ৪৯</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-md cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk"></i> পরীক্ষা ও স্কেল সংরক্ষণ করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- ডানে: তৈরি করা চলমান পরীক্ষার তালিকা -->
+        <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+            <h3 class="text-base font-bold text-gray-800 mb-3 border-b pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-emerald-600"></i> চলমান পরীক্ষার তালিকা
+            </h3>
+            
+            <div class="overflow-x-auto rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
+                    <tr>
+                        <th class="px-3 py-3 text-left">পরীক্ষার নাম ও গ্রুপ</th>
+                        <th class="px-3 py-3 text-left">শাখা ও জামাত</th>
+                        <th class="px-3 py-3 text-left">সেশন</th>
+                        <th class="px-3 py-3 text-left">মোট বিষয়</th>
+                        <th class="px-3 py-3 text-right">অ্যাকশন</th>
+                    </tr>
+                    </thead>
+                    <tbody id="setup-exams-table-body" class="bg-white divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ২. পরীক্ষার্থী তালিকা (ছাত্র যুক্ত/বাদ দেওয়ার প্যানেল) -->
+    <!-- ============================================ -->
+    <div id="exam-pane-roster" class="space-y-5 hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-user-check text-emerald-600"></i> পরীক্ষার্থী তালিকা ব্যবস্থাপনা (Student Roster)
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">যেকোনো ছাত্রকে পরীক্ষা থেকে বাদ দিতে পারেন অথবা বাইরে থেকে যেকোনো ছাত্রকে যুক্ত করতে পারেন</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="window.selectAllRoster(true)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-emerald-200 cursor-pointer">
+                        <i class="fa-solid fa-check-double"></i> সবাইকে যুক্ত
+                    </button>
+                    <button type="button" onclick="window.selectAllRoster(false)" class="bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-rose-200 cursor-pointer">
+                        <i class="fa-solid fa-ban"></i> সবাইকে বাদ
+                    </button>
+                    <button type="button" onclick="window.saveRosterChanges()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-4 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> পরিবর্তন সংরক্ষণ
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">পরীক্ষা নির্বাচন করুন *</label>
+                    <select id="roster-exam-select" onchange="window.renderRosterStudentsList()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer"></select>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">যেকোনো জামাত থেকে ছাত্র যুক্ত করুন (নাম, রোল বা আইডি)</label>
+                    <div class="relative flex gap-1.5">
+                        <input type="text" id="roster-custom-student-input" oninput="window.searchStudentsForCustomRoster(this.value)" placeholder="যেমন: আব্দুর রহমান বা S-1002..." class="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white">
+                        <div id="roster-search-dropdown" class="absolute left-0 right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto hidden divide-y divide-gray-100 custom-scroll"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150">
+            <div id="roster-table-wrapper" class="overflow-x-auto rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+                <p class="text-center text-gray-400 py-12 font-bold">পরীক্ষার্থী তালিকা লোড করতে পরীক্ষা নির্বাচন করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৩. নম্বর ইনপুট ট্যাব (Excel-Like Grid) -->
+    <!-- ============================================ -->
+    <div id="exam-pane-entry" class="space-y-5 hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-table-cells text-emerald-600"></i> নম্বর ইনপুট গ্রিড (Excel-Style Navigation)
+                </h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-xl font-bold">
+                        <i class="fa-solid fa-keyboard mr-1 text-amber-600"></i> <kbd class="bg-white border px-1 rounded font-en">Enter</kbd> / <kbd class="bg-white border px-1 rounded font-en">Tab</kbd> চাপলে পরের ঘরে যাবে | অনুপস্থিত হলে <kbd class="bg-white border px-1 rounded font-en font-bold text-rose-600">A</kbd> লিখুন
+                    </span>
+                    <button type="button" onclick="window.saveGridMarks()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-5 py-2 rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> নম্বরসমূহ সংরক্ষণ করুন
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">পরীক্ষা নির্বাচন করুন *</label>
+                    <select id="entry-exam-select" onchange="window.renderMarksEntryGrid()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer"></select>
+                </div>
+                <div class="flex items-end">
+                    <span id="grid-status-info" class="text-xs font-bold text-emerald-800 pb-2"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150">
+            <div id="marks-grid-wrapper" class="overflow-x-auto rounded-xl border border-gray-150 max-h-[550px] overflow-y-auto custom-scroll">
+                <p class="text-center text-gray-400 py-12 font-bold">নম্বর ইনপুট দিতে উপর থেকে পরীক্ষা নির্বাচন করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৪. ফলাফল ও তাবলীক লেজার ট্যাব -->
+    <!-- ============================================ -->
+    <div id="exam-pane-ledger" class="space-y-5 hidden">
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-emerald-600"></i> ফলাফলের তাবলীক লেজার ও মেধা তালিকা
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">স্বয়ংক্রিয় মেধা স্থান (Rank), গড় নম্বর ও কাস্টমাইজড দরজাত নির্ধারণ</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="window.downloadTabulationSheetPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> তাবলীক শিট পিডিএফ (A4 Landscape)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">পরীক্ষা নির্বাচন করুন *</label>
+                    <select id="ledger-exam-select" onchange="window.generateTabulationSheet()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer"></select>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabulation-container" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+            <div id="ledger-table-wrapper" class="overflow-x-auto rounded-xl border border-gray-150 max-h-[550px] overflow-y-auto custom-scroll">
+                <p class="text-center text-gray-400 py-12 font-bold">ফলাফল লেজার দেখতে পরীক্ষা নির্বাচন করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৫. প্রবেশপত্র ও সিট প্ল্যান ট্যাব -->
+    <!-- ============================================ -->
+    <div id="exam-pane-admit" class="space-y-5 hidden">
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-id-card-clip text-emerald-600"></i> প্রবেশপত্র (Admit Card) ও সিট প্ল্যান জেনারেটর
+                    </h3>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="window.downloadClassAdmitCardsPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> প্রবেশপত্রসমূহ পিডিএফ (A5)
+                    </button>
+                    <button type="button" onclick="window.downloadBenchSlipsPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-tags text-sm"></i> বেঞ্চ রোল স্টিকার (A4)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">পরীক্ষা নির্বাচন করুন *</label>
+                    <select id="admit-exam-select" onchange="window.renderAdmitCardPreviews()" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150">
+            <div id="admit-cards-preview-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto custom-scroll p-1">
+                <p class="col-span-full text-center text-gray-400 py-12 font-bold">প্রবেশপত্র দেখতে পরীক্ষা নির্বাচন করুন।</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মডাল: একক ছাত্রের কারনামা / মার্কশিট ভিউ ও A5 PDF -->
+<!-- ============================================ -->
+<div id="marksheet-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 max-w-xl w-full shadow-2xl relative border border-gray-150 flex flex-col justify-between max-h-[96vh]">
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <div id="marksheet-modal-body" class="bg-white p-5 space-y-3 text-gray-800 leading-normal bangla-font border border-gray-200 rounded-xl max-w-[140mm] mx-auto text-xs min-h-[195mm] flex flex-col justify-between">
+                <!-- ডাইনামিক A5 কারনামা রেন্ডার হবে -->
+            </div>
+        </div>
+        
+        <div class="flex flex-wrap sm:flex-nowrap gap-2 mt-3 border-t pt-2.5 bg-white">
+            <button id="btn-wa-marksheet" onclick="window.sendMarksheetWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition cursor-pointer">
+                <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ রেজাল্ট
+            </button>
+            <button onclick="window.downloadSingleMarksheetPDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm cursor-pointer">
+                <i class="fa-solid fa-file-pdf text-sm"></i> কারনামা পিডিএফ (A5)
+            </button>
+            <button onclick="document.getElementById('marksheet-modal').classList.add('hidden')" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let allExams = [];
+    let allStudentsCache = [];
+    let activeExamObj = null;
+    let activeExamSubjects = [];
+    let activeRosterStudents = [];
+    let activeMarksMap = {}; 
+    let madrasahConfig = {};
+    let activeMarksheetData = null;
+
+    async function fetchMadrasahConfig() {
+        try {
+            let config = await db.settings.get('madrasah_config_block');
+            if (!config) {
+                const allSettings = await db.settings.toArray();
+                if (allSettings && allSettings.length > 0) config = allSettings[0];
+            }
+            madrasahConfig = config || {};
+        } catch(e) {
+            madrasahConfig = {};
+        }
+        return madrasahConfig;
+    }
+
+    window.initExams = async function() {
+        const config = await fetchMadrasahConfig();
+        const academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+        
+        populateBranchAndClassDropdowns(academicStructure);
+        await loadDynamicSessions(config.current_session);
+        await window.loadExamsList();
+
+        try {
+            const rawStudents = await db.students.toArray();
+            allStudentsCache = rawStudents.filter(s => s.is_deleted !== 1);
+        } catch(e){}
+
+        // পরীক্ষা সেটআপ ফরম সাবমিট
+        const form = document.getElementById('exam-setup-form');
+        if (form) {
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+
+                const groupSelect = document.getElementById('setup-exam-group').value;
+                const customGroupName = document.getElementById('setup-custom-group-name')?.value.trim();
+                const examGroup = (groupSelect === 'custom' ? customGroupName : groupSelect) || 'সাধারণ পরীক্ষা';
+
+                const name = document.getElementById('setup-exam-name').value.trim();
+                const session = document.getElementById('setup-session-year').value;
+                const branch = document.getElementById('setup-branch-name').value;
+                
+                const classSelect = document.getElementById('setup-class-name').value;
+                const customClassName = document.getElementById('setup-custom-class-name')?.value.trim();
+                const className = (classSelect === 'custom' ? customClassName : classSelect);
+
+                const nameInputs = document.querySelectorAll('.sub-name-input');
+                const totalInputs = document.querySelectorAll('.sub-total-input');
+                const passInputs = document.querySelectorAll('.sub-pass-input');
+
+                const subjects = [];
+                nameInputs.forEach((inp, idx) => {
+                    const subName = inp.value.trim();
+                    const total = parseFloat(totalInputs[idx].value) || 100;
+                    const pass = parseFloat(passInputs[idx].value) || 33;
+                    if (subName) {
+                        subjects.push({ id: 'sub-' + (idx + 1), name: subName, total: total, pass: pass });
+                    }
+                });
+
+                if (!name || !branch || !className || subjects.length === 0) {
+                    showToast("পরীক্ষার নাম, শাখা, জামাত ও অন্তত ১টি বিষয় ইনপুট দিন!", "error");
+                    return;
+                }
+
+                const gradingScale = {
+                    mumtaz_min: parseFloat(document.getElementById('grade-mumtaz-min').value) || 80,
+                    jayyid_jiddan_min: parseFloat(document.getElementById('grade-jayyid-jiddan-min').value) || 65,
+                    jayyid_min: parseFloat(document.getElementById('grade-jayyid-min').value) || 50,
+                    maqbul_min: parseFloat(document.getElementById('grade-maqbul-min').value) || 33
+                };
+
+                const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+                const curUser = user ? user.username : "system";
+
+                try {
+                    const examObj = {
+                        id: 'EXAM-' + Date.now(),
+                        exam_group: examGroup,
+                        exam_name: name,
+                        session_year: session,
+                        branch: branch,
+                        class_name: className,
+                        subjects: JSON.stringify(subjects),
+                        grading_scale: JSON.stringify(gradingScale),
+                        excluded_students: JSON.stringify([]),
+                        custom_students: JSON.stringify([]),
+                        is_published: 1,
+                        created_by: curUser,
+                        updated_by: curUser,
+                        is_synced: 0,
+                        is_deleted: 0
+                    };
+
+                    await db.exams.add(examObj);
+                    showToast("নতুন পরীক্ষা সফলভাবে সেটআপ করা হয়েছে!", "success");
+
+                    form.reset();
+                    document.getElementById('custom-exam-group-container')?.classList.add('hidden');
+                    document.getElementById('custom-class-container')?.classList.add('hidden');
+                    document.getElementById('setup-exam-name').value = '';
+
+                    if (typeof updatePendingCount === 'function') await updatePendingCount();
+                    await window.loadExamsList();
+                    if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+
+                } catch (err) {
+                    console.error("পরীক্ষা সেভে ত্রুটি:", err);
+                    showToast("পরীক্ষা সেটআপ সেভ করা যায়নি!", "error");
+                }
+            };
+        }
+    };
+
+    function populateBranchAndClassDropdowns(academicStructure) {
+        const bSelect = document.getElementById('setup-branch-name');
+        if (!bSelect) return;
+        bSelect.innerHTML = `<option value="">শাখা সিলেক্ট</option>`;
+        academicStructure.forEach(b => bSelect.innerHTML += `<option value="${b.name}">${b.name}</option>`);
+    }
+
+    window.onSetupBranchChange = function(branchName) {
+        const cSelect = document.getElementById('setup-class-name');
+        if (!cSelect) return;
+        cSelect.innerHTML = `<option value="">জামাত সিলেক্ট</option><option value="custom" class="font-bold text-emerald-800">+ নতুন জামাত লিখুন</option>`;
+
+        const config = madrasahConfig;
+        const struct = config.academic_structure ? JSON.parse(config.academic_structure) : [];
+        const activeBranch = struct.find(b => b.name === branchName);
+
+        if (activeBranch) {
+            const classesSet = new Set();
+            (activeBranch.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name)));
+            classesSet.forEach(c => cSelect.innerHTML += `<option value="${c}">${c}</option>`);
+        }
+    };
+
+    window.onSetupClassChange = function(val) {
+        const container = document.getElementById('custom-class-container');
+        const input = document.getElementById('setup-custom-class-name');
+        if (val === 'custom') {
+            container?.classList.remove('hidden');
+            if (input) input.value = '';
+        } else {
+            container?.classList.add('hidden');
+        }
+    };
+
+    window.onExamGroupSelectChange = function(val) {
+        const container = document.getElementById('custom-exam-group-container');
+        const nameInput = document.getElementById('setup-exam-name');
+        if (val === 'custom') {
+            container?.classList.remove('hidden');
+            if (nameInput) nameInput.value = '';
+        } else {
+            container?.classList.add('hidden');
+            if (nameInput && val) nameInput.value = `${val} ${document.getElementById('setup-session-year')?.value || '২০২৬'}`;
+        }
+    };
+
+    async function loadDynamicSessions(defaultSession) {
+        const sSelect = document.getElementById('setup-session-year');
+        if (!sSelect) return;
+        let sessionsSet = new Set();
+        const currentYear = new Date().getFullYear();
+        sessionsSet.add(currentYear.toString());
+        sessionsSet.add((currentYear + 1).toString());
+        if (defaultSession) sessionsSet.add(defaultSession.toString());
+
+        try {
+            const exams = await db.exams.toArray();
+            exams.forEach(e => { if (e.session_year) sessionsSet.add(e.session_year.toString()); });
+        } catch(e){}
+
+        const sorted = Array.from(sessionsSet).sort((a, b) => b.localeCompare(a));
+        sSelect.innerHTML = sorted.map(s => `<option value="${s}">${s}</option>`).join('');
+        sSelect.value = defaultSession || currentYear.toString();
+    }
+
+    window.switchExamTab = function(tab) {
+        const pSetup = document.getElementById('exam-pane-setup');
+        const pRoster = document.getElementById('exam-pane-roster');
+        const pEntry = document.getElementById('exam-pane-entry');
+        const pLedger = document.getElementById('exam-pane-ledger');
+        const pAdmit = document.getElementById('exam-pane-admit');
+
+        const bSetup = document.getElementById('tab-btn-exam-setup');
+        const bRoster = document.getElementById('tab-btn-exam-roster');
+        const bEntry = document.getElementById('tab-btn-exam-entry');
+        const bLedger = document.getElementById('tab-btn-exam-ledger');
+        const bAdmit = document.getElementById('tab-btn-exam-admit');
+
+        [pSetup, pRoster, pEntry, pLedger, pAdmit].forEach(p => p?.classList.add('hidden'));
+        [bSetup, bRoster, bEntry, bLedger, bAdmit].forEach(b => b?.classList.remove('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50'));
+        [bSetup, bRoster, bEntry, bLedger, bAdmit].forEach(b => b?.classList.add('border-transparent', 'text-gray-500'));
+
+        if (tab === 'setup') {
+            pSetup.classList.remove('hidden');
+            bSetup.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            window.loadExamsList();
+        } else if (tab === 'roster') {
+            pRoster.classList.remove('hidden');
+            bRoster.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            populateExamDropdown('roster-exam-select');
+            window.renderRosterStudentsList();
+        } else if (tab === 'entry') {
+            pEntry.classList.remove('hidden');
+            bEntry.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            populateExamDropdown('entry-exam-select');
+            window.renderMarksEntryGrid();
+        } else if (tab === 'ledger') {
+            pLedger.classList.remove('hidden');
+            bLedger.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            populateExamDropdown('ledger-exam-select');
+            window.generateTabulationSheet();
+        } else if (tab === 'admit') {
+            pAdmit.classList.remove('hidden');
+            bAdmit.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            populateExamDropdown('admit-exam-select');
+            window.renderAdmitCardPreviews();
+        }
+    };
+
+    window.addSubjectRow = function() {
+        const list = document.getElementById('subject-input-list');
+        if (!list) return;
+        const div = document.createElement('div');
+        div.className = "flex gap-1.5 items-center animate-fadeIn";
+        div.innerHTML = `
+            <input type="text" placeholder="বিষয়ের নাম" class="flex-1 px-2.5 py-1.5 border rounded-lg text-xs font-bold sub-name-input bg-white" required>
+            <input type="number" placeholder="পূর্ণমান" value="100" class="w-16 px-1.5 py-1.5 border rounded-lg text-xs font-en font-bold text-center sub-total-input" required>
+            <input type="number" placeholder="পাস" value="33" class="w-16 px-1.5 py-1.5 border rounded-lg text-xs font-en font-bold text-center sub-pass-input" required>
+            <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-xmark text-sm"></i></button>`;
+        list.appendChild(div);
+    };
+
+    window.loadExamsList = async function() {
+        try {
+            const list = await db.exams.toArray();
+            allExams = list.filter(e => e.is_deleted !== 1);
+            
+            const tbody = document.getElementById('setup-exams-table-body');
+            if (!tbody) return;
+
+            if (allExams.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 font-bold">কোনো পরীক্ষা সেটআপ করা হয়নি।</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            allExams.forEach(e => {
+                const subs = e.subjects ? JSON.parse(e.subjects) : [];
+                html += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 transition text-gray-700">
+                        <td class="px-3 py-2.5">
+                            <strong class="text-gray-900 block">${e.exam_name}</strong>
+                            <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">${e.exam_group || 'পরীক্ষা'}</span>
+                        </td>
+                        <td class="px-3 py-2.5 font-bold">${e.class_name} <small class="text-gray-400 font-normal">(${e.branch || 'মূল শাখা'})</small></td>
+                        <td class="px-3 py-2.5 font-en font-bold text-gray-800">${e.session_year}</td>
+                        <td class="px-3 py-2.5 font-en font-bold text-emerald-800">${subs.length}টি বিষয়</td>
+                        <td class="px-3 py-2.5 text-right">
+                            <button onclick="window.deleteExam('${e.id}')" class="text-rose-600 hover:text-rose-800 p-1.5 rounded-lg hover:bg-rose-50" title="মুছে ফেলুন">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+            tbody.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    window.deleteExam = async function(id) {
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই পরীক্ষাটি মুছে ফেলতে চান?")) return;
+        try {
+            await db.exams.update(id, { is_deleted: 1, is_synced: 0 });
+            showToast("পরীক্ষা মুছে ফেলা হয়েছে।", "success");
+            await window.loadExamsList();
+        } catch(e){}
+    };
+
+    function populateExamDropdown(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const currentVal = select.value;
+        select.innerHTML = `<option value="">পরীক্ষা নির্বাচন করুন</option>`;
+        allExams.forEach(e => {
+            select.innerHTML += `<option value="${e.id}">${e.exam_name} — ${e.class_name} (${e.branch || 'মূল শাখা'}) - ${e.session_year}</option>`;
+        });
+        if (currentVal && allExams.some(e => e.id === currentVal)) select.value = currentVal;
+    }
+
+    // ============================================
+    // ২. পরীক্ষার্থী তালিকা নিয়ন্ত্রণ (যুক্ত ও বাদ দেওয়ার লজিক)
+    // ============================================
+    window.renderRosterStudentsList = async function() {
+        const examId = document.getElementById('roster-exam-select')?.value;
+        const wrapper = document.getElementById('roster-table-wrapper');
+        if (!wrapper) return;
+
+        if (!examId) {
+            wrapper.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">পরীক্ষার্থী তালিকা লোড করতে পরীক্ষা নির্বাচন করুন।</p>`;
+            return;
+        }
+
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) return;
+
+        let excluded = [];
+        let customStudentIds = [];
+        try { excluded = JSON.parse(examObj.excluded_students || '[]'); } catch(e){}
+        try { customStudentIds = JSON.parse(examObj.custom_students || '[]'); } catch(e){}
+
+        // জামাত অনুযায়ী স্বয়ংক্রিয় ছাত্র লোড
+        let classStudents = allStudentsCache.filter(s => 
+            s.class === examObj.class_name && 
+            (!examObj.branch || s.branch === examObj.branch) &&
+            (s.session_year == examObj.session_year || !s.session_year)
+        );
+
+        let customStudentsList = allStudentsCache.filter(s => customStudentIds.includes(s.id));
+        let combined = [...classStudents, ...customStudentsList];
+        
+        const seen = new Set();
+        combined = combined.filter(s => {
+            if (seen.has(s.id)) return false;
+            seen.add(s.id);
+            return true;
+        });
+
+        combined.sort((a, b) => (parseInt(a.roll, 10) || 0) - (parseInt(b.roll, 10) || 0));
+        activeRosterStudents = combined;
+
+        if (combined.length === 0) {
+            wrapper.innerHTML = `<div class="text-center py-10 space-y-2"><p class="text-amber-800 font-bold">এই জামাতে সরাসরি কোনো ছাত্র পাওয়া যায়নি।</p><p class="text-xs text-gray-500">উপরে সার্চ বক্সে ছাত্রের নাম/আইডি লিখে সার্চ করে বিশেষ ছাত্র যুক্ত করুন।</p></div>`;
+            return;
+        }
+
+        let html = `
+            <table class="min-w-full divide-y divide-gray-100 text-xs">
+                <thead class="bg-gray-50 font-bold text-gray-500 border-b">
+                    <tr>
+                        <th class="px-3 py-2.5 text-center w-14">পরীক্ষার্থী?</th>
+                        <th class="px-3 py-2.5 text-left">রোল ও আইডি</th>
+                        <th class="px-3 py-2.5 text-left">তালিবে ইলম</th>
+                        <th class="px-3 py-2.5 text-left">পিতার নাম</th>
+                        <th class="px-3 py-2.5 text-left">শাখা ও জামাত</th>
+                        <th class="px-3 py-2.5 text-right">টাইপ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">`;
+
+        combined.forEach(s => {
+            const isExcluded = excluded.includes(s.id);
+            const isCustom = customStudentIds.includes(s.id);
+
+            html += `
+                <tr id="roster-row-${s.id}" class="hover:bg-gray-50 transition text-gray-700 ${isExcluded ? 'opacity-40 bg-rose-50/30' : ''}">
+                    <td class="px-3 py-2.5 text-center">
+                        <input type="checkbox" id="roster-chk-${s.id}" ${!isExcluded ? 'checked' : ''} onchange="window.toggleRosterStudent('${s.id}')" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                    </td>
+                    <td class="px-3 py-2.5 font-en font-bold">
+                        <span class="text-emerald-950 font-bold">রোল: ${s.roll || '-'}</span>
+                        <div class="text-[10px] text-gray-400 font-bold">${s.id}</div>
+                    </td>
+                    <td class="px-3 py-2.5 font-bold text-gray-900">${s.name}</td>
+                    <td class="px-3 py-2.5 text-gray-600">${s.father_name || '-'}</td>
+                    <td class="px-3 py-2.5 font-bold text-gray-700">${s.class} (${s.branch})</td>
+                    <td class="px-3 py-2.5 text-right">
+                        ${isCustom ? '<span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full font-bold">বিশেষ পরীক্ষার্থী</span>' : '<span class="text-gray-400 text-[10px]">নিয়মিত</span>'}
+                    </td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        wrapper.innerHTML = html;
+    };
+
+    window.toggleRosterStudent = function(studentId) {
+        const examId = document.getElementById('roster-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) return;
+
+        let excluded = [];
+        try { excluded = JSON.parse(examObj.excluded_students || '[]'); } catch(e){}
+
+        const isChecked = document.getElementById(`roster-chk-${studentId}`)?.checked;
+        const row = document.getElementById(`roster-row-${studentId}`);
+
+        if (isChecked) {
+            excluded = excluded.filter(id => id !== studentId);
+            if (row) row.className = row.className.replace('opacity-40 bg-rose-50/30', '').trim();
+        } else {
+            if (!excluded.includes(studentId)) excluded.push(studentId);
+            if (row) row.classList.add('opacity-40', 'bg-rose-50/30');
+        }
+
+        examObj.excluded_students = JSON.stringify(excluded);
+    };
+
+    window.selectAllRoster = function(selectAll) {
+        const examId = document.getElementById('roster-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj || activeRosterStudents.length === 0) return;
+
+        let excluded = [];
+        if (!selectAll) {
+            excluded = activeRosterStudents.map(s => s.id);
+        }
+
+        examObj.excluded_students = JSON.stringify(excluded);
+        window.renderRosterStudentsList();
+        showToast(selectAll ? "সকল ছাত্রকে পরীক্ষায় অন্তর্ভুক্ত করা হয়েছে।" : "সকল ছাত্রকে পরীক্ষা থেকে বাদ দেওয়া হয়েছে।", "info");
+    };
+
+    window.searchStudentsForCustomRoster = function(query) {
+        const dropdown = document.getElementById('roster-search-dropdown');
+        if (!dropdown) return;
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        const filtered = allStudentsCache.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            s.id.toLowerCase().includes(q) || 
+            String(s.roll) === q
+        );
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `<div class="p-3 text-xs text-gray-400 text-center">কোনো ছাত্র পাওয়া যায়নি</div>`;
+            dropdown.classList.remove('hidden');
+            return;
+        }
+
+        dropdown.innerHTML = filtered.slice(0, 6).map(s => `
+            <div onclick="window.selectCustomStudentForRoster('${s.id}')" class="p-2.5 hover:bg-emerald-50 cursor-pointer text-xs flex justify-between items-center">
+                <div>
+                    <strong class="text-gray-900 block">${s.name}</strong>
+                    <span class="text-[10px] text-gray-500">${s.class} (${s.branch}) | রোল: ${s.roll}</span>
+                </div>
+                <span class="font-en font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">${s.id}</span>
+            </div>`).join('');
+        dropdown.classList.remove('hidden');
+    };
+
+    window.selectCustomStudentForRoster = function(studentId) {
+        const examId = document.getElementById('roster-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) {
+            showToast("প্রথমে পরীক্ষা নির্বাচন করুন!", "error");
+            return;
+        }
+
+        const found = allStudentsCache.find(s => s.id === studentId);
+        if (!found) return;
+
+        let customStudentIds = [];
+        try { customStudentIds = JSON.parse(examObj.custom_students || '[]'); } catch(e){}
+
+        if (!customStudentIds.includes(found.id)) {
+            customStudentIds.push(found.id);
+            examObj.custom_students = JSON.stringify(customStudentIds);
+            showToast(`ছাত্র ${found.name}-কে বিশেষ পরীক্ষার্থী হিসেবে যুক্ত করা হয়েছে!`, "success");
+        } else {
+            showToast("এই ছাত্র ইতিমধ্যে তালিকায় যুক্ত রয়েছে।", "info");
+        }
+
+        document.getElementById('roster-search-dropdown')?.classList.add('hidden');
+        document.getElementById('roster-custom-student-input').value = '';
+        window.renderRosterStudentsList();
+    };
+
+    window.saveRosterChanges = async function() {
+        const examId = document.getElementById('roster-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) return;
+
+        try {
+            await db.exams.update(examId, {
+                excluded_students: examObj.excluded_students,
+                custom_students: examObj.custom_students,
+                is_synced: 0
+            });
+            showToast("পরীক্ষার্থী তালিকা সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!", "success");
+            await window.loadExamsList();
+            window.renderRosterStudentsList();
+        } catch(e){
+            showToast("তালিকা সংরক্ষণ ব্যর্থ!", "error");
+        }
+    };
+
+    // ============================================
+    // ৩. এক্সেল-লাইক নম্বর এন্ট্রি গ্রিড (Abs/Exp সহ)
+    // ============================================
+    window.renderMarksEntryGrid = async function() {
+        const examId = document.getElementById('entry-exam-select')?.value;
+        const wrapper = document.getElementById('marks-grid-wrapper');
+        const infoEl = document.getElementById('grid-status-info');
+        if (!wrapper) return;
+
+        if (!examId) {
+            wrapper.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">নম্বর ইনপুট দিতে উপর থেকে পরীক্ষা নির্বাচন করুন।</p>`;
+            if (infoEl) infoEl.textContent = "";
+            return;
+        }
+
+        activeExamObj = allExams.find(e => e.id === examId);
+        if (!activeExamObj) return;
+
+        activeExamSubjects = activeExamObj.subjects ? JSON.parse(activeExamObj.subjects) : [];
+
+        let excluded = [];
+        let customStudentIds = [];
+        try { excluded = JSON.parse(activeExamObj.excluded_students || '[]'); } catch(e){}
+        try { customStudentIds = JSON.parse(activeExamObj.custom_students || '[]'); } catch(e){}
+
+        let classStudents = allStudentsCache.filter(s => 
+            s.class === activeExamObj.class_name && 
+            (!activeExamObj.branch || s.branch === activeExamObj.branch) &&
+            (s.session_year == activeExamObj.session_year || !s.session_year)
+        );
+
+        let customStudentsList = allStudentsCache.filter(s => customStudentIds.includes(s.id));
+        let eligibleStudents = [...classStudents, ...customStudentsList].filter(s => !excluded.includes(s.id));
+
+        const seen = new Set();
+        eligibleStudents = eligibleStudents.filter(s => {
+            if (seen.has(s.id)) return false;
+            seen.add(s.id);
+            return true;
+        });
+
+        eligibleStudents.sort((a, b) => (parseInt(a.roll, 10) || 0) - (parseInt(b.roll, 10) || 0));
+        activeRosterStudents = eligibleStudents;
+
+        if (eligibleStudents.length === 0) {
+            wrapper.innerHTML = `<p class="text-center text-rose-500 py-12 font-bold">এই পরীক্ষায় কোনো সক্রিয় পরীক্ষার্থী পাওয়া যায়নি!</p>`;
+            if (infoEl) infoEl.textContent = "";
+            return;
+        }
+
+        const allMarks = await db.marks.where('exam_id').equals(examId).toArray();
+        activeMarksMap = {};
+        allMarks.forEach(m => {
+            if (m.is_deleted !== 1) activeMarksMap[`${m.student_id}_${m.subject_id}`] = (m.is_absent ? 'A' : (m.is_expelled ? 'E' : m.marks_obtained));
+        });
+
+        if (infoEl) infoEl.textContent = `মোট পরীক্ষার্থী: ${eligibleStudents.length} জন | মোট বিষয়: ${activeExamSubjects.length}টি`;
+
+        let html = `
+            <table class="min-w-full border-collapse border border-gray-200 text-xs font-sans">
+                <thead class="bg-gray-100 font-bold sticky top-0 z-10 text-gray-700">
+                    <tr>
+                        <th class="border px-3 py-2.5 text-left sticky left-0 bg-gray-100 z-20 min-w-[130px]">রোল ও ছাত্রের নাম</th>`;
+
+        activeExamSubjects.forEach(sub => {
+            html += `<th class="border px-2 py-2 text-center min-w-[85px]">${sub.name}<span class="text-[9px] text-gray-500 block font-normal font-en">Pass: ${sub.pass}</span></th>`;
+        });
+
+        html += `
+                        <th class="border px-3 py-2 text-center bg-emerald-50 text-emerald-900 min-w-[65px]">মোট</th>
+                        <th class="border px-3 py-2 text-center bg-blue-50 text-blue-900 min-w-[75px]">দরজাত ও গ্রেড</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">`;
+
+        let scale = {};
+        try { scale = JSON.parse(activeExamObj.grading_scale || '{}'); } catch(e){}
+
+        eligibleStudents.forEach((s, rIdx) => {
+            let studentTotalObtained = 0;
+            let hasFailed = false;
+
+            html += `
+                <tr class="hover:bg-gray-50 transition text-gray-700">
+                    <td class="border px-3 py-2 text-left font-bold sticky left-0 bg-white z-10 truncate max-w-[140px]">
+                        <span class="text-emerald-700 font-en mr-1 font-bold">${String(s.roll || 0).padStart(2, '0')}</span> ${s.name}
+                    </td>`;
+
+            activeExamSubjects.forEach((sub, cIdx) => {
+                const rawVal = activeMarksMap[`${s.id}_${sub.id}`];
+                const markVal = rawVal !== undefined ? rawVal : '';
+                const isAbs = (markVal === 'A' || markVal === 'a');
+                const numVal = isAbs ? 0 : (parseFloat(markVal) || 0);
+                studentTotalObtained += numVal;
+
+                if (isAbs || (markVal !== '' && numVal < sub.pass)) hasFailed = true;
+
+                html += `
+                    <td class="border px-1 py-1 text-center">
+                        <input type="text" 
+                               id="grid_m_${rIdx}_${cIdx}"
+                               data-student="${s.id}" 
+                               data-subject="${sub.id}"
+                               data-pass="${sub.pass}"
+                               value="${markVal}"
+                               onkeydown="window.handleGridKeyNav(event, ${rIdx}, ${cIdx})"
+                               oninput="window.calculateGridRow(${rIdx})"
+                               class="w-full px-1 py-1 text-center font-bold font-en text-xs border border-gray-200 rounded focus:border-emerald-600 focus:bg-emerald-50 focus:outline-none marks-cell-input bg-white ${isAbs ? 'text-rose-600 bg-rose-50 font-extrabold' : ''}">
+                    </td>`;
+            });
+
+            const avg = activeExamSubjects.length > 0 ? (studentTotalObtained / activeExamSubjects.length) : 0;
+            const evalResult = evaluateStudentGradeAndDarajat(avg, hasFailed, scale);
+
+            html += `
+                    <td class="border px-2 py-2 text-center font-bold font-en text-emerald-800 bg-emerald-50/20" id="row_tot_${rIdx}">${studentTotalObtained}</td>
+                    <td class="border px-2 py-2 text-center font-bold text-xs" id="row_dar_${rIdx}">${evalResult.badge}</td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        wrapper.innerHTML = html;
+    };
+
+    window.handleGridKeyNav = function(e, row, col) {
+        const totalRows = activeRosterStudents.length;
+        const totalCols = activeExamSubjects.length;
+
+        if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
+            e.preventDefault();
+            let nextRow = row + 1;
+            let nextCol = col;
+            if (nextRow >= totalRows) {
+                nextRow = 0;
+                nextCol = col + 1;
+            }
+            if (nextCol < totalCols) {
+                const nextInput = document.getElementById(`grid_m_${nextRow}_${nextCol}`);
+                if (nextInput) nextInput.focus();
+            }
+        }
+    };
+
+    window.calculateGridRow = function(rIdx) {
+        let tot = 0;
+        let hasFailed = false;
+
+        activeExamSubjects.forEach((sub, cIdx) => {
+            const inp = document.getElementById(`grid_m_${rIdx}_${cIdx}`);
+            if (inp) {
+                const raw = inp.value.trim();
+                const isAbs = (raw.toUpperCase() === 'A');
+                const val = isAbs ? 0 : (parseFloat(raw) || 0);
+                tot += val;
+
+                if (isAbs || (raw !== '' && val < sub.pass)) hasFailed = true;
+            }
+        });
+
+        const totEl = document.getElementById(`row_tot_${rIdx}`);
+        const darEl = document.getElementById(`row_dar_${rIdx}`);
+
+        if (totEl) totEl.textContent = tot;
+
+        let scale = {};
+        try { scale = JSON.parse(activeExamObj.grading_scale || '{}'); } catch(e){}
+        const avg = activeExamSubjects.length > 0 ? (tot / activeExamSubjects.length) : 0;
+        const dar = evaluateStudentGradeAndDarajat(avg, hasFailed, scale);
+        if (darEl) darEl.innerHTML = dar.badge;
+    };
+
+    function evaluateStudentGradeAndDarajat(avg, hasFailed, scale = {}) {
+        if (hasFailed) {
+            return { darajat: "রাসিব", grade: "F", badge: `<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full text-[10px] font-bold">রাসিব (F)</span>` };
+        }
+
+        const mumtazMin = scale.mumtaz_min || 80;
+        const jayyidJiddanMin = scale.jayyid_jiddan_min || 65;
+        const jayyidMin = scale.jayyid_min || 50;
+        const maqbulMin = scale.maqbul_min || 33;
+
+        if (avg >= mumtazMin) return { darajat: "মুমতাজ", grade: "A+", badge: `<span class="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full text-[10px] font-bold">মুমতাজ (A+)</span>` };
+        if (avg >= jayyidJiddanMin) return { darajat: "জায়্যিদ জিদ্দান", grade: "A", badge: `<span class="bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full text-[10px] font-bold">জায়্যিদ জিদ্দান (A)</span>` };
+        if (avg >= jayyidMin) return { darajat: "জায়্যিদ", grade: "B", badge: `<span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full text-[10px] font-bold">জায়্যিদ (B)</span>` };
+        if (avg >= maqbulMin) return { darajat: "মাকবুল", grade: "C", badge: `<span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">মাকবুল (C)</span>` };
+        
+        return { darajat: "রাসিব", grade: "F", badge: `<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full text-[10px] font-bold">রাসিব (F)</span>` };
+    }
+
+    window.saveGridMarks = async function() {
+        if (!activeExamObj) return;
+
+        const inputs = document.querySelectorAll('.marks-cell-input');
+        const bulkMarks = [];
+        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+        const curUser = user ? user.username : "system";
+
+        inputs.forEach(inp => {
+            const studentId = inp.getAttribute('data-student');
+            const subjectId = inp.getAttribute('data-subject');
+            const rawVal = inp.value.trim();
+
+            if (rawVal !== '') {
+                const isAbs = (rawVal.toUpperCase() === 'A');
+                const isExp = (rawVal.toUpperCase() === 'E');
+                const markVal = (isAbs || isExp) ? 0 : (parseFloat(rawVal) || 0);
+
+                const markId = `M_${activeExamObj.id}_${studentId}_${subjectId}`;
+                bulkMarks.push({
+                    id: markId,
+                    exam_id: activeExamObj.id,
+                    student_id: studentId,
+                    subject_id: subjectId,
+                    marks_obtained: markVal,
+                    is_absent: isAbs ? 1 : 0,
+                    is_expelled: isExp ? 1 : 0,
+                    session_year: activeExamObj.session_year,
+                    created_by: curUser,
+                    updated_by: curUser,
+                    is_synced: 0,
+                    is_deleted: 0
+                });
+            }
+        });
+
+        if (bulkMarks.length > 0) {
+            try {
+                await db.marks.bulkPut(bulkMarks);
+                showToast("নম্বরসমূহ সফলভাবে সংরক্ষিত হয়েছে!", "success");
+                if (typeof updatePendingCount === 'function') await updatePendingCount();
+                if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+            } catch (err) {
+                console.error("নম্বর সেভে ত্রুটি:", err);
+                showToast("নম্বর সেভ করতে সমস্যা হয়েছে!", "error");
+            }
+        }
+    };
+
+    // ============================================
+    // ৪. ফলাফল তাবলীক লেজার ও মেধা তালিকা
+    // ============================================
+    window.generateTabulationSheet = async function() {
+        const examId = document.getElementById('ledger-exam-select')?.value;
+        const wrapper = document.getElementById('ledger-table-wrapper');
+        if (!wrapper) return;
+
+        if (!examId) {
+            wrapper.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">লেজার দেখতে পরীক্ষা নির্বাচন করুন।</p>`;
+            return;
+        }
+
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) return;
+
+        const subjects = examObj.subjects ? JSON.parse(examObj.subjects) : [];
+        let scale = {};
+        try { scale = JSON.parse(examObj.grading_scale || '{}'); } catch(e){}
+
+        let excluded = [];
+        let customStudentIds = [];
+        try { excluded = JSON.parse(examObj.excluded_students || '[]'); } catch(e){}
+        try { customStudentIds = JSON.parse(examObj.custom_students || '[]'); } catch(e){}
+
+        let classStudents = allStudentsCache.filter(s => 
+            s.class === examObj.class_name && 
+            (!examObj.branch || s.branch === examObj.branch) &&
+            (s.session_year == examObj.session_year || !s.session_year)
+        );
+
+        let customStudentsList = allStudentsCache.filter(s => customStudentIds.includes(s.id));
+        let eligibleStudents = [...classStudents, ...customStudentsList].filter(s => !excluded.includes(s.id));
+
+        const seen = new Set();
+        eligibleStudents = eligibleStudents.filter(s => {
+            if (seen.has(s.id)) return false;
+            seen.add(s.id);
+            return true;
+        });
+
+        const allMarks = await db.marks.where('exam_id').equals(examId).toArray();
+        const marksLookup = {};
+        allMarks.forEach(m => {
+            if (m.is_deleted !== 1) marksLookup[`${m.student_id}_${m.subject_id}`] = (m.is_absent ? 'A' : m.marks_obtained);
+        });
+
+        const studentSummaries = eligibleStudents.map(s => {
+            let tot = 0;
+            let failed = false;
+            subjects.forEach(sub => {
+                const val = marksLookup[`${s.id}_${sub.id}`];
+                if (val === undefined || val === 'A' || parseFloat(val) < sub.pass) failed = true;
+                tot += (val === 'A' ? 0 : (parseFloat(val) || 0));
+            });
+            return { student: s, total: tot, failed: failed };
+        });
+
+        const passedStudents = studentSummaries.filter(item => !item.failed);
+        passedStudents.sort((a, b) => b.total - a.total);
+
+        const rankMap = {};
+        passedStudents.forEach((item, idx) => {
+            rankMap[item.student.id] = (idx + 1) + "ম";
+        });
+
+        let html = `
+            <table class="min-w-full border-collapse border border-gray-200 text-xs font-sans">
+                <thead class="bg-gray-100 font-bold text-gray-700">
+                    <tr>
+                        <th class="border px-2 py-2 text-center w-12">মেধা</th>
+                        <th class="border px-3 py-2 text-left">রোল ও তালিবে ইলমের নাম</th>`;
+
+        subjects.forEach(sub => {
+            html += `<th class="border px-2 py-2 text-center">${sub.name}</th>`;
+        });
+
+        html += `
+                        <th class="border px-3 py-2 text-center bg-emerald-50">মোট</th>
+                        <th class="border px-3 py-2 text-center bg-blue-50">গড় (%)</th>
+                        <th class="border px-3 py-2 text-center">দরজাত ও গ্রেড</th>
+                        <th class="border px-3 py-2 text-right">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">`;
+
+        studentSummaries.forEach(item => {
+            const s = item.student;
+            const rank = rankMap[s.id] || "-";
+            const avg = subjects.length > 0 ? (item.total / subjects.length) : 0;
+            const evalResult = evaluateStudentGradeAndDarajat(avg, item.failed, scale);
+
+            html += `
+                <tr class="hover:bg-gray-50 transition text-gray-700">
+                    <td class="border px-2 py-2 font-bold font-en text-emerald-850 text-center">${rank}</td>
+                    <td class="border px-3 py-2 font-bold text-gray-900">
+                        <span class="text-emerald-700 font-en mr-1 font-bold">${String(s.roll || 0).padStart(2, '0')}</span> ${s.name}
+                    </td>`;
+
+            subjects.forEach(sub => {
+                const mark = marksLookup[`${s.id}_${sub.id}`];
+                const displayMark = mark !== undefined ? mark : '-';
+                const isFail = mark !== undefined && (mark === 'A' || parseFloat(mark) < sub.pass);
+
+                html += `<td class="border px-2 py-2 text-center font-en font-bold ${isFail ? 'text-rose-600 bg-rose-50' : 'text-gray-700'}">${displayMark}</td>`;
+            });
+
+            html += `
+                    <td class="border px-3 py-2 text-center font-bold font-en text-emerald-800 bg-emerald-50/30">${item.total}</td>
+                    <td class="border px-3 py-2 text-center font-bold font-en text-blue-800 bg-blue-50/30">${avg.toFixed(1)}%</td>
+                    <td class="border px-3 py-2 text-center font-bold text-xs">${evalResult.badge}</td>
+                    <td class="border px-3 py-2 text-right">
+                        <div class="flex gap-1 justify-end">
+                            <button onclick="window.sendResultDirectWA('${s.id}', '${examObj.id}', '${item.total}', '${rank}', '${evalResult.darajat}')" class="bg-green-50 text-green-700 hover:bg-green-100 p-1.5 rounded-lg text-xs cursor-pointer" title="হোয়াটসঅ্যাপে রেজাল্ট পাঠান"><i class="fa-brands fa-whatsapp"></i></button>
+                            <button onclick="window.showMarksheetModal('${s.id}', '${examObj.id}', '${rank}')" class="bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-2 py-1 rounded-lg font-bold text-[10.5px] flex items-center gap-1 border border-emerald-200 cursor-pointer">
+                                <i class="fa-solid fa-file-invoice"></i> কারনামা (A5)
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        wrapper.innerHTML = html;
+    };
+
+    // A4 Landscape ফলাফলের তাবলীক শিট PDF (সাদা পেজ ত্রুটি শতভাগ ফিক্সড)
+    window.downloadTabulationSheetPDF = async function() {
+        const examId = document.getElementById('ledger-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) {
+            showToast("প্রথমে পরীক্ষা নির্বাচন করুন!", "error");
+            return;
+        }
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const tableContent = document.getElementById('ledger-table-wrapper')?.innerHTML;
+
+        if (!tableContent || tableContent.includes('নির্বাচন করুন')) {
+            showToast("ফলাফল লেজার পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        // টেম্পোরারি ফুল-স্ক্রিন রেন্ডারিং উইন্ডো
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.top = '0';
+        tempContainer.style.left = '0';
+        tempContainer.style.width = '280mm';
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.zIndex = '999999';
+        tempContainer.style.padding = '12px';
+        tempContainer.style.fontFamily = "'Hind Siliguri', sans-serif";
+        tempContainer.style.color = '#1f2937';
+
+        tempContainer.innerHTML = `
+            <div>
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 6px; margin-bottom: 8px;">
+                    <h2 style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10px; color: #4b5563; margin: 1px 0;">${mAddr}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 4px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        ${examObj.exam_name} — ফলাফলের তাবলীক লেজার শিট
+                    </h3>
+                    <p style="font-size: 9.5px; color: #64748b; margin: 3px 0 0 0;">জামাত: ${examObj.class_name} | শাখা: ${examObj.branch || 'মূল শাখা'} | সেশন: ${examObj.session_year} | তারিখ: ${window.getLocalDateString()}</p>
+                </div>
+
+                <div style="font-size: 8.5px;">
+                    ${tableContent}
+                </div>
+
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 9px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">শ্রেণী শিক্ষক</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">নাযিম-এ-ইমতিহান</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 2px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        document.body.appendChild(tempContainer);
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Tabulation_Sheet_${examObj.class_name}_${examObj.exam_name}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        showToast("তাবলীক শিট পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            showToast("তাবলীক শিট ডাউনলোড সম্পন্ন!", "success");
+            tempContainer.remove();
+        }).catch(err => {
+            console.error("PDF সমস্যা:", err);
+            showToast("পিডিএফ তৈরিতে সমস্যা হয়েছে!", "error");
+            tempContainer.remove();
+        });
+    };
+
+    // A5 কারনামা / মার্কশিট ভিউ মডাল
+    window.showMarksheetModal = async function(studentId, examId, rank) {
+        const s = allStudentsCache.find(item => item.id === studentId) || await db.students.get(studentId);
+        const examObj = allExams.find(e => e.id === examId);
+        if (!s || !examObj) return;
+
+        const subjects = examObj.subjects ? JSON.parse(examObj.subjects) : [];
+        let scale = {};
+        try { scale = JSON.parse(examObj.grading_scale || '{}'); } catch(e){}
+
+        const allMarks = await db.marks.where('exam_id').equals(examId).toArray();
+        const marksLookup = {};
+        allMarks.forEach(m => {
+            if (m.student_id === studentId && m.is_deleted !== 1) marksLookup[m.subject_id] = (m.is_absent ? 'A' : m.marks_obtained);
+        });
+
+        let totalObtained = 0;
+        let totalFull = 0;
+        let hasFailed = false;
+
+        let rowsHtml = '';
+        subjects.forEach(sub => {
+            const mark = marksLookup[sub.id] !== undefined ? marksLookup[sub.id] : 0;
+            const isAbs = mark === 'A';
+            const numMark = isAbs ? 0 : (parseFloat(mark) || 0);
+            totalObtained += numMark;
+            totalFull += sub.total;
+
+            const isFail = isAbs || (numMark < sub.pass);
+            if (isFail) hasFailed = true;
+
+            rowsHtml += `
+                <tr class="border-b text-xs font-bold text-gray-700">
+                    <td class="py-1.5 text-left">${sub.name}</td>
+                    <td class="py-1.5 text-center font-en">${sub.total}</td>
+                    <td class="py-1.5 text-center font-en">${sub.pass}</td>
+                    <td class="py-1.5 text-center font-en ${isFail ? 'text-rose-600 font-extrabold' : 'text-emerald-800 font-extrabold'}">${isAbs ? 'অনুপস্থিত' : mark}</td>
+                </tr>`;
+        });
+
+        const avg = subjects.length > 0 ? (totalObtained / subjects.length) : 0;
+        const evalResult = evaluateStudentGradeAndDarajat(avg, hasFailed, scale);
+
+        const config = await fetchMadrasahConfig();
+        const madrasahName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const madrasahAddress = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const logoUrl = config.madrasah_logo || '';
+
+        activeMarksheetData = {
+            student: s,
+            exam: examObj,
+            total: totalObtained,
+            rank: rank,
+            darajat: evalResult.darajat
+        };
+
+        const modalBody = document.getElementById('marksheet-modal-body');
+        modalBody.innerHTML = `
+            <div>
+                <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-2">
+                    <div class="flex items-center gap-2">
+                        ${logoUrl ? `<img class="w-11 h-11 rounded-xl object-cover border border-emerald-200" crossorigin="anonymous" src="${logoUrl}">` : '<div class="w-11 h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-mosque"></i></div>'}
+                        <div>
+                            <h2 class="text-base font-bold text-emerald-950 leading-tight">${madrasahName}</h2>
+                            <p class="text-[9.5px] text-gray-500">${madrasahAddress}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="bg-emerald-850 text-white px-2.5 py-0.5 rounded text-[10px] font-bold">নম্বরপত্র / কারনামা</span>
+                        <p class="text-[8.5px] text-gray-500 font-bold mt-0.5">${examObj.exam_name} (${examObj.session_year})</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-y-1 py-1.5 bg-emerald-50/40 p-2 rounded-lg text-[10px] border border-emerald-100 my-2">
+                    <div><span class="text-gray-500">নাম:</span> <strong class="text-gray-900">${s.name}</strong></div>
+                    <div><span class="text-gray-500">রোল ও আইডি:</span> <strong class="font-en text-emerald-900">${s.roll || '-'} (${s.id})</strong></div>
+                    <div><span class="text-gray-500">জামাত ও শাখা:</span> <strong class="text-gray-800">${examObj.class_name} (${examObj.branch || 'মূল শাখা'})</strong></div>
+                    <div><span class="text-gray-500">মেধা স্থান:</span> <strong class="text-emerald-850 font-bold">${rank}</strong></div>
+                </div>
+
+                <table class="w-full text-left text-[10px] border-t border-b border-gray-300 my-2">
+                    <thead class="bg-emerald-50 text-emerald-950 font-bold">
+                        <tr>
+                            <th class="py-1.5 px-1 text-left">বিষয়ের নাম</th>
+                            <th class="py-1.5 px-1 text-center">পূর্ণমান</th>
+                            <th class="py-1.5 px-1 text-center">পাস নম্বর</th>
+                            <th class="py-1.5 px-1 text-center">প্রাপ্ত নম্বর</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                    <tfoot class="border-t-2 font-bold bg-gray-50 text-[10px]">
+                        <tr>
+                            <td class="py-1.5 px-1">সর্বমোট:</td>
+                            <td class="py-1.5 px-1 text-center font-en">${totalFull}</td>
+                            <td class="py-1.5 px-1 text-center">-</td>
+                            <td class="py-1.5 px-1 text-center font-en text-emerald-800 font-extrabold">${totalObtained}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="flex justify-between items-center bg-emerald-50/60 p-2 rounded-lg border border-emerald-200 text-[10.5px]">
+                    <div>গড় নম্বর: <strong class="font-en text-emerald-850 font-extrabold">${avg.toFixed(1)}%</strong></div>
+                    <div>চূড়ান্ত ফলাফল: <strong>${evalResult.badge}</strong></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center text-[8.5px] text-gray-500 pt-6 mt-4 border-t">
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">শ্রেণী শিক্ষক</div>
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">নাযিম-এ-ইমতিহান</div>
+                <div class="text-center w-24 border-t pt-0.5 border-emerald-800 text-emerald-800 font-bold">মুহতামিম</div>
+            </div>`;
+
+        document.getElementById('marksheet-modal')?.classList.remove('hidden');
+    };
+
+    window.downloadSingleMarksheetPDF = function() {
+        if (!activeMarksheetData) return;
+        const element = document.getElementById('marksheet-modal-body');
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `${activeMarksheetData.student.id}_${activeMarksheetData.student.name}_Marksheet.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        showToast("A5 কারনামা পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast("কারনামা পিডিএফ ডাউনলোড সম্পন্ন!", "success");
+        });
+    };
+
+    window.sendMarksheetWhatsApp = function() {
+        if (!activeMarksheetData) return;
+        const s = activeMarksheetData.student;
+        let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
+
+        const msg = `আসসালামু আলাইকুম।
+${mName}-এর পক্ষ থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর ${activeMarksheetData.exam.exam_name}-এর ফলাফল প্রকাশিত হয়েছে।
+
+মোট প্রাপ্ত নম্বর: ${activeMarksheetData.total}
+মেধা স্থান: ${activeMarksheetData.rank}
+দরজাত: ${activeMarksheetData.darajat}
+অনলাইনে পূর্ণাঙ্গ নম্বরপত্র ও কারনামা দেখুন: ${portalUrl}
+ধন্যবাদ।`;
+
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    window.sendResultDirectWA = function(studentId, examId, total, rank, darajat) {
+        const s = allStudentsCache.find(item => item.id === studentId);
+        const examObj = allExams.find(e => e.id === examId);
+        if (!s || !examObj) return;
+
+        let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
+
+        const msg = `আসসালামু আলাইকুম।
+${mName}-এর পক্ষ থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর ${examObj.exam_name}-এর ফলাফল প্রকাশিত হয়েছে।
+
+মোট প্রাপ্ত নম্বর: ${total}
+মেধা স্থান: ${rank}
+দরজাত: ${darajat}
+অনলাইনে পূর্ণাঙ্গ নম্বরপত্র ও কারনামা দেখুন: ${portalUrl}
+ধন্যবাদ।`;
+
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // ============================================
+    // ৫. প্রবেশপত্র (Admit Card) ও সিট প্ল্যান
+    // ============================================
+    window.renderAdmitCardPreviews = async function() {
+        const examId = document.getElementById('admit-exam-select')?.value;
+        const wrapper = document.getElementById('admit-cards-preview-wrapper');
+        if (!wrapper) return;
+
+        if (!examId) {
+            wrapper.innerHTML = `<p class="col-span-full text-center text-gray-400 py-12 font-bold">প্রবেশপত্র দেখতে পরীক্ষা নির্বাচন করুন।</p>`;
+            return;
+        }
+
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) return;
+
+        let excluded = [];
+        let customStudentIds = [];
+        try { excluded = JSON.parse(examObj.excluded_students || '[]'); } catch(e){}
+        try { customStudentIds = JSON.parse(examObj.custom_students || '[]'); } catch(e){}
+
+        let classStudents = allStudentsCache.filter(s => 
+            s.class === examObj.class_name && 
+            (!examObj.branch || s.branch === examObj.branch) &&
+            (s.session_year == examObj.session_year || !s.session_year)
+        );
+
+        let customStudentsList = allStudentsCache.filter(s => customStudentIds.includes(s.id));
+        let eligibleStudents = [...classStudents, ...customStudentsList].filter(s => !excluded.includes(s.id));
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+
+        if (eligibleStudents.length === 0) {
+            wrapper.innerHTML = `<p class="col-span-full text-center text-rose-500 py-10 font-bold">কোনো পরীক্ষার্থী পাওয়া যায়নি!</p>`;
+            return;
+        }
+
+        let html = '';
+        eligibleStudents.forEach(s => {
+            html += `
+                <div class="border border-emerald-200 rounded-xl p-3.5 bg-emerald-50/20 text-xs space-y-2">
+                    <div class="flex justify-between items-center border-b pb-1.5">
+                        <strong class="text-emerald-950">${mName}</strong>
+                        <span class="bg-emerald-800 text-white px-2 py-0.5 rounded text-[9.5px] font-bold">প্রবেশপত্র</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-gray-900">${s.name}</div>
+                            <div class="text-[10px] text-gray-500 font-en font-bold">রোল: ${s.roll || '-'} | ID: ${s.id}</div>
+                            <div class="text-[10px] text-emerald-800 font-bold">${examObj.class_name} (${examObj.branch || 'মূল শাখা'})</div>
+                        </div>
+                        ${s.photo_url ? `<img src="${s.photo_url}" class="w-10 h-10 rounded-lg object-cover border border-emerald-200">` : '<div class="w-10 h-10 rounded-lg bg-gray-100 border text-center text-gray-400 text-[8px] pt-3">ছবি নেই</div>'}
+                    </div>
+                    <div class="text-[9.5px] text-gray-600 bg-white p-1.5 rounded border">
+                        পরীক্ষা: <strong>${examObj.exam_name} (${examObj.session_year})</strong>
+                    </div>
+                </div>`;
+        });
+
+        wrapper.innerHTML = html;
+    };
+
+    // A5 প্রবেশপত্র পিডিএফ ডাউনলোড (সাদা পেজ শতভাগ ফিক্সড)
+    window.downloadClassAdmitCardsPDF = async function() {
+        const examId = document.getElementById('admit-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) {
+            showToast("প্রথমে পরীক্ষা নির্বাচন করুন!", "error");
+            return;
+        }
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+
+        let excluded = [];
+        let customStudentIds = [];
+        try { excluded = JSON.parse(examObj.excluded_students || '[]'); } catch(e){}
+        try { customStudentIds = JSON.parse(examObj.custom_students || '[]'); } catch(e){}
+
+        let classStudents = allStudentsCache.filter(s => 
+            s.class === examObj.class_name && 
+            (!examObj.branch || s.branch === examObj.branch) &&
+            (s.session_year == examObj.session_year || !s.session_year)
+        );
+
+        let customStudentsList = allStudentsCache.filter(s => customStudentIds.includes(s.id));
+        let eligibleStudents = [...classStudents, ...customStudentsList].filter(s => !excluded.includes(s.id));
+
+        if (eligibleStudents.length === 0) {
+            showToast("প্রবেশপত্র ডাউনলোড করার জন্য কোনো পরীক্ষার্থী পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        let cardsHtml = '';
+        eligibleStudents.forEach(s => {
+            cardsHtml += `
+                <div style="width: 135mm; min-height: 90mm; border: 2px solid #065f46; border-radius: 8px; padding: 10px; margin-bottom: 12px; page-break-inside: avoid; font-family: 'Hind Siliguri', sans-serif; background: #fff;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #065f46; padding-bottom: 6px;">
+                        <div>
+                            <h2 style="font-size: 14px; margin: 0; color: #064e3b; font-weight: bold;">${mName}</h2>
+                            <p style="font-size: 8.5px; margin: 0; color: #64748b;">${mAddr}</p>
+                        </div>
+                        <span style="background: #065f46; color: #fff; padding: 2px 10px; border-radius: 4px; font-size: 10px; font-weight: bold;">প্রবেশপত্র (Admit Card)</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 10px;">
+                        <div>
+                            <div>নাম: <strong style="color: #0f172a;">${s.name}</strong></div>
+                            <div>পিতার নাম: <strong>${s.father_name || '-'}</strong></div>
+                            <div>জামাত ও শাখা: <strong>${examObj.class_name} (${examObj.branch || 'মূল শাখা'})</strong></div>
+                            <div>রোল: <strong style="font-family: 'Inter', sans-serif;">${s.roll || '-'}</strong> | আইডি: <strong style="font-family: 'Inter', sans-serif;">${s.id}</strong></div>
+                        </div>
+                        <div style="width: 50px; height: 55px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; line-height: 55px; font-size: 8px; color: #94a3b8;">ছবি</div>
+                    </div>
+
+                    <div style="margin-top: 8px; background: #f8fafc; padding: 4px 8px; border: 1px dashed #cbd5e1; font-size: 9.5px; border-radius: 4px;">
+                        পরীক্ষা: <strong>${examObj.exam_name} (${examObj.session_year})</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 8.5px; margin-top: 25px; color: #475569;">
+                        <div style="border-top: 1px solid #94a3b8; width: 80px; text-align: center;">নাযিম-এ-ইমতিহান</div>
+                        <div style="border-top: 1px solid #065f46; width: 80px; text-align: center; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                    </div>
+                </div>`;
+        });
+
+        // ফুল-স্ক্রিন ভিজ্যুয়াল কন্টেইনার দিয়ে রেন্ডার
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.top = '0';
+        tempContainer.style.left = '0';
+        tempContainer.style.width = '148mm';
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.zIndex = '999999';
+        tempContainer.style.padding = '8px';
+        tempContainer.innerHTML = cardsHtml;
+
+        document.body.appendChild(tempContainer);
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Admit_Cards_${examObj.class_name}_${examObj.exam_name}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        showToast("প্রবেশপত্রসমূহ পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            showToast("প্রবেশপত্র ডাউনলোড সম্পন্ন!", "success");
+            tempContainer.remove();
+        }).catch(err => {
+            console.error("PDF সমস্যা:", err);
+            showToast("প্রবেশপত্র ডাউনলোডে সমস্যা হয়েছে!", "error");
+            tempContainer.remove();
+        });
+    };
+
+    // A4 বেঞ্চ সিট স্টিকার PDF (সাদা পেজ শতভাগ ফিক্সড)
+    window.downloadBenchSlipsPDF = async function() {
+        const examId = document.getElementById('admit-exam-select')?.value;
+        const examObj = allExams.find(e => e.id === examId);
+        if (!examObj) {
+            showToast("প্রথমে পরীক্ষা নির্বাচন করুন!", "error");
+            return;
+        }
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+
+        let classStudents = allStudentsCache.filter(s => s.class === examObj.class_name && (s.session_year == examObj.session_year || !s.session_year));
+
+        if (classStudents.length === 0) {
+            showToast("সিট প্ল্যানের জন্য কোনো ছাত্র পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        let slipsHtml = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-family: ' + "'Hind Siliguri', sans-serif;" + ' width: 195mm; background: #fff; padding: 6px;">';
+        classStudents.forEach(s => {
+            slipsHtml += `
+                <div style="border: 2px solid #065f46; border-radius: 6px; padding: 6px; text-align: center; background: #fff; page-break-inside: avoid;">
+                    <div style="font-size: 9px; color: #065f46; font-weight: bold;">${mName}</div>
+                    <div style="font-size: 16px; font-weight: bold; font-family: 'Inter', sans-serif; margin: 2px 0; color: #0f172a;">রোল: ${s.roll || '-'}</div>
+                    <div style="font-size: 10px; font-weight: bold; color: #1e293b;">${s.name}</div>
+                    <div style="font-size: 8px; color: #64748b;">${examObj.class_name} (${s.id})</div>
+                </div>`;
+        });
+        slipsHtml += '</div>';
+
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.top = '0';
+        tempContainer.style.left = '0';
+        tempContainer.style.width = '210mm';
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.zIndex = '999999';
+        tempContainer.style.padding = '8px';
+        tempContainer.innerHTML = slipsHtml;
+
+        document.body.appendChild(tempContainer);
+
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `Seat_Plan_Slips_${examObj.class_name}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        showToast("বেঞ্চ রোল স্টিকার প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            showToast("বেঞ্চ স্টিকার ডাউনলোড সম্পন্ন!", "success");
+            tempContainer.remove();
+        }).catch(err => {
+            console.error("PDF সমস্যা:", err);
+            showToast("সিট প্ল্যান ডাউনলোডে সমস্যা হয়েছে!", "error");
+            tempContainer.remove();
+        });
+    };
+})();
+</script>

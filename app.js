@@ -1,123 +1,411 @@
-// ============================================
-// ১. গুগল অ্যাপস স্ক্রিপ্ট লিংক এবং সেশন গ্লোবাল স্টেট
-// ============================================
-const SCRIPT_URL = localStorage.getItem('madrasah_script_url') || 'https://script.google.com/macros/s/AKfycbzZL5D_wk3yfpN1YNWxnJh-vKCWtLQiG2UH95PMZUpKC1tQShQgWS1fF_BA9PIA0fZIMA/exec';
-
-// গ্লোবাল ইউজার স্টেট (সেশন স্টোরেজ থেকে পুনরুদ্ধার)
-window.currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
-window.currentModule = 'dashboard';
-let isSyncing = false;
+/* ==========================================================================
+   Madrasah OS - Universal Core Engine (app.js) - Fully Fixed & Optimized
+   Architecture: Zero-Touch Plug & Play Micro-Kernel (Production-Ready)
+   ========================================================================== */
 
 // ============================================
-// ২. Dexie.js লোকাল ডাটাবেজ টেবিল স্কিমা (সংস্করণ ৪ - অডিট ট্রায়াল ট্র্যাকিং সহ)
+// ১. গ্লোবাল অ্যাপ স্টেট ও ইভেন্ট বাস (Event Bus)
 // ============================================
-const db = new Dexie("MadrasahDB");
-db.version(4).stores({
-    students: 'id, name, class, roll, parent_phone, admission_date, is_synced, is_deleted, created_by, updated_by, [class+roll]',
-    fees: 'receipt_id, student_id, student_name, amount, month, payment_date, is_synced, is_deleted, created_by, updated_by',
-    settings: 'id, madrasah_name, madrasah_address, madrasah_phone, madrasah_pin, madrasah_script_url, is_synced, is_deleted',
-    expenses: 'expense_id, branch, category, amount, date, is_synced, is_deleted, created_by, updated_by',
-    attendance: 'attendance_id, student_id, date, status, is_synced, is_deleted, created_by, updated_by',
-    users: 'username, pin, role, fullname, is_synced, is_deleted' // fullname সহ ডাইনামিক ইউজার টেবিল
-});
+window.App = {
+    masterUrl: 'https://script.google.com/macros/s/AKfycbxCyu_A7PgHOUNK34P7_ZZWpgjRn4Onjz6nxI5J-wM_TiafTTa8XlJpfc0hAcgVr-kG/exec',
+    currentUser: JSON.parse(sessionStorage.getItem('currentUser')) || null,
+    currentModule: 'dashboard',
+    isSyncing: false,
+    inactivityTimer: null,
+    listeners: {},
 
-// ============================================
-// ৩. গ্লোবাল বাংলা থেকে ইংরেজি সংখ্যা কনভার্টার ও নিরাপদ পার্সার
-// ============================================
-window.convertToEnglishDigits = function(str) {
-    if (str === null || str === undefined) return "";
-    const banglaDigits = {'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
-    return str.toString().replace(/[০-৯]/g, d => banglaDigits[d]);
-};
+    on(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    },
+    emit(event, data) {
+        if (this.listeners[event]) this.listeners[event].forEach(cb => cb(data));
+    },
 
-// গ্লোবাল বাংলা-বান্ধব নিরাপদ ফ্লোট পার্সার (NaN এরর প্রতিরোধক)
-window.safeParseFloat = function(val) {
-    if (val === null || val === undefined) return 0;
-    let eng = window.convertToEnglishDigits(val.toString());
-    // সংখ্যা, দশমিক এবং মাইনাস চিহ্ন ব্যতীত সবকিছু রিমুভ করা
-    let clean = eng.replace(/[^0-9.-]/g, ''); 
-    let parsed = parseFloat(clean);
-    return isNaN(parsed) ? 0 : parsed;
-};
-
-// ============================================
-// ৪. রোল ভিত্তিক নেভিগেশন প্যানেল কন্ট্রোলার (RBAC UI)
-// ============================================
-window.updateSidebarNavigation = function() {
-    const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
-    if (!user) return;
-
-    const role = user.role;
-    const allModules = ['dashboard', 'admission', 'fees', 'student_list', 'expense', 'attendance', 'settings'];
-
-    // মডিউল আইডি ম্যাপিং
-    const navElements = {
-        dashboard: document.getElementById('nav-dashboard'),
-        admission: document.getElementById('nav-admission'),
-        fees: document.getElementById('nav-fees'),
-        student_list: document.getElementById('nav-student_list'),
-        expense: document.getElementById('nav-expense'),
-        attendance: document.getElementById('nav-attendance'),
-        settings: document.getElementById('nav-settings')
-    };
-
-    // সব বাটন শো করা
-    allModules.forEach(mod => {
-        if (navElements[mod]) navElements[mod].classList.remove('hidden');
-    });
-
-    // রোল অনুযায়ী হাইড করা (শিক্ষকের জন্য ভর্তি ও তালিকা এখন উন্মুক্ত)
-    if (role === 'teacher') {
-        // শিক্ষকের জন্য বেতন কালেকশন, ব্যয়ের খাতা ও সেটিংস হাইড থাকবে
-        const blockedForTeacher = ['fees', 'expense', 'settings'];
-        blockedForTeacher.forEach(mod => {
-            if (navElements[mod]) navElements[mod].classList.add('hidden');
-        });
-    } else if (role === 'accountant') {
-        // হিসাবরক্ষকের জন্য সেটিংস হাইড থাকবে
-        if (navElements['settings']) navElements['settings'].classList.add('hidden');
+    getTenantUrl() {
+        const scriptId = localStorage.getItem('active_tenant_script_id');
+        return scriptId ? `https://script.google.com/macros/s/${scriptId}/exec` : '';
     }
 };
 
+// গ্লোবাল ভেরিয়েবল ব্যাকওয়ার্ড কম্প্যাটিবিলিটির জন্য
+window.currentUser = App.currentUser;
+window.getTenantScriptUrl = () => App.getTenantUrl();
+
 // ============================================
-// ৫. ডাইনামিক রাউটার ও মডিউল লোডার (নিরাপদ গেটওয়ে)
+// ২. Dexie.js লোকাল ডাটাবেজ স্কিমা (Version 6)
+// ============================================
+const db = new Dexie("MadrasahDB");
+
+db.version(6).stores({
+    // কোর স্ট্যান্ডার্ড টেবিলসমূহ
+    students: 'id, name, class, roll, session_year, parent_phone, boarding_type, previous_student_id, is_synced, is_deleted, created_by, updated_by, [session_year+id]',
+    fees: 'receipt_id, student_id, student_name, amount, month, session_year, payment_date, is_synced, is_deleted, created_by, updated_by, [session_year+student_id]',
+    settings: 'id, madrasah_name, madrasah_address, madrasah_phone, current_session, madrasah_logo, is_synced, is_deleted',
+    expenses: 'expense_id, branch, category, teacher_id, amount, date, session_year, is_synced, is_deleted, created_by, updated_by',
+    attendance: 'attendance_id, student_id, date, status, session_year, is_synced, is_deleted, created_by, updated_by, [session_year+date]',
+    users: 'username, pin, role, fullname, is_synced, is_deleted',
+    teachers: 'id, name, phone, designation, basic_salary, joining_date, is_synced, is_deleted',
+    exams: 'id, exam_name, session_year, class_name, is_published, is_synced, is_deleted',
+    marks: 'id, exam_id, student_id, subject_id, marks_obtained, grade, session_year, is_synced, is_deleted, [session_year+exam_id]',
+    hifz_tracker: 'id, student_id, date, sabaq, sabqi, ampara, is_synced, is_deleted',
+
+    // ইউনিভার্সাল ডাইনামিক স্টোর (ভবিষ্যতের যেকোনো নতুন টেবিলের জন্য)
+    dynamic_records: 'id, table_name, session_year, is_synced, is_deleted, created_by, updated_by, [table_name+session_year], [table_name+id]'
+});
+
+// ============================================
+// ৩. ইউনিভার্সাল ডাইনামিক টেবিল হেল্পার
+// ============================================
+window.App.table = function(tableName) {
+    const tName = tableName.toLowerCase();
+    return {
+        async add(record) {
+            record.table_name = tName;
+            record.is_synced = 0;
+            record.is_deleted = record.is_deleted || 0;
+            const curUser = (App.currentUser ? App.currentUser.username : 'system');
+            record.created_by = record.created_by || curUser;
+            record.updated_by = curUser;
+            return await db.dynamic_records.add(record);
+        },
+        async put(record) {
+            record.table_name = tName;
+            record.is_synced = 0;
+            record.is_deleted = record.is_deleted || 0;
+            const curUser = (App.currentUser ? App.currentUser.username : 'system');
+            record.updated_by = curUser;
+            return await db.dynamic_records.put(record);
+        },
+        async get(id) {
+            const item = await db.dynamic_records.get(id);
+            return (item && item.table_name === tName && item.is_deleted !== 1) ? item : undefined;
+        },
+        async toArray(sessionYear = null) {
+            let items = await db.dynamic_records.where('table_name').equals(tName).toArray();
+            items = items.filter(i => i.is_deleted !== 1);
+            if (sessionYear) {
+                items = items.filter(i => i.session_year === sessionYear || !i.session_year);
+            }
+            return items;
+        },
+        async update(id, changes) {
+            changes.is_synced = 0;
+            changes.updated_by = (App.currentUser ? App.currentUser.username : 'system');
+            return await db.dynamic_records.update(id, changes);
+        },
+        async delete(id) {
+            const curUser = (App.currentUser ? App.currentUser.username : 'system');
+            return await db.dynamic_records.update(id, { is_deleted: 1, is_synced: 0, updated_by: curUser });
+        },
+        where(indexField) {
+            return db.dynamic_records.where(indexField);
+        }
+    };
+};
+
+// ============================================
+// ৪. গ্লোবাল হেল্পার ও নিরাপত্তা ফাংশন
+// ============================================
+window.convertToEnglishDigits = function(str) {
+    if (str === null || str === undefined) return "";
+    const bn = {'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
+    return str.toString().replace(/[০-৯]/g, d => bn[d]);
+};
+
+window.safeParseFloat = function(val) {
+    if (val === null || val === undefined) return 0;
+    const clean = window.convertToEnglishDigits(val.toString()).replace(/[^0-9.-]/g, '');
+    const parsed = parseFloat(clean);
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+window.getLocalDateString = function(dateObj = new Date()) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
+
+window.hashPIN = async function(pin) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin + "m@drasah_salt_secure_2026");
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
+// ============================================
+// ৫. সর্বজনীন অটো-ডিসকভারি সিঙ্ক ইঞ্জিন (Zero Data Loss)
+// ============================================
+async function updatePendingCount() {
+    try {
+        let total = 0;
+        for (const table of db.tables) {
+            if (table.schema.indexes.some(idx => idx.name === 'is_synced')) {
+                total += await table.where('is_synced').equals(0).count();
+            }
+        }
+        const el = document.getElementById('pending-sync-count');
+        if (el) el.textContent = total;
+        return total;
+    } catch (e) {
+        return 0;
+    }
+}
+
+async function triggerManualSync() {
+    const icon = document.getElementById('sync-icon');
+    if (icon) icon.classList.add('animate-spin');
+    await syncData();
+    if (icon) icon.classList.remove('animate-spin');
+}
+
+async function triggerAutoSync() {
+    await syncData();
+}
+
+async function syncData() {
+    const tenantUrl = App.getTenantUrl();
+    if (App.isSyncing || !navigator.onLine || !tenantUrl) return;
+    App.isSyncing = true;
+
+    const loader = document.getElementById('sync-loader');
+    if (loader) loader.classList.remove('hidden');
+
+    try {
+        // ১. অটোমেটিক পুশ (কোর টেবিলসমূহ)
+        for (const table of db.tables) {
+            if (table.name === 'dynamic_records') continue;
+
+            if (table.schema.indexes.some(idx => idx.name === 'is_synced')) {
+                const unsynced = await table.where('is_synced').equals(0).toArray();
+                if (unsynced.length > 0) {
+                    
+                    // সেশন অনুযায়ী S2026, S2027 গ্রুপ হ্যান্ডলিং
+                    if (table.name === 'students') {
+                        const sessionGroups = {};
+                        unsynced.forEach(row => {
+                            const sYear = row.session_year || new Date().getFullYear().toString();
+                            const tabName = 'S' + sYear;
+                            if (!sessionGroups[tabName]) sessionGroups[tabName] = [];
+                            sessionGroups[tabName].push(row);
+                        });
+
+                        for (const [tabName, sessionRows] of Object.entries(sessionGroups)) {
+                            const cleanData = sessionRows.map(item => {
+                                const { is_synced, ...rest } = item;
+                                return { ...rest, is_deleted: parseInt(rest.is_deleted) || 0 };
+                            });
+
+                            const payload = new URLSearchParams({
+                                action: 'sync',
+                                sheetName: tabName,
+                                rows: JSON.stringify(cleanData)
+                            }).toString();
+
+                            const res = await fetch(tenantUrl, {
+                                method: 'POST',
+                                mode: 'cors',
+                                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                                body: payload
+                            });
+
+                            if (res.ok) {
+                                for (const row of sessionRows) {
+                                    await table.update(row.id, { is_synced: 1 });
+                                }
+                            }
+                        }
+                    } else {
+                        const sheetName = table.name.charAt(0).toUpperCase() + table.name.slice(1);
+                        const cleanData = unsynced.map(item => {
+                            const { is_synced, ...rest } = item;
+                            return { ...rest, is_deleted: parseInt(rest.is_deleted) || 0 };
+                        });
+
+                        const payload = new URLSearchParams({
+                            action: 'sync',
+                            sheetName: sheetName,
+                            rows: JSON.stringify(cleanData)
+                        }).toString();
+
+                        const res = await fetch(tenantUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: payload
+                        });
+
+                        if (res.ok) {
+                            const primaryKey = table.schema.primKey.name;
+                            for (const row of unsynced) {
+                                await table.update(row[primaryKey], { is_synced: 1 });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ২. ডাইনামিক রেকর্ড পুশ
+        const unsyncedDynamics = await db.dynamic_records.where('is_synced').equals(0).toArray();
+        if (unsyncedDynamics.length > 0) {
+            const grouped = {};
+            unsyncedDynamics.forEach(item => {
+                const tName = item.table_name || 'custom_data';
+                if (!grouped[tName]) grouped[tName] = [];
+                grouped[tName].push(item);
+            });
+
+            for (const [tName, rows] of Object.entries(grouped)) {
+                const sheetName = tName.charAt(0).toUpperCase() + tName.slice(1);
+                const cleanData = rows.map(item => {
+                    const { is_synced, ...rest } = item;
+                    return { ...rest, is_deleted: parseInt(rest.is_deleted) || 0 };
+                });
+
+                const payload = new URLSearchParams({
+                    action: 'sync',
+                    sheetName: sheetName,
+                    rows: JSON.stringify(cleanData)
+                }).toString();
+
+                const res = await fetch(tenantUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payload
+                });
+
+                if (res.ok) {
+                    for (const row of rows) {
+                        await db.dynamic_records.update(row.id, { is_synced: 1 });
+                    }
+                }
+            }
+        }
+
+        // ৩. অটোমেটিক পুল (ক্লাউড থেকে সকল টেবিল লোকাল ডাটাবেজে রিড)
+        const pullRes = await fetch(tenantUrl, { method: 'GET' });
+        if (pullRes.ok) {
+            const resJson = await pullRes.json();
+            if (resJson.status === 'success' && resJson.data) {
+                const standardTableNames = db.tables.map(t => t.name.toLowerCase());
+
+                for (const [cloudSheetName, cloudRows] of Object.entries(resJson.data)) {
+                    if (!Array.isArray(cloudRows)) continue;
+
+                    const lowerSheetName = cloudSheetName.toLowerCase();
+                    const isStudentSessionTab = /^s\d{4}$/i.test(lowerSheetName) || lowerSheetName === "students";
+                    const isStandard = standardTableNames.includes(lowerSheetName) || isStudentSessionTab;
+
+                    if (isStandard && lowerSheetName !== 'dynamic_records') {
+                        const targetTable = isStudentSessionTab ? db.students : db.table(lowerSheetName);
+                        const primaryKey = targetTable.schema.primKey.name;
+
+                        for (const row of cloudRows) {
+                            if (parseInt(row.is_deleted) === 1) {
+                                if (row[primaryKey]) await targetTable.delete(row[primaryKey]);
+                            } else {
+                                row.is_synced = 1;
+                                
+                                // সেটিংস অবজেক্ট আইডি নিশ্চিতকরণ
+                                if (lowerSheetName === 'settings') {
+                                    row.id = row.id || 'madrasah_config_block';
+                                }
+
+                                await targetTable.put(row);
+                            }
+                        }
+                    } else {
+                        for (const row of cloudRows) {
+                            row.table_name = lowerSheetName;
+                            if (parseInt(row.is_deleted) === 1) {
+                                await db.dynamic_records.delete(row.id);
+                            } else {
+                                row.is_synced = 1;
+                                await db.dynamic_records.put(row);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        await updatePendingCount();
+        App.emit('sync:completed');
+
+        // সক্রিয় মডিউলের রিলোড ট্রিগার
+        if (App.currentModule) {
+            const cleanMod = App.currentModule.toLowerCase().replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            const initFn = `init${cleanMod.charAt(0).toUpperCase() + cleanMod.slice(1)}`;
+            if (typeof window[initFn] === 'function') {
+                await window[initFn]();
+            } else {
+                const directInit = `init${App.currentModule.charAt(0).toUpperCase() + App.currentModule.slice(1)}`;
+                if (typeof window[directInit] === 'function') await window[directInit]();
+            }
+        }
+
+    } catch (err) {
+        console.error("সিঙ্ক ব্যর্থ:", err);
+    } finally {
+        App.isSyncing = false;
+        if (loader) loader.classList.add('hidden');
+    }
+}
+
+// ============================================
+// ৬. ডায়নামিক মডিউল লোডার ও রাউটার (Fixed Title & Route Guard)
 // ============================================
 async function fetchLocalFile(url) {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("লোকাল ফাইল লোড করতে ব্যর্থ: " + url);
-    return await response.text();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("ফাইল লোড করতে ব্যর্থ: " + url);
+    return await res.text();
 }
 
 function loadModule(moduleName) {
-    // ১. ভেরিফিকেশন: ব্যবহারকারী লগইন অবস্থায় আছেন কি না
-    const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
-    if (!user) {
+    const user = App.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+    
+    if (!user && moduleName !== 'installer' && moduleName !== 'parent_portal') {
         window.lockApp();
         return;
     }
 
-    const role = user.role;
-
-    // ২. মডিউল অ্যাক্সেস কন্ট্রোল (শিক্ষকদের জন্য ভর্তি ও তালিকা উন্মুক্ত করা হলো)
-    if (role === 'teacher') {
-        const allowedForTeacher = ['dashboard', 'attendance', 'admission', 'student_list'];
-        if (!allowedForTeacher.includes(moduleName)) {
-            showToast("দুঃখিত, শিক্ষক রোল থেকে এই মডিউলটি দেখার অনুমতি নেই!", "error");
-            moduleName = 'attendance'; // ডিফল্টভাবে হাজিরাতে রিডাইরেক্ট হবে
-        }
-    } else if (role === 'accountant') {
-        const blockedForAccountant = ['settings'];
-        if (blockedForAccountant.includes(moduleName)) {
-            showToast("দুঃখিত, সেটিংস মডিউলটি শুধুমাত্র মুহতামিম অ্যাক্সেস করতে পারবেন!", "error");
-            moduleName = 'dashboard'; // ডিফল্ট ড্যাশবোর্ড রিডাইরেক্ট
+    // ★ ১. রাউটার লেভেল পারমিশন গার্ড (Security Route Guard) ★
+    if (user && moduleName !== 'installer' && moduleName !== 'parent_portal') {
+        const currentRole = (user.role || '').toLowerCase();
+        const navBtn = document.getElementById(`nav-${moduleName}`);
+        if (navBtn) {
+            const allowedRoles = navBtn.getAttribute('data-roles');
+            if (allowedRoles && allowedRoles !== 'all') {
+                const roleList = allowedRoles.split(',').map(r => r.trim().toLowerCase());
+                if (!roleList.includes(currentRole) && currentRole !== 'muhtamim') {
+                    showToast("দুঃখিত, এই পেজটি দেখার অনুমতি আপনার নেই!", "error");
+                    return;
+                }
+            }
         }
     }
 
-    window.currentModule = moduleName;
+    App.currentModule = moduleName;
 
-    const mainContentEl = document.getElementById('main-content');
-    if (mainContentEl) {
-        mainContentEl.innerHTML = `
+    const sidebar = document.getElementById('sidebar');
+    const header = document.querySelector('header');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    if (moduleName === 'installer') {
+        if (sidebar) sidebar.style.display = 'none';
+        if (header) header.style.display = 'none';
+        if (sidebarBackdrop) sidebarBackdrop.style.display = 'none';
+    } else if (moduleName !== 'parent_portal') {
+        if (sidebar) sidebar.style.display = '';
+        if (header) header.style.display = '';
+    }
+
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+        mainContent.innerHTML = `
             <div class="flex items-center justify-center h-64 text-gray-500">
                 <div class="text-center">
                     <i class="fa-solid fa-circle-notch animate-spin text-5xl text-emerald-600 mb-4"></i>
@@ -126,39 +414,57 @@ function loadModule(moduleName) {
             </div>`;
     }
 
-    updateNavStyles(moduleName);
-
     fetchLocalFile(`${moduleName}.html`)
         .then(html => {
-            const mainContent = document.getElementById('main-content');
             if (mainContent) {
                 mainContent.innerHTML = html;
 
-                const titles = {
+                // ★ ২. ফিক্সড পেজ টাইটেল ডিকশনারি (Title Map Dictionary) ★
+                const MODULE_TITLES = {
                     'dashboard': 'ড্যাশবোর্ড',
-                    'admission': 'ছাত্র ভর্তি',
+                    'admission': 'তামরিন (ভর্তি)',
                     'fees': 'বেতন কালেকশন',
-                    'student_list': 'ছাত্রদের তালিকা ও রিপোর্ট',
-                    'expense': 'খরচ এন্ট্রি ও রিপোর্ট', 
-                    'attendance': 'দৈনিক হাজিরা খাতা',    
-                    'settings': 'সেটিংস'
+                    'student_list': 'তালিবে ইলম তালিকা',
+                    'attendance': 'হাজিরা খাতা',
+                    'teachers': 'আসাতেজা ও স্টাফ',
+                    'exams': 'ইমতিহান (পরীক্ষা)',
+                    'expense': 'ইখরাজাত (ব্যয়)',
+                    'settings': 'সেটিংস',
+                    'installer': 'ইনস্টলার উইজার্ড',
+                    'parent_portal': 'অভিভাবক পোর্টাল'
                 };
-                
+
+                const moduleRoot = mainContent.querySelector('[data-title]') || mainContent.firstElementChild;
+                const dynamicTitle = moduleRoot?.getAttribute('data-title') 
+                                  || MODULE_TITLES[moduleName] 
+                                  || document.getElementById(`nav-${moduleName}`)?.innerText?.trim() 
+                                  || 'মাদরাসা ম্যানেজমেন্ট';
+
                 const pageTitleEl = document.getElementById('page-title');
-                if (pageTitleEl) {
-                    pageTitleEl.textContent = titles[moduleName] || 'ম্যানেজমেন্ট';
-                }
+                if (pageTitleEl) pageTitleEl.textContent = dynamicTitle;
 
-                executeInlineScripts(mainContent);
+                const scripts = mainContent.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
 
-                const initFuncName = `init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1).replace('_', '')}`;
+                const cleanMod = moduleName.toLowerCase().replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+                const initFuncName = `init${cleanMod.charAt(0).toUpperCase() + cleanMod.slice(1)}`;
+                
                 if (typeof window[initFuncName] === 'function') {
                     window[initFuncName]();
+                } else {
+                    const directInit = `init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}`;
+                    if (typeof window[directInit] === 'function') window[directInit]();
                 }
+
+                App.emit('module:loaded', { module: moduleName, title: dynamicTitle });
             }
         })
         .catch(err => {
-            const mainContent = document.getElementById('main-content');
             if (mainContent) {
                 mainContent.innerHTML = `
                     <div class="text-center py-12 text-red-500 bg-red-50 rounded-xl border border-red-200 m-6">
@@ -169,329 +475,33 @@ function loadModule(moduleName) {
         });
 }
 
-function executeInlineScripts(container) {
-    const scripts = container.querySelectorAll('script');
-    scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        Array.from(oldScript.attributes).forEach(attr => {
-            newScript.setAttribute(attr.name, attr.value);
-        });
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-}
-
-function updateNavStyles(activeModule) {
-    const modules = ['dashboard', 'admission', 'fees', 'student_list', 'expense', 'attendance', 'settings'];
-    modules.forEach(mod => {
-        const el = document.getElementById(`nav-${mod}`);
-        if (el) {
-            if (mod === activeModule) {
-                el.classList.add('bg-emerald-700', 'text-yellow-300');
-                el.classList.remove('hover:bg-emerald-700');
-            } else {
-                el.classList.remove('bg-emerald-700', 'text-yellow-300');
-                el.classList.add('hover:bg-emerald-700');
-            }
-        }
-    });
-}
-
 // ============================================
-// ৬. ইন্টারনেট সংযোগ পরীক্ষা
+// ৭. ডায়নামিক পারমিশন ও সাইডবার নেভিগেশন
 // ============================================
-function updateConnectionStatus() {
-    const statusEl = document.getElementById('connection-status');
-    if (statusEl) {
-        if (navigator.onLine) {
-            statusEl.innerHTML = `<i class="fa-solid fa-plane"></i> অনলাইন`;
-            statusEl.className = "px-2 py-0.5 rounded bg-emerald-500 text-white font-semibold flex items-center gap-1";
-            triggerAutoSync();
+window.updateSidebarNavigation = function() {
+    const user = App.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+    if (!user) return;
+
+    const currentRole = (user.role || '').toLowerCase();
+
+    document.querySelectorAll('#sidebar nav button').forEach(btn => {
+        const allowedRoles = btn.getAttribute('data-roles');
+        
+        if (!allowedRoles || allowedRoles === 'all') {
+            btn.classList.remove('hidden');
         } else {
-            statusEl.innerHTML = `<i class="fa-solid fa-plane-slash"></i> অফলাইন`;
-            statusEl.className = "px-2 py-0.5 rounded bg-red-500 text-white font-semibold flex items-center gap-1";
-        }
-    }
-}
-
-// ============================================
-// ৭. রিয়্যাল-টাইম পেন্ডিং সিঙ্ক কাউন্টার (৬টি টেবিল ট্র্যাকার)
-// ============================================
-async function updatePendingCount() {
-    try {
-        const unsyncedStudents = await db.students.where('is_synced').equals(0).count();
-        const unsyncedFees = await db.fees.where('is_synced').equals(0).count();
-        const unsyncedSettings = await db.settings.where('is_synced').equals(0).count();
-        const unsyncedExpenses = await db.expenses.where('is_synced').equals(0).count(); 
-        const unsyncedAttendance = await db.attendance.where('is_synced').equals(0).count(); 
-        const unsyncedUsers = await db.users.where('is_synced').equals(0).count();
-        
-        const total = unsyncedStudents + unsyncedFees + unsyncedSettings + unsyncedExpenses + unsyncedAttendance + unsyncedUsers;
-        
-        const pendingCountEl = document.getElementById('pending-sync-count');
-        if (pendingCountEl) {
-            pendingCountEl.textContent = total;
-        }
-        return total;
-    } catch (err) {
-        console.error("পেন্ডিং কাউন্ট গণনা করতে ব্যর্থ:", err);
-        return 0;
-    }
-}
-
-// ============================================
-// ৮. সিঙ্ক ইন্টিগ্রেশন
-// ============================================
-async function triggerManualSync() {
-    const syncIcon = document.getElementById('sync-icon');
-    if (syncIcon) syncIcon.classList.add('animate-spin');
-    await syncData();
-    if (syncIcon) syncIcon.classList.remove('animate-spin');
-}
-
-async function triggerAutoSync() {
-    await syncData();
-}
-
-async function syncData() {
-    if (isSyncing || !navigator.onLine) return;
-    isSyncing = true;
-
-    const loader = document.getElementById('sync-loader');
-    if (loader) loader.classList.remove('hidden');
-
-    try {
-        // ১. লোকাল পেন্ডিং ডেটা ক্লাউডে পুশ করা
-        await pushLocalData();
-
-        // ২. ক্লাউড থেকে ডেটা লোকাল ব্রাউজারে নামানো (Pull)
-        await pullServerData();
-
-        await updatePendingCount();
-
-        // ৩. বর্তমানে রানিং মডিউলের রিয়্যাল-টাইম রেন্ডারিং ট্রিগার
-        if (window.currentModule) {
-            const initFuncName = `init${window.currentModule.charAt(0).toUpperCase() + window.currentModule.slice(1).replace('_', '')}`;
-            if (typeof window[initFuncName] === 'function') {
-                await window[initFuncName]();
-            }
-        }
-
-        showToast("সিঙ্ক সম্পন্ন হয়েছে!", "success");
-
-    } catch (error) {
-        console.error("সিঙ্ক ব্যর্থ:", error);
-        showToast("সিঙ্ক করতে সমস্যা হয়েছে: " + error.message, "error");
-    } finally {
-        isSyncing = false;
-        if (loader) loader.classList.add('hidden');
-    }
-}
-
-// ============================================
-// ৯. লোকাল ডেটা পুশ (Users টেবিল সহ)
-// ============================================
-async function pushLocalData() {
-    const unsyncedStudents = await db.students.where('is_synced').equals(0).toArray();
-    if (unsyncedStudents.length > 0) {
-        const success = await pushToSheet('Students', unsyncedStudents);
-        if (success) await updateLocalSyncStatus('students', unsyncedStudents);
-    }
-
-    const unsyncedFees = await db.fees.where('is_synced').equals(0).toArray();
-    if (unsyncedFees.length > 0) {
-        const success = await pushToSheet('Fees', unsyncedFees);
-        if (success) await updateLocalSyncStatus('fees', unsyncedFees);
-    }
-
-    const unsyncedSettings = await db.settings.where('is_synced').equals(0).toArray();
-    if (unsyncedSettings.length > 0) {
-        const success = await pushToSheet('Settings', unsyncedSettings);
-        if (success) await updateLocalSyncStatus('settings', unsyncedSettings);
-    }
-
-    const unsyncedExpenses = await db.expenses.where('is_synced').equals(0).toArray();
-    if (unsyncedExpenses.length > 0) {
-        const success = await pushToSheet('Expenses', unsyncedExpenses);
-        if (success) await updateLocalSyncStatus('expenses', unsyncedExpenses);
-    }
-
-    const unsyncedAttendance = await db.attendance.where('is_synced').equals(0).toArray();
-    if (unsyncedAttendance.length > 0) {
-        const success = await pushToSheet('Attendance', unsyncedAttendance);
-        if (success) await updateLocalSyncStatus('attendance', unsyncedAttendance);
-    }
-
-    const unsyncedUsers = await db.users.where('is_synced').equals(0).toArray();
-    if (unsyncedUsers.length > 0) {
-        const success = await pushToSheet('Users', unsyncedUsers);
-        if (success) await updateLocalSyncStatus('users', unsyncedUsers);
-    }
-}
-
-// ============================================
-// ১০. শিটে ডেটা রাইট জেনারেটর
-// ============================================
-async function pushToSheet(sheetName, data) {
-    try {
-        const cleanData = data.map(item => {
-            const { is_synced, ...rest } = item;
-            return {
-                ...rest,
-                is_deleted: parseInt(rest.is_deleted) || 0
-            };
-        });
-
-        const payload = new URLSearchParams({
-            sheetName: sheetName,
-            rows: JSON.stringify(cleanData)
-        }).toString();
-
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: payload
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        return result.status === 'success';
-
-    } catch (error) {
-        console.error(`Push to ${sheetName} failed:`, error);
-        return false;
-    }
-}
-
-// ============================================
-// ১১. লোকাল ডাটাবেজে সিঙ্কড স্ট্যাটাস সেভ
-// ============================================
-async function updateLocalSyncStatus(type, items) {
-    if (type === 'students') {
-        for (let s of items) {
-            await db.students.update(s.id, { is_synced: 1 });
-        }
-    } else if (type === 'fees') {
-        for (let f of items) {
-            await db.fees.update(f.receipt_id, { is_synced: 1 });
-        }
-    } else if (type === 'settings') {
-        for (let set of items) {
-            await db.settings.update(set.id, { is_synced: 1 });
-        }
-    } else if (type === 'expenses') {
-        for (let e of items) {
-            await db.expenses.update(e.expense_id, { is_synced: 1 });
-        }
-    } else if (type === 'attendance') {
-        for (let a of items) {
-            await db.attendance.update(a.attendance_id, { is_synced: 1 });
-        }
-    } else if (type === 'users') {
-        for (let u of items) {
-            await db.users.update(u.username, { is_synced: 1 });
-        }
-    }
-}
-
-// ============================================
-// ১২. ক্লাউড শিট থেকে সম্পূর্ণ ডেটা পুল (Users টেবিল সহ)
-// ============================================
-async function pullServerData() {
-    const response = await fetch(SCRIPT_URL, { method: 'GET' });
-    if (!response.ok) throw new Error("সার্ভার ডাটা রিড করতে ব্যর্থ");
-
-    const data = await response.json();
-    if (data.status !== 'success') throw new Error(data.message || "Unknown error");
-
-    // Pull Students
-    if (data.students) {
-        for (let s of data.students) {
-            if (parseInt(s.is_deleted) === 1) {
-                await db.students.delete(s.id);
+            const roleList = allowedRoles.split(',').map(r => r.trim().toLowerCase());
+            if (roleList.includes(currentRole) || currentRole === 'muhtamim') {
+                btn.classList.remove('hidden');
             } else {
-                s.is_synced = 1;
-                s.serial_no = parseInt(s.serial_no) || 0;
-                s.roll = parseInt(s.roll) || 0;
-                s.monthly_fee = parseFloat(s.monthly_fee) || 0;
-                await db.students.put(s);
+                btn.classList.add('hidden');
             }
         }
-    }
-
-    // Pull Fees
-    if (data.fees) {
-        for (let f of data.fees) {
-            if (parseInt(f.is_deleted) === 1) {
-                await db.fees.delete(f.receipt_id);
-            } else {
-                f.is_synced = 1;
-                f.amount = parseFloat(f.amount) || 0;
-                f.fine = parseFloat(f.fine) || 0;
-                f.discount = parseFloat(f.discount) || 0;
-                f.total = parseFloat(f.total) || 0;
-                await db.fees.put(f);
-            }
-        }
-    }
-
-    // Pull Settings
-    if (data.settings) {
-        for (let set of data.settings) {
-            if (parseInt(set.is_deleted) === 1) {
-                await db.settings.delete(set.id);
-            } else {
-                set.is_synced = 1;
-                await db.settings.put(set);
-            }
-        }
-    }
-
-    // Pull Expenses
-    if (data.expenses) {
-        for (let e of data.expenses) {
-            if (parseInt(e.is_deleted) === 1) {
-                await db.expenses.delete(e.expense_id);
-            } else {
-                e.is_synced = 1;
-                await db.expenses.put(e);
-            }
-        }
-    }
-
-    // Pull Attendance
-    if (data.attendance) {
-        for (let a of data.attendance) {
-            if (parseInt(a.is_deleted) === 1) {
-                await db.attendance.delete(a.attendance_id);
-            } else {
-                a.is_synced = 1;
-                await db.attendance.put(a);
-            }
-        }
-    }
-
-    // Pull Users (ডাইনামিক টেবিল পুলিং)
-    if (data.users) {
-        for (let u of data.users) {
-            if (parseInt(u.is_deleted) === 1) {
-                await db.users.delete(u.username);
-            } else {
-                u.is_synced = 1;
-                await db.users.put(u);
-            }
-        }
-    }
-}
+    });
+};
 
 // ============================================
-// ১৩. টোস্ট নোটিফিকেশন রেন্ডারার
+// ৮. টোস্ট ও গ্লোবাল ইউটিলিটি
 // ============================================
 function showToast(message, type = "success") {
     const container = document.getElementById('toast-container');
@@ -512,109 +522,114 @@ function showToast(message, type = "success") {
     }
 
     container.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.remove('translate-x-12', 'opacity-0');
-    }, 10);
-
+    setTimeout(() => toast.classList.remove('translate-x-12', 'opacity-0'), 10);
     setTimeout(() => {
         toast.classList.add('translate-x-12', 'opacity-0');
-        setTimeout(() => { toast.remove(); }, 300);
+        setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-// ============================================
-// ১৪. গ্লোবাল ডাইনামিক নাম, লোগো ও স্টাইল আপডেট
-// ============================================
-window.applyGlobalSettings = function() {
-    const name = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
-    const logoUrl = localStorage.getItem('madrasah_logo') || '';
+window.applyGlobalSettings = async function() {
+    try {
+        let config = await db.settings.get('madrasah_config_block');
+        if (!config) {
+            const allSettings = await db.settings.toArray();
+            if (allSettings && allSettings.length > 0) config = allSettings[0];
+        }
+        config = config || {};
 
-    const lockTitle = document.getElementById('lock-madrasah-name');
-    if (lockTitle) lockTitle.textContent = name;
+        const name = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট';
+        const logoUrl = config.madrasah_logo || localStorage.getItem('madrasah_logo') || '';
 
-    const sidebarTitle = document.getElementById('sidebar-madrasah-name');
-    if (sidebarTitle) {
-        sidebarTitle.innerHTML = `
-            <div class="flex items-center gap-2.5">
-                ${logoUrl ? `<img class="w-8 h-8 rounded-full object-cover border border-emerald-800/50 shadow-inner" src="${logoUrl}">` : '<i class="fa-solid fa-mosque text-emerald-300"></i>'}
-                <span class="truncate text-base font-bold">${name}</span>
-            </div>`;
-    }
+        const lockTitle = document.getElementById('lock-madrasah-name');
+        if (lockTitle) lockTitle.textContent = name;
+
+        const sidebarTitle = document.getElementById('sidebar-madrasah-name');
+        if (sidebarTitle) {
+            sidebarTitle.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    ${logoUrl ? `<img class="w-8 h-8 rounded-full object-cover border border-emerald-800/50" src="${logoUrl}">` : '<i class="fa-solid fa-mosque text-emerald-300"></i>'}
+                    <span class="truncate text-base font-bold">${name}</span>
+                </div>`;
+        }
+    } catch(err){}
 };
 
 // ============================================
-// ১৫. নিরাপদ অফলাইন অটো-লক মেকানিজম (Security Timer)
+// ৯. সেশন, ইনঅ্যাক্টিভিটি ও ক্লিন লাইফসাইকেল
 // ============================================
-let inactivityTimer;
 function resetInactivityTimer() {
-    clearTimeout(inactivityTimer);
-    const timeoutMinutes = parseInt(localStorage.getItem('madrasah_lock_timeout') || '0');
-    if (timeoutMinutes > 0 && typeof window.lockApp === 'function') {
-        inactivityTimer = setTimeout(() => {
-            console.log("নিষ্ক্রিয়তার জন্য অ্যাপ লক করা হয়েছে।");
-            window.lockApp();
-        }, timeoutMinutes * 60 * 1000);
+    clearTimeout(App.inactivityTimer);
+    const timeout = parseInt(localStorage.getItem('madrasah_lock_timeout') || '0');
+    if (timeout > 0 && typeof window.lockApp === 'function') {
+        App.inactivityTimer = setTimeout(() => window.lockApp(), timeout * 60 * 1000);
     }
 }
 
-// গ্লোবাল ইভেন্ট লিসেনার ফর ইন-অ্যাক্টিভিটি
-document.addEventListener('mousemove', resetInactivityTimer);
-document.addEventListener('keypress', resetInactivityTimer);
-document.addEventListener('touchstart', resetInactivityTimer);
-document.addEventListener('click', resetInactivityTimer);
+['mousemove', 'keypress', 'touchstart', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
 
-// ============================================
-// ১৬. গ্লোবাল একটিভ সেশন চেকার (Startup Logic)
-// ============================================
-window.checkActiveSession = function() {
-    const user = sessionStorage.getItem('currentUser');
-    if (user) {
-        window.currentUser = JSON.parse(user);
+window.flushTenantDatabase = async function() {
+    for (const table of db.tables) {
+        await table.clear();
+    }
+};
+
+window.checkActiveSession = async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('p') || urlParams.get('student_id')) {
+        return;
+    }
+
+    const userStr = sessionStorage.getItem('currentUser');
+    if (userStr) {
+        App.currentUser = JSON.parse(userStr);
+        window.currentUser = App.currentUser;
+
         const overlay = document.getElementById('pin-lock-overlay');
         if (overlay) overlay.style.display = 'none';
         
         window.updateSidebarNavigation();
-        loadModule(window.currentModule || 'dashboard');
+
+        // ব্যাকগ্রাউন্ড ডাটা সিঙ্ক চালু
+        if (navigator.onLine) {
+            triggerAutoSync();
+        }
+
+        const tenantUrl = App.getTenantUrl();
+        if (tenantUrl && navigator.onLine) {
+            try {
+                const res = await fetch(`${tenantUrl}?action=check_installation`);
+                const data = await res.json();
+                if (data.status === 'success' && data.is_installed === false) {
+                    loadModule('installer');
+                    return;
+                }
+            } catch(e){}
+        }
+
+        loadModule(App.currentModule || 'dashboard');
     } else {
-        window.lockApp();
+        if (App.currentModule !== 'installer') {
+            window.lockApp();
+        }
     }
 };
 
 window.lockApp = function() {
     sessionStorage.clear();
+    App.currentUser = null;
     window.currentUser = null;
+    App.currentModule = 'dashboard'; // লগআউটে মডিউল রিসেট
+
     const overlay = document.getElementById('pin-lock-overlay');
     if (overlay) overlay.style.display = 'flex';
     
     const userBadge = document.getElementById('user-display-badge');
     if (userBadge) userBadge.classList.add('hidden');
-    
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-        mainContent.innerHTML = `
-            <div class="flex items-center justify-center h-64 text-gray-400">
-                <div class="text-center">
-                    <i class="fa-solid fa-lock text-5xl text-emerald-600 mb-4 animate-bounce"></i>
-                    <p class="text-lg font-bold">অ্যাপ্লিকেশন লক করা আছে...</p>
-                </div>
-            </div>`;
-    }
 };
 
-// কিবোর্ড ইভেন্ট লিসেনার ও মাউস ইভেন্ট লিসেনার সংযোগ
-document.addEventListener('DOMContentLoaded', async () => {
-    window.applyGlobalSettings();
-    updateConnectionStatus();
-    await updatePendingCount();
-    resetInactivityTimer();
-    window.checkActiveSession();
-});
-
-window.addEventListener('online', updateConnectionStatus);
-window.addEventListener('offline', updateConnectionStatus);
-
 // ============================================
-// ১৭. PWA কাস্টম পুল-টু-রিফ্রেশ অ্যানিমেশন ইঞ্জিন
+// ১০. PWA পুল-টু-রিফ্রেশ ও কানেকশন হ্যান্ডলার
 // ============================================
 function initPullToRefresh() {
     const mainContainer = document.querySelector('main');
@@ -626,50 +641,37 @@ function initPullToRefresh() {
     let active = false;
     let currentPull = 0;
 
-    // টাচ টান দেওয়া শুরু করার লিসেনার
     mainContainer.addEventListener('touchstart', (e) => {
-        // শুধুমাত্র যখন কন্টেইনারের স্ক্রল পজিশন একদম উপরে থাকবে
         if (mainContainer.scrollTop === 0) {
             startY = e.touches[0].pageY;
             active = true;
-            indicator.style.transition = 'none'; // টানার সময় ট্রানজিশন অফ থাকবে
+            indicator.style.transition = 'none';
             icon.style.transition = 'none';
         } else {
             active = false;
         }
     }, { passive: true });
 
-    // আঙুল নিচে নামানোর লিসেনার
     mainContainer.addEventListener('touchmove', (e) => {
         if (!active) return;
         const currentY = e.touches[0].pageY;
         const pullDistance = currentY - startY;
 
         if (pullDistance > 0) {
-            // টানার অনুভূতি স্বাভাবিক রাখতে রেজিস্ট্যান্স (Dampening) যোগ করা হলো
             currentPull = Math.min(pullDistance * 0.4, 90); 
-            
-            // ইন্ডিকেটরটিকে স্ক্রিনে নামিয়ে আনা
             indicator.style.transform = `translateY(${currentPull}px)`;
-            
-            // আইকনটিকে টানার দূরত্বের সাথে ঘোরানো (Rotation Angle)
             const rotateDeg = currentPull * 4;
             icon.style.transform = `rotate(${rotateDeg}deg)`;
         }
     }, { passive: true });
 
-    // টাচ ছেড়ে দেওয়ার লিসেনার (অ্যানিমেশন রানিং ও স্পিন লক মেকানিজম)
     mainContainer.addEventListener('touchend', () => {
         if (!active) return;
         active = false;
 
-        // যদি নির্দিষ্ট সীমার বেশি (৬০ পিক্সেল) টানা হয়ে থাকে
         if (currentPull >= 60) {
-            // ইন্ডিকেটরকে লোডিং পজিশনে লক করা
             indicator.style.transition = 'transform 0.2s ease';
             indicator.style.transform = 'translateY(70px)';
-            
-            // স্পিন অ্যানিমেশন ক্লাস চালু
             icon.style.transition = 'none';
             icon.classList.add('pull-refresh-spinning');
             
@@ -679,7 +681,6 @@ function initPullToRefresh() {
                 window.location.reload();
             }, 800);
         } else {
-            // যদি টানার সীমা কম হয়, তবে ইন্ডিকেটরকে উপরে ফেরত পাঠানো
             indicator.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
             indicator.style.transform = 'translateY(0px)';
             icon.style.transform = 'rotate(0deg)';
@@ -688,7 +689,31 @@ function initPullToRefresh() {
     });
 }
 
-// ডোমে লোড হওয়ার পর রিফ্রেশার চালু করা
-document.addEventListener('DOMContentLoaded', () => {
+function updateConnectionStatus() {
+    const statusEl = document.getElementById('connection-status');
+    if (statusEl) {
+        if (navigator.onLine) {
+            statusEl.innerHTML = `<i class="fa-solid fa-plane"></i> অনলাইন`;
+            statusEl.className = "px-2 py-0.5 rounded bg-emerald-500 text-white font-semibold flex items-center gap-1";
+            triggerAutoSync();
+        } else {
+            statusEl.innerHTML = `<i class="fa-solid fa-plane-slash"></i> অফলাইন`;
+            statusEl.className = "px-2 py-0.5 rounded bg-red-500 text-white font-semibold flex items-center gap-1";
+        }
+    }
+}
+
+// ============================================
+// ১১. সিস্টেম লাইফসাইকেল বুটস্ট্র্যাপ
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    window.applyGlobalSettings();
+    updateConnectionStatus();
+    await updatePendingCount();
+    resetInactivityTimer();
     initPullToRefresh();
+    window.checkActiveSession();
 });
+
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);

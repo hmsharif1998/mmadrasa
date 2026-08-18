@@ -1,0 +1,577 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    #parent-portal-container {
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+    .animate-shake {
+        animation: shake 0.35s ease-in-out;
+    }
+
+    /* প্রিন্ট অপ্টিমাইজেশন */
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+        #portal-printable-area, #portal-printable-area * {
+            visibility: visible !important;
+        }
+        #portal-printable-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            background: white !important;
+        }
+        .no-print, button, nav {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- ============================================ -->
+<!-- অভিভাবক সিকিউরিটি ও পিন ভেরিফিকেশন মডাল -->
+<!-- ============================================ -->
+<div id="parent-auth-overlay" class="fixed inset-0 bg-emerald-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center border border-emerald-100 animate-fadeIn">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+        
+        <h3 id="portal-madrasah-title" class="text-lg font-extrabold text-emerald-950">মাদরাসাতুল মদিনা</h3>
+        <p class="text-xs text-gray-500 mt-1 mb-5">অভিভাবক পোর্টালে স্বাগতম। পরিচয় নিশ্চিত করুন।</p>
+
+        <form onsubmit="event.preventDefault(); window.verifyParentAccess();" class="space-y-4">
+            <div class="text-left">
+                <label class="block text-xs font-bold text-gray-600 mb-1">পাসওয়ার্ড (মোবাইলের শেষ ৪ ডিজিট / পিন) *</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-600">
+                        <i class="fa-solid fa-key text-xs"></i>
+                    </span>
+                    <input type="password" id="parent-pin-input" required maxlength="4" placeholder="••••" 
+                           oninput="this.value = window.convertToEnglishDigits(this.value)"
+                           class="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-center font-bold tracking-widest text-sm font-en focus:outline-none">
+                </div>
+            </div>
+
+            <button type="submit" id="btn-parent-login" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 rounded-xl text-xs transition duration-150 shadow-md shadow-emerald-700/20 flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-right-to-bracket"></i> প্যানেলে প্রবেশ করুন
+            </button>
+        </form>
+
+        <div id="parent-lock-msg" class="hidden mt-3 text-[11px] font-bold text-rose-600 bg-rose-50 p-2 rounded-xl border border-rose-200 animate-pulse"></div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মূল অভিভাবক পোর্টাল লেআউট -->
+<!-- ============================================ -->
+<div id="parent-portal-container" class="max-w-3xl mx-auto space-y-5 pb-12">
+
+    <!-- ছাত্র হেডার প্রোফাইল কার্ড -->
+    <div id="portal-student-header" class="bg-gradient-to-br from-emerald-900 via-teal-850 to-emerald-950 text-white rounded-3xl p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-center gap-5 relative z-10">
+            <div id="portal-student-photo" class="shrink-0">
+                <!-- ডাইনামিক ছবি লোড হবে -->
+            </div>
+            <div class="text-center sm:text-left space-y-1">
+                <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-800/60 text-yellow-300 border border-emerald-700/50">
+                    <i class="fa-solid fa-graduation-cap"></i> তালিবে ইলম প্রোফাইল
+                </div>
+                <h2 id="portal-student-name" class="text-xl font-extrabold text-white">লোড হচ্ছে...</h2>
+                <div id="portal-student-meta" class="text-xs text-emerald-200 font-semibold space-x-2">
+                    <!-- আইডি, জামাত ও রোল লোড হবে -->
+                </div>
+            </div>
+        </div>
+
+        <!-- টাইম-এগো আপডেট ইন্ডিকেটর -->
+        <div id="portal-time-ago" class="mt-4 pt-3 border-t border-emerald-800/60 flex justify-between items-center text-[10px] text-emerald-300 font-medium">
+            <span><i class="fa-solid fa-clock-rotate-left mr-1"></i> তথ্য হালনাগাদ:</span>
+            <strong id="time-ago-text" class="text-yellow-200 font-bold">লোড হচ্ছে...</strong>
+        </div>
+    </div>
+
+    <!-- পোর্টাল ট্যাব নেভিগেশন -->
+    <div class="flex overflow-x-auto bg-white p-2 rounded-2xl shadow-sm border border-gray-150 no-print custom-scroll gap-1">
+        <button onclick="window.switchPortalTab('overview')" id="tab-p-overview" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl bg-emerald-600 text-white transition shrink-0 whitespace-nowrap">
+            <i class="fa-solid fa-house mr-1"></i> সারসংক্ষেপ
+        </button>
+        <button onclick="window.switchPortalTab('fees')" id="tab-p-fees" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition shrink-0 whitespace-nowrap">
+            <i class="fa-solid fa-wallet mr-1"></i> ফি ও বকেয়া
+        </button>
+        <button onclick="window.switchPortalTab('attendance')" id="tab-p-attendance" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition shrink-0 whitespace-nowrap">
+            <i class="fa-solid fa-calendar-check mr-1"></i> হাজিরা ও পড়া
+        </button>
+        <button onclick="window.switchPortalTab('result')" id="tab-p-result" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition shrink-0 whitespace-nowrap">
+            <i class="fa-solid fa-graduation-cap mr-1"></i> ইমতিহান রেজাল্ট
+        </button>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ১. সারসংক্ষেপ ট্যাব -->
+    <!-- ============================================ -->
+    <div id="pane-p-overview" class="space-y-4">
+        <!-- ব্যক্তিগত তথ্য কার্ড -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-3">
+            <h4 class="text-xs font-bold text-emerald-900 border-b pb-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card"></i> ব্যক্তিগত পরিচিতি
+            </h4>
+            <div id="overview-info-grid" class="grid grid-cols-2 gap-3 text-xs text-gray-700">
+                <!-- ডাইনামিক ব্যক্তিগত তথ্য লোড হবে -->
+            </div>
+        </div>
+
+        <!-- কুইক স্ট্যাটাস সমুহ -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 flex flex-col justify-between">
+                <span class="text-[11px] font-bold text-emerald-800">চলতি মাসে উপস্থিতি</span>
+                <h3 id="overview-att-rate" class="text-2xl font-extrabold text-emerald-950 font-en mt-1">0%</h3>
+            </div>
+            <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 flex flex-col justify-between">
+                <span class="text-[11px] font-bold text-rose-800">চলতি সেশনে বকেয়া</span>
+                <h3 id="overview-due-amount" class="text-2xl font-extrabold text-rose-950 font-en mt-1">৳ 0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ২. ফি ও বকেয়া হিসাব ট্যাব -->
+    <!-- ============================================ -->
+    <div id="pane-p-fees" class="space-y-4 hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-3">
+            <h4 class="text-xs font-bold text-emerald-900 border-b pb-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-receipt"></i> ফি আদায়ের ইতিহাস ও বকেয়া
+            </h4>
+            
+            <div id="portal-fees-list" class="space-y-2">
+                <!-- ডাইনামিক ফি লিস্ট লোড হবে -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৩. হাজিরা ও হেফজ পড়া ট্যাব -->
+    <!-- ============================================ -->
+    <div id="pane-p-attendance" class="space-y-4 hidden">
+        <!-- আজকের হেফজ পড়ার আপডেট (সবাখ / সবকী / আমুখতা) -->
+        <div id="portal-sabaq-card" class="bg-gradient-to-r from-amber-50 to-orange-50 p-5 rounded-2xl border border-amber-200/60 space-y-2">
+            <h4 class="text-xs font-extrabold text-amber-900 border-b border-amber-200/60 pb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-book-quran"></i> আজকের হেফজ পড়া (সবাখ ট্র্যাকার)
+            </h4>
+            <div id="portal-sabaq-content" class="text-xs space-y-1 text-amber-950">
+                <!-- সবাখ ডাটা লোড হবে -->
+            </div>
+        </div>
+
+        <!-- হাজিরা লেজার -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-3">
+            <h4 class="text-xs font-bold text-emerald-900 border-b pb-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-days"></i> সাম্প্রতিক উপস্থিতি রেকর্ড
+            </h4>
+            <div id="portal-attendance-list" class="space-y-2">
+                <!-- হাজিরা ডাটা লোড হবে -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৪. ইমতিহান রেজাল্ট ট্যাব -->
+    <!-- ============================================ -->
+    <div id="pane-p-result" class="space-y-4 hidden">
+        <div id="portal-printable-area" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <h4 class="text-xs font-bold text-emerald-900 border-b pb-2 flex items-center justify-between">
+                <span><i class="fa-solid fa-graduation-cap"></i> পরীক্ষার ফলাফল ও কারনামা</span>
+                <button onclick="window.printPortalMarksheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] no-print">
+                    <i class="fa-solid fa-print"></i> প্রিন্ট করুন
+                </button>
+            </h4>
+
+            <div id="portal-result-content">
+                <!-- রেজাল্ট কার্ড লোড হবে -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let portalStudentData = null;
+    let failedAttempts = 0;
+    let lockUntilTimestamp = 0;
+
+    window.initParentPortal = async function() {
+        const studentId = window.parentPortalStudentId || new URLSearchParams(window.location.search).get('p') || new URLSearchParams(window.location.search).get('student_id');
+        
+        if (!studentId) {
+            showToast("অবৈধ লিংক! ছাত্র আইডি পাওয়া যায়নি।", "error");
+            return;
+        }
+
+        const titleEl = document.getElementById('portal-madrasah-title');
+        if (titleEl) titleEl.textContent = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+
+        // ব্রুট-ফোর্স প্রটেকশন চেক করা
+        const savedLockTime = localStorage.getItem('parent_portal_lock_time');
+        if (savedLockTime && Date.now() < parseInt(savedLockTime)) {
+            lockParentPortalInput("৩ বার ভুল পিন দেওয়ায় ১০ মিনিটের জন্য সুবিধাটি বন্ধ করা হয়েছে।");
+        }
+    };
+
+    window.verifyParentAccess = async function() {
+        if (Date.now() < lockUntilTimestamp) {
+            showToast("কিছুক্ষণ পর আবার চেষ্টা করুন!", "error");
+            return;
+        }
+
+        const studentId = window.parentPortalStudentId || new URLSearchParams(window.location.search).get('p') || new URLSearchParams(window.location.search).get('student_id');
+        const pin = window.convertToEnglishDigits(document.getElementById('parent-pin-input').value.trim());
+
+        if (!studentId || !pin || pin.length !== 4) {
+            showToast("দয়া করে ৪ সংখ্যার পিন প্রদান করুন!", "error");
+            return;
+        }
+
+        const btn = document.getElementById('btn-parent-login');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> তথ্য রিড হচ্ছে...`;
+        }
+
+        const tenantUrl = window.getTenantScriptUrl();
+
+        // ১. অনলাইন গুগল শিট থেকে ডাটা ফেচিং
+        if (navigator.onLine && tenantUrl) {
+            try {
+                const payload = new URLSearchParams({
+                    action: 'parent_portal_fetch',
+                    student_id: studentId,
+                    parent_pin: pin
+                }).toString();
+
+                const response = await fetch(tenantUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payload
+                });
+
+                const res = await response.json();
+
+                if (res.status === 'success') {
+                    portalStudentData = res;
+                    hideParentAuthOverlay();
+                    renderParentDashboard();
+                    return;
+                } else {
+                    handleFailedParentAttempt(res.message || "ভুল পিন কোড!");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ২. অফলাইন ফালব্যাক (লোকাল ডাটাবেজ)
+        try {
+            const student = await db.students.get(studentId);
+            if (student && student.is_deleted !== 1) {
+                const phone = (student.parent_phone || "").toString().replace(/\D/g, '');
+                const last4Digits = phone.length >= 4 ? phone.substring(phone.length - 4) : "";
+
+                if (last4Digits === pin || student.parent_pin === pin) {
+                    const fees = await db.fees.where('student_id').equals(studentId).toArray();
+                    const attendance = await db.attendance.where('student_id').equals(studentId).toArray();
+                    const marks = await db.marks.where('student_id').equals(studentId).toArray();
+
+                    portalStudentData = {
+                        status: 'success',
+                        student: student,
+                        fees: fees.filter(f => f.is_deleted !== 1),
+                        attendance: attendance.filter(a => a.is_deleted !== 1),
+                        marks: marks.filter(m => m.is_deleted !== 1),
+                        last_updated: new Date().toLocaleString('bn-BD')
+                    };
+
+                    hideParentAuthOverlay();
+                    renderParentDashboard();
+                    return;
+                }
+            }
+            handleFailedParentAttempt("ভুল পিন কোড অথবা তথ্য পাওয়া যায়নি!");
+        } catch (e) {
+            handleFailedParentAttempt("নেটওয়ার্ক সমস্যা! ইন্টারনেট চেক করুন।");
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> প্যানেলে প্রবেশ করুন`;
+            }
+        }
+    };
+
+    function handleFailedParentAttempt(msg) {
+        failedAttempts++;
+        if (failedAttempts >= 3) {
+            lockUntilTimestamp = Date.now() + (10 * 60 * 1000); // ১০ মিনিট লক
+            localStorage.setItem('parent_portal_lock_time', lockUntilTimestamp.toString());
+            lockParentPortalInput("৩ বার ভুল পিন দেওয়ায় ১০ মিনিটের জন্য ট্রাই বন্ধ রাখা হয়েছে।");
+        } else {
+            showToast(`${msg} (অবশিষ্ট ট্রাই: ${3 - failedAttempts})`, "error");
+            const inputGroup = document.querySelector('#parent-auth-overlay form');
+            if (inputGroup) {
+                inputGroup.classList.add('animate-shake');
+                setTimeout(() => inputGroup.classList.remove('animate-shake'), 400);
+            }
+        }
+    }
+
+    function lockParentPortalInput(msg) {
+        const msgEl = document.getElementById('parent-lock-msg');
+        const btn = document.getElementById('btn-parent-login');
+        const input = document.getElementById('parent-pin-input');
+
+        if (msgEl) {
+            msgEl.textContent = msg;
+            msgEl.classList.remove('hidden');
+        }
+        if (btn) btn.disabled = true;
+        if (input) input.disabled = true;
+    }
+
+    function hideParentAuthOverlay() {
+        const overlay = document.getElementById('parent-auth-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    // পোর্টাল ড্যাশবোর্ড রেন্ডারার
+    function renderParentDashboard() {
+        if (!portalStudentData || !portalStudentData.student) return;
+
+        const s = portalStudentData.student;
+
+        // হেডার তথ্য
+        const photoContainer = document.getElementById('portal-student-photo');
+        if (photoContainer) {
+            photoContainer.innerHTML = s.photo_url 
+                ? `<img class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-400 shadow-md" src="${s.photo_url}">`
+                : `<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-800 text-yellow-300 flex items-center justify-center font-bold text-2xl border-2 border-emerald-700 shadow-md">St</div>`;
+        }
+
+        const nameEl = document.getElementById('portal-student-name');
+        if (nameEl) nameEl.textContent = s.name || 'অজানা';
+
+        const metaEl = document.getElementById('portal-student-meta');
+        if (metaEl) {
+            metaEl.innerHTML = `
+                <span>আইডি: <strong class="font-en text-yellow-300">${s.id}</strong></span> | 
+                <span>জামাত: <strong>${s.class || '-'}</strong></span> | 
+                <span>রোল: <strong class="font-en text-yellow-300">${s.roll || '-'}</strong></span>`;
+        }
+
+        // টাইম-এগো ইন্ডিকেটর
+        const timeAgoEl = document.getElementById('time-ago-text');
+        if (timeAgoEl) {
+            timeAgoEl.textContent = portalStudentData.last_updated ? formatTimeAgo(portalStudentData.last_updated) : 'সম্প্রতি আপডেট করা হয়েছে';
+        }
+
+        // ১. সারসংক্ষেপ
+        const overviewGrid = document.getElementById('overview-info-grid');
+        if (overviewGrid) {
+            overviewGrid.innerHTML = `
+                <div><span class="text-gray-400 block text-[10px] font-bold">পিতার নাম:</span> <strong>${s.father_name || '-'}</strong></div>
+                <div><span class="text-gray-400 block text-[10px] font-bold">মাতার নাম:</span> <strong>${s.mother_name || '-'}</strong></div>
+                <div><span class="text-gray-400 block text-[10px] font-bold">আবাসিক স্ট্যাটাস:</span> <strong>${s.boarding_type || 'অনাবাসিক'}</strong></div>
+                <div><span class="text-gray-400 block text-[10px] font-bold">ফোন নম্বর:</span> <strong class="font-en">${s.parent_phone || '-'}</strong></div>`;
+        }
+
+        // হাজিরার হার
+        const attList = portalStudentData.attendance || [];
+        const presentCount = attList.filter(a => a.status === 'Present').length;
+        const totalAtt = attList.length;
+        const attRate = totalAtt > 0 ? Math.round((presentCount / totalAtt) * 100) : 100;
+
+        const attRateEl = document.getElementById('overview-att-rate');
+        if (attRateEl) attRateEl.textContent = attRate + "%";
+
+        // বকেয়া হিসাব
+        const feesList = portalStudentData.fees || [];
+        const totalPaid = feesList.reduce((sum, f) => sum + (parseFloat(f.total || f.amount) || 0), 0);
+        
+        const dueEl = document.getElementById('overview-due-amount');
+        if (dueEl) dueEl.textContent = "৳ " + (s.monthly_fee ? (s.monthly_fee - (totalPaid % s.monthly_fee)) : 0).toLocaleString('bn-BD');
+
+        // ২. ফি তালিকা রেন্ডার
+        renderParentFees(feesList);
+
+        // ৩. হাজিরা ও সবাখ রেন্ডার
+        renderParentAttendance(attList);
+
+        // ৪. রেজাল্ট রেন্ডার
+        renderParentResult(portalStudentData.marks || []);
+    }
+
+    function renderParentFees(fees) {
+        const container = document.getElementById('portal-fees-list');
+        if (!container) return;
+
+        if (fees.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-400 py-6 text-xs">কোনো পেমেন্ট রসিদ পাওয়া যায়নি।</p>`;
+            return;
+        }
+
+        let html = '';
+        fees.forEach(f => {
+            html += `
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 flex justify-between items-center text-xs">
+                    <div>
+                        <strong class="text-gray-800 block">${f.month} মাসের বেতন</strong>
+                        <span class="text-[10px] text-gray-400 font-en">তারিখ: ${f.payment_date} | রসিদ: ${f.receipt_id}</span>
+                    </div>
+                    <div class="text-right">
+                        <strong class="text-emerald-800 font-en text-sm">৳ ${parseFloat(f.total || f.amount).toLocaleString('bn-BD')}</strong>
+                        <span class="block text-[9px] text-emerald-600 font-bold">পরিশোধিত (${f.method || 'ক্যাশ'})</span>
+                    </div>
+                </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderParentAttendance(attendance) {
+        const sabaqCard = document.getElementById('portal-sabaq-content');
+        const attContainer = document.getElementById('portal-attendance-list');
+
+        // সবাখ
+        if (sabaqCard) {
+            const todayStr = window.getLocalDateString();
+            const todayAtt = attendance.find(a => a.date === todayStr);
+
+            if (todayAtt && (todayAtt.sabaq || todayAtt.sabqi || todayAtt.ampara)) {
+                sabaqCard.innerHTML = `
+                    <div><strong>সবক:</strong> ${todayAtt.sabaq || 'নেই'}</div>
+                    <div><strong>সাত সবক:</strong> ${todayAtt.sabqi || 'নেই'}</div>
+                    <div><strong>আমুখতা:</strong> ${todayAtt.ampara || 'নেই'}</div>`;
+            } else {
+                sabaqCard.innerHTML = `<p class="text-gray-500 italic">আজকের পড়া এখনও ইনপুট দেওয়া হয়নি।</p>`;
+            }
+        }
+
+        // হাজিরা
+        if (attContainer) {
+            if (attendance.length === 0) {
+                attContainer.innerHTML = `<p class="text-center text-gray-400 py-6 text-xs">কোনো হাজিরার রেকর্ড পাওয়া যায়নি।</p>`;
+                return;
+            }
+
+            let html = '';
+            attendance.slice(-10).reverse().forEach(a => {
+                let badge = `<span class="text-emerald-700 font-bold">উপস্থিত</span>`;
+                if (a.status === 'Absent') badge = `<span class="text-rose-600 font-bold">অনুপস্থিত</span>`;
+                else if (a.status === 'Late') badge = `<span class="text-amber-600 font-bold">বিলম্ব</span>`;
+
+                html += `
+                    <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-150 flex justify-between items-center text-xs">
+                        <span class="font-en font-semibold text-gray-700">${a.date}</span>
+                        ${badge}
+                    </div>`;
+            });
+            attContainer.innerHTML = html;
+        }
+    }
+
+    function renderParentResult(marks) {
+        const container = document.getElementById('portal-result-content');
+        if (!container) return;
+
+        if (marks.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-400 py-8 text-xs">এখনও পরীক্ষার ফলাফল প্রকাশিত হয়নি।</p>`;
+            return;
+        }
+
+        let totalMarks = 0;
+        let rowsHtml = '';
+
+        marks.forEach(m => {
+            const markVal = parseFloat(m.marks_obtained) || 0;
+            totalMarks += markVal;
+            rowsHtml += `
+                <tr class="border-b text-xs">
+                    <td class="py-2 text-left">${m.subject_id}</td>
+                    <td class="py-2 text-center font-en font-bold text-emerald-800">${markVal}</td>
+                </tr>`;
+        });
+
+        container.innerHTML = `
+            <div class="text-center border-b pb-3 mb-3">
+                <h3 class="text-sm font-bold text-emerald-950">${localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা'}</h3>
+                <p class="text-xs text-gray-500 font-bold">বার্ষিক ইমতিহান ফলাফল</p>
+            </div>
+
+            <table class="w-full text-xs mb-3">
+                <thead class="bg-emerald-50 text-emerald-900 font-bold">
+                    <tr>
+                        <th class="py-2 px-2 text-left">বিষয়</th>
+                        <th class="py-2 px-2 text-center">প্রাপ্ত নম্বর</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+                <tfoot class="border-t-2 font-bold bg-gray-50">
+                    <tr>
+                        <td class="py-2 px-2">সর্বমোট প্রাপ্ত নম্বর:</td>
+                        <td class="py-2 px-2 text-center font-en text-emerald-800">${totalMarks}</td>
+                    </tr>
+                </tfoot>
+            </table>`;
+    }
+
+    // টাইম-এগো (Time-Ago) বাংলা ফরম্যাটার
+    function formatTimeAgo(dateStr) {
+        const now = new Date();
+        const past = new Date(dateStr);
+        const diffMs = now - past;
+        
+        if (isNaN(diffMs)) return dateStr;
+
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+        if (diffMins < 1) return "এইমাত্র আপডেট করা হয়েছে";
+        if (diffMins < 60) return `${diffMins} মিনিট আগে`;
+        if (diffHours < 24) return `${diffHours} ঘন্টা আগে`;
+        return dateStr;
+    }
+
+    window.switchPortalTab = function(tab) {
+        ['overview', 'fees', 'attendance', 'result'].forEach(t => {
+            const pane = document.getElementById(`pane-p-${t}`);
+            const btn = document.getElementById(`tab-p-${t}`);
+            if (pane) pane.classList.add('hidden');
+            if (btn) btn.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition shrink-0 whitespace-nowrap";
+        });
+
+        const activePane = document.getElementById(`pane-p-${tab}`);
+        const activeBtn = document.getElementById(`tab-p-${tab}`);
+        if (activePane) activePane.classList.remove('hidden');
+        if (activeBtn) activeBtn.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl bg-emerald-600 text-white transition shrink-0 whitespace-nowrap";
+    };
+
+    window.printPortalMarksheet = function() {
+        window.print();
+    };
+})();
+</script>

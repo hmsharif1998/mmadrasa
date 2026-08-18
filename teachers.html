@@ -1,0 +1,1763 @@
+<!-- Google Fonts & html2pdf.js CDN -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    #teachers-container, #teacher-biodata-modal, #pay-slip-modal, .bangla-font {
+        font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    .font-en {
+        font-family: 'Inter', sans-serif !important;
+    }
+    .font-mono-receipt {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+</style>
+
+<div id="teachers-container" class="space-y-6 bangla-font pb-12">
+
+    <!-- সাব-ট্যাব নেভিগেশন বাটনসমূহ -->
+    <div class="flex flex-wrap border-b border-gray-200 bg-white p-2 rounded-2xl shadow-sm gap-1">
+        <button type="button" onclick="window.switchTeacherTab('list')" id="tab-btn-teacher-list" class="py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl bg-emerald-50/50">
+            <i class="fa-solid fa-users-gear text-sm"></i> আসাতেজা তালিকা ও নিবন্ধন
+        </button>
+        <button type="button" onclick="window.switchTeacherTab('attendance')" id="tab-btn-teacher-attendance" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-calendar-check text-sm"></i> শিক্ষক হাজিরা ও মাসিক রেজিস্টার
+        </button>
+        <button type="button" onclick="window.switchTeacherTab('payroll')" id="tab-btn-teacher-payroll" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-money-check-dollar text-sm"></i> পে-রোল, বেতন ও পে-স্লিপ
+        </button>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ১. আসাতেজা তালিকা ও নিবন্ধন ট্যাব -->
+    <!-- ============================================ -->
+    <div id="teacher-pane-list" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- বামে: শিক্ষক নিবন্ধন ফরম -->
+        <div class="lg:col-span-1 bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 h-fit">
+            <h4 id="teacher-form-title" class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
+                <i class="fa-solid fa-user-plus text-emerald-600 text-lg"></i> নতুন শিক্ষক ও স্টাফ নিবন্ধন
+            </h4>
+
+            <form id="teacher-form" class="space-y-3.5">
+                <input type="hidden" id="editing-teacher-id" value="">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">শিক্ষক আইডি (অটো জেনারেট) *</label>
+                    <input type="text" id="teacher-id" required placeholder="T-101"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs font-bold font-en bg-gray-50 text-emerald-900" readonly>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">শিক্ষকের পূর্ণ নাম *</label>
+                    <input type="text" id="teacher-name" required placeholder="যেমন: মাওলানা আব্দুর রহমান"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold bg-white">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">মোবাইল নম্বর *</label>
+                        <input type="tel" id="teacher-phone" required placeholder="017XXXXXXXX" maxlength="11"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold font-en bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">পদবী (Designation) *</label>
+                        <select id="teacher-designation" required
+                                class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs bg-white font-bold text-gray-700 cursor-pointer">
+                            <option value="মুহাদ্দিস">মুহাদ্দিস</option>
+                            <option value="নাযিম (শিক্ষা সচিব)">নাযিম (শিক্ষা সচিব)</option>
+                            <option value="মুফাসসির">মুফাসসির</option>
+                            <option value="মুফতি">মুফতি</option>
+                            <option value="সিনিয়র শিক্ষক">সিনিয়র শিক্ষক</option>
+                            <option value="উস্তাদ / শিক্ষক">উস্তাদ / শিক্ষক</option>
+                            <option value="হাফেজ / কারী">হাফেজ / কারী</option>
+                            <option value="নূরানী শিক্ষক">নূরানী শিক্ষক</option>
+                            <option value="হিসাবরক্ষক">হিসাবরক্ষক</option>
+                            <option value="খাদেম / স্টাফ">খাদেম / স্টাফ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">নির্ধারিত মূল বেতন (৳) *</label>
+                        <input type="text" id="teacher-salary" required placeholder="১৫০০০"
+                               oninput="this.value = window.convertToEnglishDigits(this.value)"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold font-en text-emerald-800 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">যোগদানের তারিখ *</label>
+                        <input type="date" id="teacher-joining-date" required
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold bg-white cursor-pointer">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">জাতীয় পরিচয়পত্র নম্বর (NID / Smart Card)</label>
+                    <input type="text" id="teacher-nid" placeholder="১০ বা ১৭ ডিজিটের এনআইডি নম্বর"
+                           oninput="this.value = window.convertToEnglishDigits(this.value)"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold font-en bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">ছবি লিংক (Photo URL - ঐচ্ছিক)</label>
+                    <input type="text" id="teacher-photo-url" placeholder="https://..."
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs font-mono bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">শিক্ষাগত যোগ্যতা, অভিজ্ঞতা ও ঠিকানা</label>
+                    <textarea id="teacher-qualification" placeholder="যেমন: দাওরায়ে হাদিস, ইফতা (জামিয়া...), অভিজ্ঞতা: ৫ বছর..." rows="2"
+                              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold bg-white resize-none"></textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" id="teacher-submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-1.5 text-xs shadow-md cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> তথ্য সংরক্ষণ করুন
+                    </button>
+                    <button type="button" id="cancel-teacher-edit-btn" onclick="window.cancelTeacherEdit()" class="hidden bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold px-4 py-3 rounded-xl transition text-xs border border-gray-300 cursor-pointer">
+                        বাতিল
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ডানে: শিক্ষকদের তালিকা -->
+        <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3 mb-4">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-emerald-600"></i> শিক্ষক ও স্টাফদের তালিকা
+                </h3>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <input type="file" id="import-teacher-excel" accept=".xlsx, .xls" class="hidden" onchange="window.importTeachersFromExcel(event)">
+                    <button type="button" onclick="document.getElementById('import-teacher-excel').click()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-file-import text-blue-600"></i> ইমপোর্ট
+                    </button>
+                    <button type="button" onclick="window.exportTeachersToExcel()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-file-export text-amber-600"></i> এক্সপোর্ট
+                    </button>
+                    <button type="button" onclick="window.downloadTeacherListReportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> রিপোর্ট পিডিএফ (A4)
+                    </button>
+                </div>
+            </div>
+
+            <!-- সার্চ ফিল্টার -->
+            <div class="mb-4">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="search-teacher" oninput="window.filterTeachers()" placeholder="নাম, পদবী বা মোবাইল দিয়ে খুঁজুন..."
+                           class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold bg-white">
+                </div>
+            </div>
+
+            <!-- ডেক্সটপ টেবিল ভিউ -->
+            <div class="hidden md:block overflow-x-auto flex-1 rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
+                    <tr>
+                        <th class="px-3 py-3 text-left">আইডি ও শিক্ষক</th>
+                        <th class="px-3 py-3 text-left">পদবী</th>
+                        <th class="px-3 py-3 text-left">যোগাযোগ</th>
+                        <th class="px-3 py-3 text-left">মূল বেতন</th>
+                        <th class="px-3 py-3 text-left">যোগদান</th>
+                        <th class="px-3 py-3 text-right">অ্যাকশন</th>
+                    </tr>
+                    </thead>
+                    <tbody id="teachers-table-body" class="bg-white divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+
+            <!-- মোবাইল কার্ড ভিউ -->
+            <div id="teachers-mobile-cards" class="block md:hidden space-y-2.5 max-h-[520px] overflow-y-auto pr-1 custom-scroll"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ২. শিক্ষক হাজিরা ও মাসিক রেজিস্টার ট্যাব -->
+    <!-- ============================================ -->
+    <div id="teacher-pane-attendance" class="space-y-5 hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-emerald-600"></i> তারিখ অনুযায়ী শিক্ষক হাজিরা ও রেজিস্টার
+                </h3>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <button type="button" onclick="window.markAllTeachersPresent()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 border border-emerald-200 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-check-double"></i> সবাইকে উপস্থিত
+                    </button>
+                    <button type="button" onclick="window.downloadTeacherDailyAttendancePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> দৈনিক রিপোর্ট (A4)
+                    </button>
+                    <button type="button" onclick="window.downloadTeacherMonthlyRegisterPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> মাসিক রেজিস্টার (A4 Landscape)
+                    </button>
+                </div>
+            </div>
+
+            <!-- ফিল্টার বার -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">হাজিরার তারিখ</label>
+                    <input type="date" id="teacher-attendance-date" onchange="window.loadTeacherAttendanceForDate(this.value)"
+                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold font-en bg-white cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">মাসিক রেজিস্টার মাস</label>
+                    <select id="teacher-register-month" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer">
+                        <option value="01">জানুয়ারি (01)</option>
+                        <option value="02">ফেব্রুয়ারি (02)</option>
+                        <option value="03">মার্চ (03)</option>
+                        <option value="04">এপ্রিল (04)</option>
+                        <option value="05">মে (05)</option>
+                        <option value="06">জুন (06)</option>
+                        <option value="07">জুলাই (07)</option>
+                        <option value="08">আগস্ট (08)</option>
+                        <option value="09">সেপ্টেম্বর (09)</option>
+                        <option value="10">অক্টোবর (10)</option>
+                        <option value="11">নভেম্বর (11)</option>
+                        <option value="12">ডিসেম্বর (12)</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="button" onclick="window.saveTeacherAttendance()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> শিক্ষক হাজিরা সংরক্ষণ করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- দৈনিক হাজিরা টেবিল -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+            <div class="overflow-x-auto rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
+                    <tr>
+                        <th class="px-3 py-3 text-left">শিক্ষকের নাম ও পদবী</th>
+                        <th class="px-3 py-3 text-left">ফোন নম্বর</th>
+                        <th class="px-3 py-3 text-center w-64">হাজিরা স্ট্যাটাস</th>
+                        <th class="px-3 py-3 text-left">নোট / কারণ</th>
+                        <th class="px-3 py-3 text-right">অ্যাকশন</th>
+                    </tr>
+                    </thead>
+                    <tbody id="teacher-attendance-table-body" class="bg-white divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৩. পে-রোল, বেতন ও পে-স্লিপ ট্যাব -->
+    <!-- ============================================ -->
+    <div id="teacher-pane-payroll" class="space-y-5 hidden">
+        
+        <!-- পে-রোল পরিসংখ্যান কার্ড -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
+            <div class="bg-emerald-50/80 p-4 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-emerald-800 font-bold uppercase">মোট শিক্ষক সংখ্যা</p>
+                    <h4 class="text-2xl font-extrabold text-emerald-950 font-en mt-0.5" id="payroll-stat-teachers">0</h4>
+                </div>
+                <div class="bg-emerald-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-users text-sm"></i>
+                </div>
+            </div>
+
+            <div class="bg-blue-50/80 p-4 rounded-2xl border border-blue-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-blue-800 font-bold uppercase">মাসিক মোট বেতন বাজেট</p>
+                    <h4 class="text-2xl font-extrabold text-blue-950 font-en mt-0.5">৳ <span id="payroll-stat-budget">0</span></h4>
+                </div>
+                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-money-bills text-sm"></i>
+                </div>
+            </div>
+
+            <div class="bg-teal-50/80 p-4 rounded-2xl border border-teal-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-teal-800 font-bold uppercase">পরিশোধিত বেতন</p>
+                    <h4 class="text-2xl font-extrabold text-teal-950 font-en mt-0.5">৳ <span id="payroll-stat-paid">0</span></h4>
+                </div>
+                <div class="bg-teal-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-circle-check text-sm"></i>
+                </div>
+            </div>
+
+            <div class="bg-rose-50/80 p-4 rounded-2xl border border-rose-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-rose-800 font-bold uppercase">বকেয়া বেতন</p>
+                    <h4 class="text-2xl font-extrabold text-rose-950 font-en mt-0.5">৳ <span id="payroll-stat-due">0</span></h4>
+                </div>
+                <div class="bg-rose-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-clock text-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> আসাতেজা মাসিক পে-রোল ও স্যালারি লেজার
+                </h3>
+                <div class="flex items-center gap-2">
+                    <select id="payroll-month-select" onchange="window.renderTeacherPayroll()" class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold bg-white cursor-pointer">
+                        <option value="জানুয়ারি">জানুয়ারি</option>
+                        <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                        <option value="মার্চ">মার্চ</option>
+                        <option value="এপ্রিল">এপ্রিল</option>
+                        <option value="মে">মে</option>
+                        <option value="জুন">জুন</option>
+                        <option value="জুলাই">জুলাই</option>
+                        <option value="আগস্ট">আগস্ট</option>
+                        <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                        <option value="অক্টোবর">অক্টোবর</option>
+                        <option value="নভেম্বর">নভেম্বর</option>
+                        <option value="ডিসেম্বর">ডিসেম্বর</option>
+                    </select>
+
+                    <button type="button" onclick="window.downloadMonthlyPayrollReportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> পে-রোল রিপোর্ট (A4 Landscape)
+                    </button>
+                </div>
+            </div>
+
+            <!-- পে-রোল টেবিল -->
+            <div class="overflow-x-auto rounded-xl border border-gray-150 max-h-[520px] overflow-y-auto custom-scroll">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
+                    <tr>
+                        <th class="px-3 py-3 text-left">শিক্ষক</th>
+                        <th class="px-3 py-3 text-left">পদবী</th>
+                        <th class="px-3 py-3 text-left">নির্ধারিত মূল বেতন</th>
+                        <th class="px-3 py-3 text-left">প্রদত্ত পরিমাণ</th>
+                        <th class="px-3 py-3 text-left">পেমেন্ট স্ট্যাটাস</th>
+                        <th class="px-3 py-3 text-right">অ্যাকশন</th>
+                    </tr>
+                    </thead>
+                    <tbody id="teacher-payroll-table-body" class="bg-white divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মডাল ১: শিক্ষক A5 অফিসিয়াল বায়োডাটা ভিউ ও PDF -->
+<!-- ============================================ -->
+<div id="teacher-biodata-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 max-w-lg w-full shadow-2xl relative border border-gray-150 flex flex-col justify-between max-h-[96vh]">
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <div id="teacher-biodata-print" class="bg-white p-4 space-y-3 text-gray-800 leading-normal bangla-font border border-gray-200 rounded-xl max-w-[140mm] mx-auto text-xs">
+                <!-- ডাইনামিক A5 শিক্ষক বায়োডাটা লোড হবে -->
+            </div>
+        </div>
+        
+        <div class="mt-3 flex justify-end gap-2 border-t pt-2.5 bg-white">
+            <button onclick="window.downloadTeacherBiodataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                <i class="fa-solid fa-file-pdf"></i> বায়োডাটা পিডিএফ (A5)
+            </button>
+            <button onclick="document.getElementById('teacher-biodata-modal').classList.add('hidden')" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মডাল ২: উন্নত বেতন প্রদান ফরম (ভাতা ও কর্তনসহ) -->
+<!-- ============================================ -->
+<div id="pay-salary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-5 max-w-md w-full shadow-2xl relative border border-gray-150">
+        <h4 class="text-sm font-bold text-gray-800 border-b pb-2.5 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-hand-holding-dollar text-emerald-600 text-base"></i> শিক্ষক বেতন পরিশোধ ভাউচার
+        </h4>
+
+        <form id="pay-salary-form" class="space-y-3 text-xs">
+            <input type="hidden" id="modal-pay-teacher-id">
+            <input type="hidden" id="modal-pay-month">
+
+            <div class="bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+                <div class="font-bold text-gray-900" id="modal-pay-teacher-name">শিক্ষকের নাম</div>
+                <div class="text-[10px] text-gray-500" id="modal-pay-teacher-desig">পদবী</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label class="block text-gray-600 font-bold mb-1">মূল বেতন (৳)</label>
+                    <input type="text" id="modal-pay-base" readonly class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 font-bold font-en text-gray-700">
+                </div>
+                <div>
+                    <label class="block text-emerald-700 font-bold mb-1">বোনাস / ভাতা (+) ৳</label>
+                    <input type="text" id="modal-pay-allowance" value="0" oninput="this.value=window.convertToEnglishDigits(this.value); window.calculateNetSalary();" class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold font-en text-emerald-800 focus:border-emerald-500 bg-white">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label class="block text-rose-700 font-bold mb-1">অগ্রিম/অনুপস্থিতি কর্তন (-) ৳</label>
+                    <input type="text" id="modal-pay-deduction" value="0" oninput="this.value=window.convertToEnglishDigits(this.value); window.calculateNetSalary();" class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold font-en text-rose-700 focus:border-rose-500 bg-white">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-1">পেমেন্ট মাধ্যম</label>
+                    <select id="modal-pay-method" class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold text-gray-700 bg-white">
+                        <option value="ক্যাশ">ক্যাশ (নগদ)</option>
+                        <option value="ব্যাংক">ব্যাংক ট্রান্সফার</option>
+                        <option value="বিকাশ">বিকাশ</option>
+                        <option value="নগদ">নগদ</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 p-3 rounded-xl border border-dashed border-emerald-300 flex justify-between items-center">
+                <span class="font-bold text-emerald-950">সর্বমোট প্রদেয় বেতন (Net):</span>
+                <span class="text-base font-extrabold text-emerald-800 font-en">৳ <span id="modal-pay-net">0</span></span>
+            </div>
+
+            <div>
+                <label class="block text-gray-600 font-bold mb-1">প্রদানের তারিখ</label>
+                <input type="date" id="modal-pay-date" class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold bg-white cursor-pointer">
+            </div>
+
+            <div>
+                <label class="block text-gray-600 font-bold mb-1">মন্তব্য (ঐচ্ছিক)</label>
+                <input type="text" id="modal-pay-note" placeholder="যেমন: ঈদ বোনাসসহ পরিশোধ..." class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold bg-white">
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t">
+                <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-md cursor-pointer">
+                    <i class="fa-solid fa-circle-check"></i> বেতন পরিশোধ নিশ্চিত করুন
+                </button>
+                <button type="button" onclick="document.getElementById('pay-salary-modal').classList.add('hidden')" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl border cursor-pointer">
+                    বাতিল
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মডাল ৩: A5 শিক্ষক বেতন রসিদ / পে-স্লিপ ভিউ ও PDF -->
+<!-- ============================================ -->
+<div id="pay-slip-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 max-w-md w-full shadow-2xl relative border border-gray-150 flex flex-col justify-between max-h-[96vh]">
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <div id="pay-slip-print" class="bg-white p-4 space-y-2.5 text-gray-800 leading-normal bangla-font border border-gray-200 rounded-xl max-w-[140mm] mx-auto text-xs">
+                <!-- ডাইনামিক A5 পে-স্লিপ ডাটা লোড হবে -->
+            </div>
+        </div>
+        
+        <div class="flex gap-2 mt-3 border-t pt-2.5 bg-white">
+            <button id="btn-wa-payslip" onclick="window.sendSalaryVoucherToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition cursor-pointer">
+                <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ
+            </button>
+            <button onclick="window.downloadTeacherPaySlipPDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm cursor-pointer">
+                <i class="fa-solid fa-file-pdf text-sm"></i> পে-স্লিপ (A5)
+            </button>
+            <button onclick="document.getElementById('pay-slip-modal').classList.add('hidden')" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border cursor-pointer">
+                বন্ধ
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- হিডেন কনটেইনারসমূহ: PDF রেন্ডারিংয়ের জন্য -->
+<div id="hidden-teacher-list-pdf-area" class="hidden"></div>
+<div id="hidden-teacher-daily-att-pdf-area" class="hidden"></div>
+<div id="hidden-teacher-monthly-register-pdf-area" class="hidden"></div>
+<div id="hidden-monthly-payroll-report-pdf-area" class="hidden"></div>
+
+<script>
+(function() {
+    let allTeachers = [];
+    let teacherAttendanceMap = {};
+    let madrasahConfig = {};
+    let activeBiodataTeacher = null;
+    let activePaySlipData = null;
+
+    function sanitizeDateString(dStr) {
+        if (!dStr) return "";
+        return dStr.toString().split('T')[0].trim();
+    }
+
+    async function fetchMadrasahConfig() {
+        try {
+            let config = await db.settings.get('madrasah_config_block');
+            if (!config) {
+                const allSettings = await db.settings.toArray();
+                if (allSettings && allSettings.length > 0) config = allSettings[0];
+            }
+            madrasahConfig = config || {};
+        } catch(e) {
+            madrasahConfig = {};
+        }
+        return madrasahConfig;
+    }
+
+    window.initTeachers = async function() {
+        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+        if (user && user.role === 'teacher') {
+            showToast("শিক্ষক মডিউলটি দেখার অনুমতি আপনার নেই!", "error");
+            loadModule('dashboard');
+            return;
+        }
+
+        const dateInput = document.getElementById('teacher-attendance-date');
+        if (dateInput) dateInput.value = window.getLocalDateString();
+
+        const todayParts = window.getLocalDateString().split('-');
+        const regMonth = document.getElementById('teacher-register-month');
+        if (regMonth) regMonth.value = todayParts[1] || '01';
+
+        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        const monthSelect = document.getElementById('payroll-month-select');
+        if (monthSelect) monthSelect.value = bnMonths[new Date().getMonth()];
+
+        await fetchMadrasahConfig();
+        await window.generateTeacherId();
+        await window.loadTeachersData();
+
+        // শিক্ষক নিবন্ধন ফরম সাবমিট
+        const form = document.getElementById('teacher-form');
+        if (form) {
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+
+                const id = document.getElementById('teacher-id').value.trim();
+                const name = document.getElementById('teacher-name').value.trim();
+                const phone = window.convertToEnglishDigits(document.getElementById('teacher-phone').value.trim());
+                const designation = document.getElementById('teacher-designation').value;
+                const salary = parseFloat(window.convertToEnglishDigits(document.getElementById('teacher-salary').value)) || 0;
+                const joiningDate = document.getElementById('teacher-joining-date').value;
+                const nid = window.convertToEnglishDigits(document.getElementById('teacher-nid').value.trim());
+                const photoUrl = document.getElementById('teacher-photo-url').value.trim();
+                const qualification = document.getElementById('teacher-qualification').value.trim();
+                const editId = document.getElementById('editing-teacher-id').value;
+
+                if (!id || !name || !phone || !designation || !joiningDate) {
+                    showToast("সকল প্রয়োজনীয় ঘরগুলো সঠিকভাবে পূরণ করুন!", "error");
+                    return;
+                }
+
+                try {
+                    const teacherObj = {
+                        id: id,
+                        name: name,
+                        phone: phone,
+                        designation: designation,
+                        basic_salary: salary,
+                        joining_date: joiningDate,
+                        nid: nid,
+                        photo_url: photoUrl,
+                        qualification: qualification,
+                        is_synced: 0,
+                        is_deleted: 0
+                    };
+
+                    if (editId) {
+                        await db.teachers.update(editId, teacherObj);
+                        showToast("শিক্ষকের তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
+                        window.cancelTeacherEdit();
+                    } else {
+                        await db.teachers.add(teacherObj);
+                        showToast("নতুন শিক্ষক সফলভাবে নিবন্ধিত হয়েছেন।", "success");
+                        form.reset();
+                        document.getElementById('teacher-joining-date').value = window.getLocalDateString();
+                    }
+
+                    if (typeof updatePendingCount === 'function') await updatePendingCount();
+                    await window.generateTeacherId();
+                    await window.loadTeachersData();
+
+                    if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+
+                } catch (err) {
+                    console.error("শিক্ষক সেভ ত্রুটি:", err);
+                    showToast("ডাটা সেভ করতে ব্যর্থ!", "error");
+                }
+            };
+        }
+
+        // বেতন পরিশোধ মডাল সাবমিট
+        const payForm = document.getElementById('pay-salary-form');
+        if (payForm) {
+            payForm.onsubmit = async (e) => {
+                e.preventDefault();
+                await handleSalaryPaymentSubmit();
+            };
+        }
+    };
+
+    window.switchTeacherTab = function(tab) {
+        const pList = document.getElementById('teacher-pane-list');
+        const pAtt = document.getElementById('teacher-pane-attendance');
+        const pPay = document.getElementById('teacher-pane-payroll');
+
+        const bList = document.getElementById('tab-btn-teacher-list');
+        const bAtt = document.getElementById('tab-btn-teacher-attendance');
+        const bPay = document.getElementById('tab-btn-teacher-payroll');
+
+        [pList, pAtt, pPay].forEach(p => p?.classList.add('hidden'));
+        [bList, bAtt, bPay].forEach(b => b?.classList.remove('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50'));
+        [bList, bAtt, bPay].forEach(b => b?.classList.add('border-transparent', 'text-gray-500'));
+
+        if (tab === 'list') {
+            pList.classList.remove('hidden');
+            bList.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            window.renderTeachersList();
+        } else if (tab === 'attendance') {
+            pAtt.classList.remove('hidden');
+            bAtt.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            const d = document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString();
+            window.loadTeacherAttendanceForDate(d);
+        } else if (tab === 'payroll') {
+            pPay.classList.remove('hidden');
+            bPay.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            window.renderTeacherPayroll();
+        }
+    };
+
+    window.generateTeacherId = async function() {
+        try {
+            const list = await db.teachers.toArray();
+            let maxNum = 100;
+            list.forEach(t => {
+                const match = (t.id || '').match(/\d+/);
+                if (match) {
+                    const num = parseInt(match[0], 10);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            document.getElementById('teacher-id').value = "T-" + (maxNum + 1);
+        } catch (e) {
+            document.getElementById('teacher-id').value = "T-101";
+        }
+    };
+
+    window.loadTeachersData = async function() {
+        try {
+            let list = await db.teachers.toArray();
+            allTeachers = list.filter(t => t.is_deleted !== 1);
+            allTeachers.sort((a, b) => (parseInt(a.id.replace(/\D/g, ''), 10) || 0) - (parseInt(b.id.replace(/\D/g, ''), 10) || 0));
+            window.renderTeachersList();
+        } catch (err) {
+            console.error("শিক্ষক ডাটা লোডে ত্রুটি:", err);
+        }
+    };
+
+    window.filterTeachers = function() {
+        const q = document.getElementById('search-teacher').value.toLowerCase().trim();
+        window.renderTeachersList(q);
+    };
+
+    window.renderTeachersList = function(q = '') {
+        const tbody = document.getElementById('teachers-table-body');
+        const mCards = document.getElementById('teachers-mobile-cards');
+        if (!tbody || !mCards) return;
+
+        let filtered = allTeachers;
+        if (q) {
+            filtered = filtered.filter(t =>
+                (t.name || '').toLowerCase().includes(q) ||
+                (t.phone || '').includes(q) ||
+                (t.designation || '').toLowerCase().includes(q) ||
+                (t.id || '').toLowerCase().includes(q)
+            );
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400 font-bold">কোনো শিক্ষকের তথ্য পাওয়া যায়নি।</td></tr>`;
+            mCards.innerHTML = `<div class="text-center py-8 text-gray-400 font-bold">কোনো শিক্ষকের তথ্য পাওয়া যায়নি।</div>`;
+            return;
+        }
+
+        let html = '';
+        let mobileHtml = '';
+
+        filtered.forEach(t => {
+            html += `
+                <tr class="hover:bg-gray-50 border-b border-gray-100 transition text-gray-700">
+                    <td class="px-3 py-2.5 font-bold flex items-center gap-2">
+                        ${t.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border border-emerald-200" src="${t.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">T</div>'}
+                        <div>
+                            <div class="text-gray-900">${t.name}</div>
+                            <div class="text-[10px] text-gray-400 font-en font-bold">${t.id}</div>
+                        </div>
+                    </td>
+                    <td class="px-3 py-2.5 font-bold text-emerald-850">${t.designation}</td>
+                    <td class="px-3 py-2.5 font-en">
+                        <a href="tel:${t.phone}" class="text-gray-700 font-bold hover:text-emerald-700">${t.phone}</a>
+                    </td>
+                    <td class="px-3 py-2.5 font-bold font-en text-rose-700">৳ ${parseFloat(t.basic_salary || 0).toLocaleString('bn-BD')}</td>
+                    <td class="px-3 py-2.5 font-en text-gray-500">${t.joining_date || '-'}</td>
+                    <td class="px-3 py-2.5 text-right">
+                        <div class="flex gap-1.5 justify-end">
+                            <button onclick="window.sendTeacherWhatsApp('${t.id}')" class="bg-green-50 text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition" title="হোয়াটসঅ্যাপে বার্তা">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                            </button>
+                            <button onclick="window.showTeacherBiodata('${t.id}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-1.5 rounded-lg transition" title="বায়োডাটা ও A5 পিডিএফ">
+                                <i class="fa-solid fa-address-card text-sm"></i>
+                            </button>
+                            <button onclick="window.editTeacher('${t.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 p-1.5 rounded-lg transition" title="সংশোধন">
+                                <i class="fa-solid fa-pen-to-square text-sm"></i>
+                            </button>
+                            <button onclick="window.deleteTeacher('${t.id}')" class="bg-rose-50 text-rose-700 hover:bg-rose-100 p-1.5 rounded-lg transition" title="মুছে ফেলুন">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+
+            mobileHtml += `
+                <div class="p-3.5 rounded-xl border border-gray-150 bg-white shadow-sm space-y-2 text-xs">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            ${t.photo_url ? `<img class="w-9 h-9 rounded-full object-cover border border-emerald-200" src="${t.photo_url}">` : '<div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">T</div>'}
+                            <div>
+                                <h5 class="font-bold text-gray-900 text-xs">${t.name}</h5>
+                                <p class="text-[10px] text-emerald-700 font-bold">${t.designation} (${t.id})</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-rose-700 text-xs font-en">৳ ${parseFloat(t.basic_salary || 0).toLocaleString('bn-BD')}</span>
+                    </div>
+                    <div class="border-t border-dashed pt-1.5 flex justify-between items-center text-[11px] text-gray-600">
+                        <span class="font-en">${t.phone}</span>
+                        <div class="flex gap-1.5">
+                            <button onclick="window.sendTeacherWhatsApp('${t.id}')" class="bg-green-50 text-green-600 p-1 rounded"><i class="fa-brands fa-whatsapp"></i></button>
+                            <button onclick="window.showTeacherBiodata('${t.id}')" class="bg-emerald-50 text-emerald-700 p-1 rounded"><i class="fa-solid fa-address-card"></i></button>
+                            <button onclick="window.editTeacher('${t.id}')" class="bg-blue-50 text-blue-700 p-1 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="window.deleteTeacher('${t.id}')" class="bg-rose-50 text-rose-700 p-1 rounded"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        tbody.innerHTML = html;
+        mCards.innerHTML = mobileHtml;
+    };
+
+    window.editTeacher = async function(id) {
+        const t = allTeachers.find(item => item.id === id);
+        if (!t) return;
+
+        document.getElementById('editing-teacher-id').value = t.id;
+        document.getElementById('teacher-id').value = t.id;
+        document.getElementById('teacher-name').value = t.name;
+        document.getElementById('teacher-phone').value = t.phone;
+        document.getElementById('teacher-designation').value = t.designation;
+        document.getElementById('teacher-salary').value = t.basic_salary;
+        document.getElementById('teacher-joining-date').value = t.joining_date;
+        document.getElementById('teacher-nid').value = t.nid || '';
+        document.getElementById('teacher-photo-url').value = t.photo_url || '';
+        document.getElementById('teacher-qualification').value = t.qualification || '';
+
+        document.getElementById('teacher-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> শিক্ষকের তথ্য সংশোধন`;
+        const submitBtn = document.getElementById('teacher-submit-btn');
+        if (submitBtn) {
+            submitBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-md cursor-pointer";
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> সংশোধন সম্পন্ন করুন`;
+        }
+
+        const cancelBtn = document.getElementById('cancel-teacher-edit-btn');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+        document.getElementById('teachers-container')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.cancelTeacherEdit = function() {
+        const form = document.getElementById('teacher-form');
+        if (form) form.reset();
+        document.getElementById('editing-teacher-id').value = "";
+        document.getElementById('teacher-joining-date').value = window.getLocalDateString();
+
+        document.getElementById('teacher-form-title').innerHTML = `<i class="fa-solid fa-user-plus text-emerald-600"></i> নতুন শিক্ষক ও স্টাফ নিবন্ধন`;
+        const submitBtn = document.getElementById('teacher-submit-btn');
+        if (submitBtn) {
+            submitBtn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-md cursor-pointer";
+            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> তথ্য সংরক্ষণ করুন`;
+        }
+
+        const cancelBtn = document.getElementById('cancel-teacher-edit-btn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+        window.generateTeacherId();
+    };
+
+    window.deleteTeacher = async function(id) {
+        if (!confirm("আপনি কি নিশ্চিতভাবে এই শিক্ষকের তথ্য মুছে ফেলতে চান?")) return;
+
+        try {
+            await db.teachers.update(id, { is_deleted: 1, is_synced: 0 });
+            showToast("শিক্ষকের তথ্য মুছে ফেলা হয়েছে।", "success");
+            await window.loadTeachersData();
+            if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+        } catch (e) {
+            showToast("মুছে ফেলতে ব্যর্থ!", "error");
+        }
+    };
+
+    // শিক্ষক A5 অফিসিয়াল বায়োডাটা ভিউ
+    window.showTeacherBiodata = async function(teacherId) {
+        const t = allTeachers.find(item => item.id === teacherId);
+        if (!t) return;
+
+        activeBiodataTeacher = t;
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const logoUrl = config.madrasah_logo || '';
+
+        const printArea = document.getElementById('teacher-biodata-print');
+        printArea.innerHTML = `
+            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-2.5">
+                <div class="flex items-center gap-2.5">
+                    ${logoUrl ? `<img class="w-11 h-11 rounded-xl object-cover border border-emerald-200" crossorigin="anonymous" src="${logoUrl}">` : '<div class="w-11 h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-lg font-bold font-sans"><i class="fa-solid fa-mosque"></i></div>'}
+                    <div>
+                        <h2 class="text-base font-bold text-emerald-950 leading-tight">${mName}</h2>
+                        <p class="text-[10px] text-gray-600">${mAddr}</p>
+                        <span class="inline-block bg-emerald-100 text-emerald-900 text-[9px] px-2 py-0.5 rounded font-bold mt-0.5">শিক্ষক ও স্টাফ তথ্যবিবরণী</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    ${t.photo_url ? `<img src="${t.photo_url}" crossorigin="anonymous" class="w-14 h-14 rounded-lg object-cover border border-emerald-600 shadow-sm inline-block">` : `<div class="w-14 h-14 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center text-gray-400 text-[9px] text-center pt-3.5">ছবি নেই</div>`}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[10.5px] py-1">
+                <div class="space-y-1.5 border border-gray-200 p-2.5 rounded-lg bg-white">
+                    <h6 class="font-bold text-emerald-800 border-b pb-0.5 text-[10px]">ব্যক্তিগত ও পরিচিতি তথ্য</h6>
+                    <div><span class="text-gray-500">শিক্ষক আইডি:</span> <strong class="font-en text-emerald-900">${t.id}</strong></div>
+                    <div><span class="text-gray-500">নাম:</span> <strong class="text-gray-900">${t.name}</strong></div>
+                    <div><span class="text-gray-500">মোবাইল:</span> <strong class="font-en text-gray-800">${t.phone}</strong></div>
+                    <div><span class="text-gray-500">এনআইডি:</span> <strong class="font-en text-gray-800">${t.nid || '-'}</strong></div>
+                </div>
+
+                <div class="space-y-1.5 border border-gray-200 p-2.5 rounded-lg bg-white">
+                    <h6 class="font-bold text-blue-800 border-b pb-0.5 text-[10px]">অফিসিয়াল ও পদের তথ্য</h6>
+                    <div><span class="text-gray-500">পদবী:</span> <strong class="text-emerald-900">${t.designation}</strong></div>
+                    <div><span class="text-gray-500">মূল বেতন:</span> <strong class="font-en text-rose-700 font-bold">৳ ${parseFloat(t.basic_salary || 0).toLocaleString('bn-BD')}</strong></div>
+                    <div><span class="text-gray-500">যোগদান:</span> <strong class="font-en text-gray-800">${t.joining_date || '-'}</strong></div>
+                    <div><span class="text-gray-500">স্ট্যাটাস:</span> <strong class="text-emerald-700">সক্রিয় শিক্ষক</strong></div>
+                </div>
+            </div>
+
+            <div class="text-[10px] space-y-1 border border-gray-200 p-2.5 rounded-lg bg-white">
+                <h6 class="font-bold text-gray-800 border-b pb-0.5 text-[10px]">শিক্ষাগত যোগ্যতা, অভিজ্ঞতা ও বিবরণ</h6>
+                <p class="text-gray-700 leading-relaxed">${t.qualification || 'কোনো অতিরিক্ত তথ্য প্রদান করা হয়নি।'}</p>
+            </div>
+
+            <div class="flex justify-between items-center text-[9px] text-gray-500 pt-8 mt-4 border-t">
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">শিক্ষকের স্বাক্ষর</div>
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">নাযিমে তালিমাত</div>
+                <div class="text-center w-24 border-t pt-0.5 border-emerald-800 text-emerald-800 font-bold">মুহতামিম</div>
+            </div>`;
+
+        document.getElementById('teacher-biodata-modal')?.classList.remove('hidden');
+    };
+
+    window.downloadTeacherBiodataPDF = function() {
+        if (!activeBiodataTeacher) return;
+        const element = document.getElementById('teacher-biodata-print');
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `${activeBiodataTeacher.id}_${activeBiodataTeacher.name}_Biodata.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        showToast("A5 বায়োডাটা পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast("বায়োডাটা পিডিএফ ডাউনলোড সম্পন্ন!", "success");
+        });
+    };
+
+    // A4 শিক্ষক তালিকা রিপোর্ট PDF
+    window.downloadTeacherListReportPDF = async function() {
+        if (allTeachers.length === 0) {
+            showToast("কোনো শিক্ষকের তথ্য পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+
+        let totalSalary = 0;
+        const rowsHtml = allTeachers.map((t, i) => {
+            const sal = parseFloat(t.basic_salary || 0);
+            totalSalary += sal;
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px 8px; text-align: center;">${i + 1}</td>
+                    <td style="padding: 6px 8px; font-family: 'Inter', sans-serif; font-weight: bold; color: #064e3b;">${t.id}</td>
+                    <td style="padding: 6px 8px;"><strong>${t.name}</strong></td>
+                    <td style="padding: 6px 8px; font-weight: bold; color: #065f46;">${t.designation}</td>
+                    <td style="padding: 6px 8px; font-family: 'Inter', sans-serif;">${t.phone}</td>
+                    <td style="padding: 6px 8px; font-family: 'Inter', sans-serif;">${t.joining_date || '-'}</td>
+                    <td style="padding: 6px 8px; font-family: 'Inter', sans-serif; text-align: right; font-weight: bold; color: #b91c1c;">৳ ${sal.toLocaleString('bn-BD')}</td>
+                </tr>`;
+        }).join('');
+
+        const container = document.getElementById('hidden-teacher-list-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 16px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 10px;">
+                    <h2 style="font-size: 19px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10.5px; color: #4b5563; margin: 2px 0;">${mAddr}</p>
+                    <h3 style="font-size: 13px; font-weight: bold; color: #1f2937; margin: 6px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        আসাতেজা ও স্টাফ পূর্ণাঙ্গ তালিকা রিপোর্ট
+                    </h3>
+                    <p style="font-size: 9.5px; color: #64748b; margin: 3px 0 0 0;">তারিখ: ${window.getLocalDateString()}</p>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 6px; width: 30px; text-align: center;">#</th>
+                            <th style="padding: 6px; width: 60px;">আইডি</th>
+                            <th style="padding: 6px;">শিক্ষকের নাম</th>
+                            <th style="padding: 6px;">পদবী</th>
+                            <th style="padding: 6px;">মোবাইল নম্বর</th>
+                            <th style="padding: 6px;">যোগদান</th>
+                            <th style="padding: 6px; text-align: right; width: 85px;">মূল বেতন</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #ecfdf5; font-weight: bold; border-top: 2px solid #065f46;">
+                            <td colspan="6" style="padding: 6px 8px; text-align: right;">সর্বমোট শিক্ষক ও মাসিক বেতন বাজেট:</td>
+                            <td style="padding: 6px 8px; text-align: right; font-family: 'Inter', sans-serif; font-size: 11px; color: #064e3b;">৳ ${totalSalary.toLocaleString('bn-BD')}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 9.5px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">হিসাবরক্ষক</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 3px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [6, 6, 6, 6],
+            filename: `Teacher_List_Report_${window.getLocalDateString()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        showToast("শিক্ষক রিপোর্ট প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("শিক্ষক রিপোর্ট ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // ★ ২. ফিক্সড শিক্ষক হাজিরা ফাংশনসমূহ (রিসোট বাগমুক্ত) ★
+    window.loadTeacherAttendanceForDate = async function(requestedDate) {
+        const rawDate = requestedDate || document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString();
+        const date = sanitizeDateString(rawDate);
+        const tbody = document.getElementById('teacher-attendance-table-body');
+        if (!tbody) return;
+
+        if (allTeachers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 font-bold">কোনো শিক্ষক পাওয়া যায়নি।</td></tr>`;
+            return;
+        }
+
+        try {
+            const allAtt = await db.attendance.toArray();
+            const attMap = {};
+            
+            allAtt.forEach(a => {
+                const aCleanDate = sanitizeDateString(a.date);
+                if (a.is_deleted !== 1 && aCleanDate === date && a.attendance_id && a.attendance_id.startsWith('T_ATT_')) {
+                    attMap[a.student_id] = a; // নির্ভরযোগ্য স্টুডেন্ট/টিচার আইডি ম্যাপিং
+                }
+            });
+
+            teacherAttendanceMap = {};
+            let html = '';
+
+            allTeachers.forEach(t => {
+                const existing = attMap[t.id] || { status: 'Present', note: '' };
+                teacherAttendanceMap[t.id] = { status: existing.status || 'Present', note: existing.note || '' };
+
+                const st = teacherAttendanceMap[t.id].status;
+
+                html += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 transition text-gray-700" id="teacher-row-${t.id}">
+                        <td class="px-3 py-2.5 font-bold">
+                            <div class="text-gray-900">${t.name}</div>
+                            <div class="text-[10px] text-emerald-700">${t.designation} (${t.id})</div>
+                        </td>
+                        <td class="px-3 py-2.5 font-en text-gray-600 font-bold">${t.phone}</td>
+                        <td class="px-3 py-2.5 text-center">
+                            <div class="inline-flex rounded-xl p-1 bg-gray-100 border gap-1" id="t-btn-group-${t.id}">
+                                <button type="button" onclick="window.setTeacherAttStatus('${t.id}', 'Present')" class="t-btn-p px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${st === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
+                                <button type="button" onclick="window.setTeacherAttStatus('${t.id}', 'Absent')" class="t-btn-a px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${st === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
+                                <button type="button" onclick="window.setTeacherAttStatus('${t.id}', 'Late')" class="t-btn-l px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${st === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
+                                <button type="button" onclick="window.setTeacherAttStatus('${t.id}', 'Leave')" class="t-btn-v px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${st === 'Leave' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">ছুটি</button>
+                            </div>
+                        </td>
+                        <td class="px-3 py-2.5">
+                            <input type="text" value="${teacherAttendanceMap[t.id].note}" oninput="window.setTeacherAttNote('${t.id}', this.value)" placeholder="নোট বা ছুটির কারণ..." class="w-full px-2.5 py-1.5 border rounded-lg text-xs bg-white">
+                        </td>
+                        <td class="px-3 py-2.5 text-right">
+                            <button type="button" id="t-wa-btn-${t.id}" onclick="window.sendTeacherAbsentWhatsApp('${t.id}')" class="bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded-lg text-[10px] font-bold ${st === 'Absent' ? '' : 'hidden'}"><i class="fa-brands fa-whatsapp"></i> নোটিশ</button>
+                        </td>
+                    </tr>`;
+            });
+
+            tbody.innerHTML = html;
+
+        } catch (err) {
+            console.error("শিক্ষক হাজিরা ফেচিং ত্রুটি:", err);
+        }
+    };
+
+    // ফাস্ট ও নিরাপদ DOM-লেভেল স্ট্যাটাস আপডেট (রিলোড লুপ মুক্ত)
+    window.setTeacherAttStatus = function(id, status) {
+        if (!teacherAttendanceMap[id]) teacherAttendanceMap[id] = { status: 'Present', note: '' };
+        teacherAttendanceMap[id].status = status;
+
+        const grp = document.getElementById(`t-btn-group-${id}`);
+        if (grp) {
+            const pBtn = grp.querySelector('.t-btn-p');
+            const aBtn = grp.querySelector('.t-btn-a');
+            const lBtn = grp.querySelector('.t-btn-l');
+            const vBtn = grp.querySelector('.t-btn-v');
+
+            [pBtn, aBtn, lBtn, vBtn].forEach(b => {
+                if (b) b.className = b.className.replace(/bg-\S+|text-white|shadow-sm/g, '').trim() + ' text-gray-600 hover:bg-white';
+            });
+
+            if (status === 'Present' && pBtn) pBtn.className = pBtn.className.replace('text-gray-600 hover:bg-white', '').trim() + ' bg-emerald-600 text-white shadow-sm';
+            else if (status === 'Absent' && aBtn) aBtn.className = aBtn.className.replace('text-gray-600 hover:bg-white', '').trim() + ' bg-rose-600 text-white shadow-sm';
+            else if (status === 'Late' && lBtn) lBtn.className = lBtn.className.replace('text-gray-600 hover:bg-white', '').trim() + ' bg-amber-500 text-white shadow-sm';
+            else if (status === 'Leave' && vBtn) vBtn.className = vBtn.className.replace('text-gray-600 hover:bg-white', '').trim() + ' bg-purple-600 text-white shadow-sm';
+        }
+
+        const waBtn = document.getElementById(`t-wa-btn-${id}`);
+        if (waBtn) {
+            if (status === 'Absent') waBtn.classList.remove('hidden');
+            else waBtn.classList.add('hidden');
+        }
+    };
+
+    window.setTeacherAttNote = function(id, note) {
+        if (!teacherAttendanceMap[id]) teacherAttendanceMap[id] = { status: 'Present', note: '' };
+        teacherAttendanceMap[id].note = note;
+    };
+
+    window.markAllTeachersPresent = function() {
+        allTeachers.forEach(t => {
+            window.setTeacherAttStatus(t.id, 'Present');
+        });
+        showToast("সকল শিক্ষককে উপস্থিত মার্ক করা হয়েছে। সংরক্ষণ বাটনে চাপুন।", "info");
+    };
+
+    window.saveTeacherAttendance = async function() {
+        const rawDate = document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString();
+        const date = sanitizeDateString(rawDate);
+        const sessionYearVal = madrasahConfig.current_session || new Date().getFullYear().toString();
+
+        const bulk = [];
+        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+        const curUser = user ? user.username : "system";
+
+        for (let tId in teacherAttendanceMap) {
+            const att = teacherAttendanceMap[tId];
+            bulk.push({
+                attendance_id: `T_ATT_${date}_${tId}`,
+                student_id: tId,
+                session_year: sessionYearVal,
+                date: date,
+                status: att.status,
+                note: att.note || '',
+                created_by: curUser,
+                updated_by: curUser,
+                is_synced: 0,
+                is_deleted: 0
+            });
+        }
+
+        if (bulk.length > 0) {
+            try {
+                await db.attendance.bulkPut(bulk);
+                showToast("শিক্ষক হাজিরা সফলভাবে সংরক্ষিত হয়েছে!", "success");
+                if (typeof updatePendingCount === 'function') await updatePendingCount();
+                if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+            } catch(e) {
+                console.error("হাজিরা সেভ ত্রুটি:", e);
+                showToast("হাজিরা সেভ করতে সমস্যা হয়েছে!", "error");
+            }
+        }
+    };
+
+    // শিক্ষক দৈনিক হাজিরা A4 PDF
+    window.downloadTeacherDailyAttendancePDF = async function() {
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const date = sanitizeDateString(document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString());
+
+        let pCount = 0, aCount = 0, lCount = 0, leaveCount = 0;
+        const rowsHtml = allTeachers.map((t, i) => {
+            const att = teacherAttendanceMap[t.id] || { status: "Present", note: "" };
+            let statusLabel = 'উপস্থিত';
+            let statusColor = '#065f46';
+            if (att.status === 'Absent') { statusLabel = 'অনুপস্থিত'; statusColor = '#b91c1c'; aCount++; }
+            else if (att.status === 'Late') { statusLabel = 'বিলম্ব'; statusColor = '#d97706'; lCount++; }
+            else if (att.status === 'Leave') { statusLabel = 'ছুটি'; statusColor = '#7e22ce'; leaveCount++; }
+            else { pCount++; }
+
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px 8px; text-align: center;">${i + 1}</td>
+                    <td style="padding: 6px 8px; font-family: 'Inter', sans-serif; font-weight: bold; color: #064e3b;">${t.id}</td>
+                    <td style="padding: 6px 8px;"><strong>${t.name}</strong></td>
+                    <td style="padding: 6px 8px; font-weight: bold;">${t.designation}</td>
+                    <td style="padding: 6px 8px; text-align: center; font-weight: bold; color: ${statusColor};">${statusLabel}</td>
+                    <td style="padding: 6px 8px; font-size: 9.5px; color: #4b5563;">${att.note || '-'}</td>
+                </tr>`;
+        }).join('');
+
+        const container = document.getElementById('hidden-teacher-daily-att-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 16px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 10px;">
+                    <h2 style="font-size: 19px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10.5px; color: #4b5563; margin: 2px 0;">${mAddr}</p>
+                    <h3 style="font-size: 13px; font-weight: bold; color: #1f2937; margin: 6px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        দৈনিক শিক্ষক হাজিরা রিপোর্ট
+                    </h3>
+                    <p style="font-size: 9.5px; color: #64748b; margin: 3px 0 0 0;">তারিখ: ${date}</p>
+                </div>
+
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 10px; display: grid; grid-template-columns: repeat(4, 1fr); text-align: center;">
+                    <div><strong>মোট শিক্ষক:</strong> ${allTeachers.length} জন</div>
+                    <div style="color: #059669;"><strong>উপস্থিত:</strong> ${pCount} জন</div>
+                    <div style="color: #dc2626;"><strong>অনুপস্থিত:</strong> ${aCount} জন</div>
+                    <div style="color: #d97706;"><strong>বিলম্ব/ছুটি:</strong> ${lCount + leaveCount} জন</div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 6px; width: 30px; text-align: center;">#</th>
+                            <th style="padding: 6px; width: 60px;">আইডি</th>
+                            <th style="padding: 6px;">শিক্ষকের নাম</th>
+                            <th style="padding: 6px;">পদবী</th>
+                            <th style="padding: 6px; text-align: center; width: 80px;">স্ট্যাটাস</th>
+                            <th style="padding: 6px;">নোট/কারণ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>`;
+
+        const opt = {
+            margin: [6, 6, 6, 6],
+            filename: `Teacher_Daily_Attendance_${date}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        showToast("হাজিরা রিপোর্ট প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("হাজিরা রিপোর্ট ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // শিক্ষক মাসিক রেজিস্টার A4 Landscape PDF
+    window.downloadTeacherMonthlyRegisterPDF = async function() {
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const monthVal = document.getElementById('teacher-register-month')?.value || '01';
+        const yearVal = new Date().getFullYear().toString();
+
+        const monthNames = { "01":"জানুয়ারি","02":"ফেব্রুয়ারি","03":"মার্চ","04":"এপ্রিল","05":"মে","06":"জুন","07":"জুলাই","08":"আগস্ট","09":"সেপ্টেম্বর","10":"অক্টোবর","11":"নভেম্বর","12":"ডিসেম্বর" };
+        const monthName = monthNames[monthVal] || monthVal;
+
+        const daysInMonth = new Date(parseInt(yearVal), parseInt(monthVal), 0).getDate();
+        const monthPrefix = `${yearVal}-${monthVal}`;
+
+        const allAttendance = await db.attendance.toArray();
+        const teacherAttList = allAttendance.filter(a => {
+            if (a.is_deleted === 1 || !a.attendance_id.startsWith('T_ATT_') || !a.date) return false;
+            return sanitizeDateString(a.date).startsWith(monthPrefix);
+        });
+
+        const lookup = {};
+        teacherAttList.forEach(a => {
+            const tId = a.student_id;
+            lookup[`${tId}_${sanitizeDateString(a.date)}`] = a.status;
+        });
+
+        let rowsHtml = '';
+        allTeachers.forEach((t, i) => {
+            let pCount = 0, aCount = 0;
+            rowsHtml += `
+                <tr style="border-bottom: 1px solid #cbd5e1;">
+                    <td style="padding: 4px 6px; font-weight: bold; border-right: 1px solid #cbd5e1; max-width: 140px; overflow: hidden; white-space: nowrap;">${t.name} <small style="color: #64748b;">(${t.designation})</small></td>`;
+            
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${yearVal}-${monthVal}-${String(d).padStart(2, '0')}`;
+                const st = lookup[`${t.id}_${dateStr}`];
+                let cell = '-';
+                let color = '#94a3b8';
+                if (st === 'Present') { cell = 'P'; color = '#065f46'; pCount++; }
+                else if (st === 'Absent') { cell = 'A'; color = '#b91c1c'; aCount++; }
+                else if (st === 'Late') { cell = 'L'; color = '#d97706'; }
+                else if (st === 'Leave') { cell = 'V'; color = '#7e22ce'; }
+
+                rowsHtml += `<td style="border-right: 1px solid #e2e8f0; width: 22px; font-weight: bold; color: ${color};">${cell}</td>`;
+            }
+            rowsHtml += `<td style="border-right: 1px solid #cbd5e1; font-weight: bold; color: #065f46;">${pCount}</td><td style="font-weight: bold; color: #b91c1c;">${aCount}</td></tr>`;
+        });
+
+        let thDays = '';
+        for (let d = 1; d <= daysInMonth; d++) {
+            thDays += `<th style="border-right: 1px solid #cbd5e1; width: 20px; font-family: 'Inter', sans-serif;">${d}</th>`;
+        }
+
+        const container = document.getElementById('hidden-teacher-monthly-register-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 12px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 6px; margin-bottom: 8px;">
+                    <h2 style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10px; color: #4b5563; margin: 1px 0;">${mAddr}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 4px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        শিক্ষক মাসিক হাজিরা রেজিস্টার শিট — ${monthName} ${yearVal}
+                    </h3>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: center; border: 1px solid #cbd5e1;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 5px; width: 140px; text-align: left; border-right: 1px solid #cbd5e1;">শিক্ষকের নাম ও পদবী</th>
+                            ${thDays}
+                            <th style="border-right: 1px solid #cbd5e1; width: 30px;">P</th>
+                            <th style="width: 30px;">A</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 9px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">হিসাবরক্ষক</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 2px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Teacher_Monthly_Register_${monthName}_${yearVal}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        showToast("মাসিক রেজিস্টার প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("মাসিক রেজিস্টার ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // ৩. পে-রোল ও স্যালারি লেজার
+    window.renderTeacherPayroll = async function() {
+        const month = document.getElementById('payroll-month-select')?.value || 'জানুয়ারি';
+        const tbody = document.getElementById('teacher-payroll-table-body');
+        if (!tbody) return;
+
+        if (allTeachers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400 font-bold">কোনো শিক্ষক পাওয়া যায়নি।</td></tr>`;
+            return;
+        }
+
+        try {
+            const allExpenses = await db.expenses.toArray();
+            const paidMap = {};
+            allExpenses.forEach(e => {
+                if (e.is_deleted !== 1 && e.category === 'শিক্ষকের বেতন' && e.description && e.description.includes(month)) {
+                    if (e.teacher_id) paidMap[e.teacher_id] = e;
+                }
+            });
+
+            let totalBudget = 0;
+            let totalPaid = 0;
+            let html = '';
+
+            allTeachers.forEach(t => {
+                const baseSal = parseFloat(t.basic_salary || 0);
+                totalBudget += baseSal;
+
+                const paidObj = paidMap[t.id];
+                if (paidObj) totalPaid += parseFloat(paidObj.amount || 0);
+
+                const statusBadge = paidObj 
+                    ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]"><i class="fa-solid fa-circle-check"></i> পরিশোধিত (${paidObj.date})</span>`
+                    : `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-full text-[10px]"><i class="fa-solid fa-clock"></i> বকেয়া</span>`;
+
+                const payActions = paidObj
+                    ? `<div class="flex gap-1 justify-end">
+                        <button onclick="window.viewPaySlipFromExpense('${paidObj.expense_id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-receipt"></i> পে-স্লিপ</button>
+                        <button onclick="window.sendSalaryVoucherToWhatsApp('${t.id}', '${month}', '${paidObj.amount}', '${paidObj.expense_id}')" class="bg-green-50 hover:bg-green-100 text-green-700 p-1.5 rounded-lg text-xs cursor-pointer" title="হোয়াটসঅ্যাপ কনফার্মেশন"><i class="fa-brands fa-whatsapp"></i></button>
+                       </div>`
+                    : `<button onclick="window.openPaySalaryModal('${t.id}', '${month}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1 ml-auto cursor-pointer"><i class="fa-solid fa-hand-holding-dollar"></i> বেতন প্রদান</button>`;
+
+                html += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 transition text-gray-700">
+                        <td class="px-3 py-2.5 font-bold text-gray-900">${t.name}</td>
+                        <td class="px-3 py-2.5 font-bold text-emerald-850">${t.designation}</td>
+                        <td class="px-3 py-2.5 font-bold font-en text-gray-800">৳ ${baseSal.toLocaleString('bn-BD')}</td>
+                        <td class="px-3 py-2.5 font-bold font-en text-emerald-800">৳ ${paidObj ? parseFloat(paidObj.amount).toLocaleString('bn-BD') : '০'}</td>
+                        <td class="px-3 py-2.5">${statusBadge}</td>
+                        <td class="px-3 py-2.5 text-right">${payActions}</td>
+                    </tr>`;
+            });
+
+            tbody.innerHTML = html;
+
+            document.getElementById('payroll-stat-teachers').textContent = allTeachers.length.toLocaleString('bn-BD');
+            document.getElementById('payroll-stat-budget').textContent = totalBudget.toLocaleString('bn-BD');
+            document.getElementById('payroll-stat-paid').textContent = totalPaid.toLocaleString('bn-BD');
+            document.getElementById('payroll-stat-due').textContent = (totalBudget - totalPaid).toLocaleString('bn-BD');
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    window.openPaySalaryModal = function(teacherId, month) {
+        const t = allTeachers.find(item => item.id === teacherId);
+        if (!t) return;
+
+        document.getElementById('modal-pay-teacher-id').value = t.id;
+        document.getElementById('modal-pay-month').value = month;
+        document.getElementById('modal-pay-teacher-name').textContent = t.name;
+        document.getElementById('modal-pay-teacher-desig').textContent = `${t.designation} (আইডি: ${t.id})`;
+
+        document.getElementById('modal-pay-base').value = t.basic_salary || 0;
+        document.getElementById('modal-pay-allowance').value = '0';
+        document.getElementById('modal-pay-deduction').value = '0';
+        document.getElementById('modal-pay-date').value = window.getLocalDateString();
+        document.getElementById('modal-pay-note').value = '';
+
+        window.calculateNetSalary();
+        document.getElementById('pay-salary-modal').classList.remove('hidden');
+    };
+
+    window.calculateNetSalary = function() {
+        const base = parseFloat(document.getElementById('modal-pay-base').value) || 0;
+        const allowance = parseFloat(document.getElementById('modal-pay-allowance').value) || 0;
+        const deduction = parseFloat(document.getElementById('modal-pay-deduction').value) || 0;
+
+        const net = Math.max(0, base + allowance - deduction);
+        document.getElementById('modal-pay-net').textContent = net.toLocaleString('bn-BD');
+    };
+
+    async function handleSalaryPaymentSubmit() {
+        const tId = document.getElementById('modal-pay-teacher-id').value;
+        const month = document.getElementById('modal-pay-month').value;
+        const t = allTeachers.find(item => item.id === tId);
+        if (!t) return;
+
+        const base = parseFloat(document.getElementById('modal-pay-base').value) || 0;
+        const allowance = parseFloat(document.getElementById('modal-pay-allowance').value) || 0;
+        const deduction = parseFloat(document.getElementById('modal-pay-deduction').value) || 0;
+        const net = Math.max(0, base + allowance - deduction);
+
+        const method = document.getElementById('modal-pay-method').value;
+        const payDate = document.getElementById('modal-pay-date').value;
+        const note = document.getElementById('modal-pay-note').value.trim();
+
+        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
+        const curUser = user ? user.username : "system";
+        const voucherId = "PAY-" + Date.now().toString().slice(-6);
+
+        const expenseObj = {
+            expense_id: voucherId,
+            branch: "মূল ক্যাম্পাস",
+            category: "শিক্ষকের বেতন",
+            teacher_id: tId,
+            amount: net,
+            base_salary: base,
+            allowance: allowance,
+            deduction: deduction,
+            method: method,
+            paid_to: t.name,
+            date: payDate,
+            description: `${month} মাসের বেতন (ভাতা: ৳${allowance}, কর্তন: ৳${deduction}) ${note ? `| নোট: ${note}` : ''}`,
+            created_by: curUser,
+            updated_by: curUser,
+            is_synced: 0,
+            is_deleted: 0
+        };
+
+        try {
+            await db.expenses.add(expenseObj);
+            showToast(`${t.name}-এর বেতন সফলভাবে পরিশোধ করা হয়েছে!`, "success");
+            document.getElementById('pay-salary-modal').classList.add('hidden');
+
+            if (typeof updatePendingCount === 'function') await updatePendingCount();
+            await window.renderTeacherPayroll();
+
+            window.showTeacherPaySlipModal({
+                voucher_id: voucherId,
+                teacher: t,
+                month: month,
+                date: payDate,
+                base: base,
+                allowance: allowance,
+                deduction: deduction,
+                net: net,
+                method: method,
+                note: note
+            });
+
+            if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+
+        } catch (err) {
+            console.error(err);
+            showToast("বেতন পরিশোধ ডাটা সেভ করতে ব্যর্থ!", "error");
+        }
+    }
+
+    // A5 পে-স্লিপ মডাল
+    window.showTeacherPaySlipModal = async function(data) {
+        activePaySlipData = data;
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const logoUrl = config.madrasah_logo || '';
+
+        const printArea = document.getElementById('pay-slip-print');
+        printArea.innerHTML = `
+            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-2">
+                <div class="flex items-center gap-2">
+                    ${logoUrl ? `<img class="w-10 h-10 rounded-xl object-cover border border-emerald-200" crossorigin="anonymous" src="${logoUrl}">` : '<div class="w-10 h-10 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-mosque"></i></div>'}
+                    <div>
+                        <h2 class="text-sm font-bold text-emerald-950">${mName}</h2>
+                        <p class="text-[9px] text-gray-500">${mAddr}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="bg-emerald-850 text-white px-2.5 py-0.5 rounded text-[10px] font-bold">বেতন পরিশোধ পে-স্লিপ</span>
+                    <p class="text-[8.5px] text-gray-500 mt-0.5 font-en font-bold">ভাউচার: ${data.voucher_id}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-y-1 py-1.5 bg-emerald-50/40 p-2 rounded-lg text-[10px] border border-emerald-100 my-1.5">
+                <div><span class="text-gray-500">শিক্ষক:</span> <strong class="text-gray-900">${data.teacher.name}</strong></div>
+                <div><span class="text-gray-500">পদবী:</span> <strong>${data.teacher.designation} (${data.teacher.id})</strong></div>
+                <div><span class="text-gray-500">বেতনের মাস:</span> <strong class="text-emerald-900">${data.month}</strong></div>
+                <div><span class="text-gray-500">তারিখ:</span> <strong class="font-en">${data.date}</strong></div>
+            </div>
+
+            <table class="w-full text-left text-[10px] border-t border-b border-dashed border-gray-300 py-1 my-1.5 font-en">
+                <thead>
+                    <tr class="font-bold text-gray-700">
+                        <th class="py-1">বিবরণ (Salary Breakdown)</th>
+                        <th class="py-1 text-right">টাকা (Amount)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dashed divide-gray-200">
+                    <tr><td class="py-1">মূল বেতন (Basic Salary)</td><td class="py-1 text-right">৳ ${data.base}</td></tr>
+                    ${data.allowance ? `<tr><td class="py-1 text-emerald-700">বোনাস / ভাতা (+)</td><td class="py-1 text-right text-emerald-700">+ ৳ ${data.allowance}</td></tr>` : ''}
+                    ${data.deduction ? `<tr><td class="py-1 text-rose-700">অনুপস্থিতি / অগ্রিম কর্তন (-)</td><td class="py-1 text-right text-rose-700">- ৳ ${data.deduction}</td></tr>` : ''}
+                </tbody>
+            </table>
+
+            <div class="flex justify-between font-bold text-xs text-emerald-900 pt-1 border-t">
+                <span>সর্বমোট প্রদেয় বেতন (${data.method || 'ক্যাশ'}):</span>
+                <span class="text-sm font-extrabold text-emerald-800 font-en">৳ ${data.net.toLocaleString('bn-BD')}</span>
+            </div>
+
+            ${data.note ? `<div class="text-[9px] italic text-gray-500 mt-1">মন্তব্য: ${data.note}</div>` : ''}
+
+            <div class="flex justify-between items-center text-[8.5px] text-gray-500 pt-6 mt-3 border-t">
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">শিক্ষকের স্বাক্ষর</div>
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">হিসাবরক্ষক</div>
+                <div class="text-center w-24 border-t pt-0.5 border-emerald-800 text-emerald-800 font-bold">মুহতামিম</div>
+            </div>`;
+
+        document.getElementById('pay-slip-modal').classList.remove('hidden');
+    };
+
+    window.viewPaySlipFromExpense = async function(voucherId) {
+        try {
+            const exp = await db.expenses.get(voucherId);
+            if (!exp) return;
+
+            const t = allTeachers.find(item => item.id === exp.teacher_id) || { id: exp.teacher_id, name: exp.paid_to, designation: 'শিক্ষক' };
+            const monthMatch = (exp.description || '').match(/(\S+)\s*মাসের বেতন/);
+            const month = monthMatch ? monthMatch[1] : 'বেতন';
+
+            window.showTeacherPaySlipModal({
+                voucher_id: exp.expense_id,
+                teacher: t,
+                month: month,
+                date: exp.date,
+                base: exp.base_salary || exp.amount,
+                allowance: exp.allowance || 0,
+                deduction: exp.deduction || 0,
+                net: exp.amount,
+                method: exp.method || 'ক্যাশ',
+                note: exp.description
+            });
+        } catch(e){}
+    };
+
+    window.downloadTeacherPaySlipPDF = function() {
+        if (!activePaySlipData) return;
+        const element = document.getElementById('pay-slip-print');
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `${activePaySlipData.voucher_id}_Salary_Slip.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        showToast("A5 পে-স্লিপ পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast("পে-স্লিপ পিডিএফ ডাউনলোড সম্পন্ন!", "success");
+        });
+    };
+
+    // A4 Landscape মাসিক পে-রোল রিপোর্ট PDF
+    window.downloadMonthlyPayrollReportPDF = async function() {
+        const month = document.getElementById('payroll-month-select')?.value || 'জানুয়ারি';
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+
+        const allExpenses = await db.expenses.toArray();
+        const paidMap = {};
+        allExpenses.forEach(e => {
+            if (e.is_deleted !== 1 && e.category === 'শিক্ষকের বেতন' && e.description && e.description.includes(month)) {
+                if (e.teacher_id) paidMap[e.teacher_id] = e;
+            }
+        });
+
+        let totalBase = 0, totalPaid = 0;
+        const rowsHtml = allTeachers.map((t, i) => {
+            const base = parseFloat(t.basic_salary || 0);
+            totalBase += base;
+            const paid = paidMap[t.id];
+            const net = paid ? parseFloat(paid.amount) : 0;
+            if (paid) totalPaid += net;
+
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 6px; text-align: center;">${i + 1}</td>
+                    <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; font-weight: bold; color: #064e3b;">${t.id}</td>
+                    <td style="padding: 5px 6px;"><strong>${t.name}</strong></td>
+                    <td style="padding: 5px 6px;">${t.designation}</td>
+                    <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; text-align: right;">৳ ${base.toLocaleString('bn-BD')}</td>
+                    <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; text-align: right; font-weight: bold; color: #064e3b;">৳ ${net.toLocaleString('bn-BD')}</td>
+                    <td style="padding: 5px 6px; text-align: center; font-weight: bold; color: ${paid ? '#065f46' : '#b91c1c'};">${paid ? `পরিশোধিত (${paid.method})` : 'বকেয়া'}</td>
+                    <td style="padding: 5px 6px; width: 100px; border-bottom: 1px dashed #94a3b8;"></td>
+                </tr>`;
+        }).join('');
+
+        const container = document.getElementById('hidden-monthly-payroll-report-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 14px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 6px; margin-bottom: 8px;">
+                    <h2 style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10px; color: #4b5563; margin: 1px 0;">${mAddr}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 4px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        আসাতেজা ও স্টাফ মাসিক পে-রোল শিট — ${month} ${new Date().getFullYear()}
+                    </h3>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 5px; width: 25px; text-align: center;">#</th>
+                            <th style="padding: 5px; width: 50px;">আইডি</th>
+                            <th style="padding: 5px;">শিক্ষকের নাম</th>
+                            <th style="padding: 5px;">পদবী</th>
+                            <th style="padding: 5px; text-align: right;">মূল বেতন</th>
+                            <th style="padding: 5px; text-align: right;">প্রদত্ত বেতন</th>
+                            <th style="padding: 5px; text-align: center;">স্ট্যাটাস</th>
+                            <th style="padding: 5px; text-align: center;">শিক্ষকের স্বাক্ষর</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #ecfdf5; font-weight: bold; border-top: 2px solid #065f46;">
+                            <td colspan="4" style="padding: 5px 6px; text-align: right;">মোট বাজেট ও পরিশোধ:</td>
+                            <td style="padding: 5px 6px; text-align: right; font-family: 'Inter', sans-serif;">৳ ${totalBase.toLocaleString('bn-BD')}</td>
+                            <td style="padding: 5px 6px; text-align: right; font-family: 'Inter', sans-serif; color: #064e3b;">৳ ${totalPaid.toLocaleString('bn-BD')}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 9px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">হিসাবরক্ষক</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 2px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Teacher_Payroll_Report_${month}_${new Date().getFullYear()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        showToast("পে-রোল রিপোর্ট প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("পে-রোল রিপোর্ট ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // হোয়াটসঅ্যাপ বার্তা
+    window.sendTeacherWhatsApp = function(teacherId) {
+        const t = allTeachers.find(item => item.id === teacherId);
+        if (!t) return;
+        let phone = (t.phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ, ${t.name} হুজুর।\n${mName}-এর পক্ষ থেকে সালাম ও শুভেচ্ছা।`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    window.sendTeacherAbsentWhatsApp = function(teacherId) {
+        const t = allTeachers.find(item => item.id === teacherId);
+        if (!t) return;
+        let phone = (t.phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const date = sanitizeDateString(document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString());
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ, ${t.name} হুজুর।\nআজ (${date}) তারিখে মাদরাসায় আপনার উপস্থিতি পাওয়া যায়নি। কোনো জরুরি কারণ বা ছুটি থাকলে অফিসকে অবহিত করার অনুরোধ করা হলো।\n-${mName}`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    window.sendSalaryVoucherToWhatsApp = function(teacherId, month, netSalary, voucherId) {
+        const t = (teacherId && month && netSalary) 
+            ? allTeachers.find(item => item.id === teacherId)
+            : (activePaySlipData ? activePaySlipData.teacher : null);
+        if (!t) return;
+
+        let phone = (t.phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const m = month || (activePaySlipData ? activePaySlipData.month : 'চলতি');
+        const amt = netSalary || (activePaySlipData ? activePaySlipData.net : t.basic_salary);
+        const vId = voucherId || (activePaySlipData ? activePaySlipData.voucher_id : 'EXP');
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+
+        const msg = `মুহতারাম ${t.name} হুজুর,\nআপনার ${m} মাসের বেতন বাবদ সর্বমোট ৳${amt} সফলভাবে পরিশোধ করা হয়েছে।\nভাউচার নম্বর: ${vId}\nজাজাকুমুল্লাহু খাইরান,\n${mName}`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // এক্সেল এক্সপোর্ট ও ইমপোর্ট
+    window.exportTeachersToExcel = function() {
+        if (allTeachers.length === 0) {
+            showToast("কোনো শিক্ষকের তথ্য পাওয়া যায়নি!", "error");
+            return;
+        }
+
+        const data = allTeachers.map(t => ({
+            'ID': t.id,
+            'Name': t.name,
+            'Designation': t.designation,
+            'Phone': t.phone,
+            'Basic Salary': t.basic_salary,
+            'Joining Date': t.joining_date,
+            'NID': t.nid || '',
+            'Qualification': t.qualification || ''
+        }));
+
+        try {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Teachers");
+            XLSX.writeFile(wb, `Teachers_List_${window.getLocalDateString()}.xlsx`);
+            showToast("এক্সেল ফাইল ডাউনলোড শুরু হয়েছে।", "success");
+        } catch (err) {
+            showToast("এক্সেল ফাইল তৈরিতে সমস্যা হয়েছে!", "error");
+        }
+    };
+
+    window.importTeachersFromExcel = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+                const curUser = window.currentUser ? window.currentUser.username : "system";
+                const importData = jsonData.map((row, i) => ({
+                    id: row['ID'] ? row['ID'].toString() : 'T-' + (Date.now() + i),
+                    name: (row['Name'] || 'অজানা').toString(),
+                    designation: (row['Designation'] || 'উস্তাদ').toString(),
+                    phone: (row['Phone'] || '').toString(),
+                    basic_salary: parseFloat(row['Basic Salary']) || 0,
+                    joining_date: (row['Joining Date'] || window.getLocalDateString()).toString(),
+                    nid: (row['NID'] || '').toString(),
+                    qualification: (row['Qualification'] || '').toString(),
+                    is_synced: 0,
+                    is_deleted: 0,
+                    created_by: curUser,
+                    updated_by: curUser
+                }));
+
+                await db.teachers.bulkPut(importData);
+                showToast(`${importData.length} জন শিক্ষকের ডাটা ইমপোর্ট হয়েছে!`, "success");
+                if (typeof updatePendingCount === 'function') await updatePendingCount();
+                await window.loadTeachersData();
+            } catch (err) {
+                showToast("ফাইল ইমপোর্টে সমস্যা হয়েছে!", "error");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+})();
+</script>

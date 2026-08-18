@@ -1,0 +1,356 @@
+// ============================================
+// ১. doGet ফাংশন (ডাটা পুলিং ও ইন্সটলেশন চেক)
+// ============================================
+function doGet(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(3000); 
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var action = e.parameter ? e.parameter.action : "";
+    
+    // ১.১ মাদরাসার কনফিগারেশন করা আছে কি না চেক করা (Installer Check)
+    if (action === "check_installation") {
+      var settingsSheet = ss.getSheetByName("Settings");
+      if (!settingsSheet || settingsSheet.getLastRow() <= 1) {
+        return jsonResponse({ status: "success", is_installed: false });
+      }
+      return jsonResponse({ status: "success", is_installed: true });
+    }
+    
+    // ১.২ নির্দিষ্ট একটি টেবিলের ডাটা রিড করা
+    if (action === "get_sheet") {
+      var sheetName = e.parameter.sheetName;
+      if (!sheetName) {
+        return jsonResponse({ status: "error", message: "sheetName parameter is required" });
+      }
+      var data = getSheetDataGeneric(ss, sheetName);
+      return jsonResponse({ status: "success", data: data });
+    }
+    
+    // ১.৩ স্প্রেডশিটের সকল টেবিল একসাথে ফ্রন্টএন্ডে পাঠানো
+    var result = {};
+    var sheets = ss.getSheets();
+    sheets.forEach(function(sheet) {
+      var name = sheet.getName();
+      result[name] = getSheetDataGeneric(ss, name);
+    });
+    
+    return jsonResponse({
+      status: "success",
+      data: result
+    });
+    
+  } catch (error) {
+    return jsonResponse({ status: "error", message: "ডেটা রিড করতে ব্যর্থ: " + error.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// শিটের ডাটা রিড করার ডাইনামিক হেল্পার ফাংশন
+function getSheetDataGeneric(ss, sheetName) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
+  
+  var dataRange = sheet.getDataRange();
+  var data = dataRange.getDisplayValues();
+  var headers = data[0] || [];
+  
+  if (headers.length === 0) return [];
+  
+  var result = [];
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      var header = headers[j];
+      if (header) {
+        obj[header] = (row[j] !== undefined && row[j] !== "") ? row[j] : "";
+      }
+    }
+    result.push(obj);
+  }
+  return result;
+}
+
+// ============================================
+// ২. doPost ফাংশন (সিঙ্ক, পিন ভেরিফিকেশন ও অভিভাবক পোর্টাল)
+// ============================================
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000); 
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    var params = {};
+    try {
+      params = JSON.parse(e.postData.contents);
+    } catch(err) {
+      params = parseUrlEncoded(e.postData.contents);
+    }
+    
+    var action = params.action;
+    
+    // ২.১ ইউজার ভেরিফিকেশন (মুহতামিম, হিসাবরক্ষক, নাযিম, শিক্ষক)
+    if (action === "verify_user") {
+      return handleUserVerification(ss, params);
+    }
+    
+    // ২.২ অভিভাবক পোর্টাল ডাটা ফেচিং এপিআই (Parent Portal Verification)
+    if (action === "parent_portal_fetch") {
+      return handleParentPortalFetch(ss, params);
+    }
+    
+    // ২.৩ ডাইনামিক ডাটা সিঙ্ক্রোনাইজেশন ফ্লো
+    if (action === "sync") {
+      var sheetName = params.sheetName;
+      var rows = typeof params.rows === 'string' ? JSON.parse(params.rows) : params.rows;
+      
+      if (!sheetName || !rows || !Array.isArray(rows)) {
+        return jsonResponse({ status: "error", message: "Invalid payload: sheetName and rows are required." });
+      }
+      
+      var sheet = ss.getSheetByName(sheetName);
+      if (!sheet) {
+        sheet = ss.insertSheet(sheetName);
+        if (rows.length > 0) {
+          sheet.appendRow(Object.keys(rows[0]));
+        }
+      }
+      
+      var dataRange = sheet.getDataRange();
+      var data = dataRange.getValues();
+      var headers = data[0] || [];
+      
+      if (headers.length === 0 && rows.length > 0) {
+        headers = Object.keys(rows[0]);
+        sheet.appendRow(headers);
+        data = sheet.getDataRange().getValues();
+        headers = data[0];
+      }
+      
+      // নতুন কলাম তৈরি হ্যান্ডলার
+      var newHeadersFound = false;
+      for (var i = 0; i < rows.length; i++) {
+        var rowKeys = Object.keys(rows[i]);
+        for (var k = 0; k < rowKeys.length; k++) {
+          var key = rowKeys[k];
+          if (headers.indexOf(key) === -1) {
+            headers.push(key);
+            newHeadersFound = true;
+          }
+        }
+      }
+      
+      if (newHeadersFound) {
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+        data = sheet.getDataRange().getValues();
+        headers = data[0];
+      }
+      
+      // *** প্রাইমারি-কি অটো-ডিটেকশন লজিক ***
+      var primaryKey = params.primaryKey;
+      if (!primaryKey) {
+        var possibleKeys = ["id", "receipt_id", "expense_id", "attendance_id", "username", "exam_id"];
+        for (var p = 0; p < possibleKeys.length; p++) {
+          if (headers.indexOf(possibleKeys[p]) !== -1) {
+            primaryKey = possibleKeys[p];
+            break;
+          }
+        }
+      }
+      if (!primaryKey) primaryKey = "id";
+      
+      var idColIndex = headers.indexOf(primaryKey);
+      if (idColIndex === -1 && rows.length > 0) {
+        return jsonResponse({ status: "error", message: "Key column not found: " + primaryKey });
+      }
+      
+      // ইন-মেমোরি হ্যাশ ম্যাপ
+      var rowMap = {};
+      for (var r = 1; r < data.length; r++) {
+        var idValue = data[r][idColIndex];
+        if (idValue !== undefined && idValue !== "") {
+          rowMap[idValue] = r + 1; 
+        }
+      }
+      
+      // রো আপডেট বা নতুন রো যোগ করা
+      for (var i = 0; i < rows.length; i++) {
+        var rowData = rows[i];
+        var incomingId = rowData[primaryKey];
+        var isDeleted = parseInt(rowData["is_deleted"]) === 1;
+        
+        var existingRowIndex = rowMap[incomingId] || -1;
+        
+        if (existingRowIndex !== -1) {
+          var updatedValues = [];
+          for (var j = 0; j < headers.length; j++) {
+            var header = headers[j];
+            var val = rowData[header];
+            if (val !== undefined && val !== "") {
+              updatedValues.push(val);
+            } else {
+              updatedValues.push(data[existingRowIndex - 1][j] || "");
+            }
+          }
+          sheet.getRange(existingRowIndex, 1, 1, headers.length).setValues([updatedValues]);
+          data[existingRowIndex - 1] = updatedValues;
+        } else {
+          if (!isDeleted) {
+            var newRow = [];
+            for (var j = 0; j < headers.length; j++) {
+              var header = headers[j];
+              newRow.push(rowData[header] !== undefined ? rowData[header] : "");
+            }
+            sheet.appendRow(newRow);
+            var newRowIndex = sheet.getLastRow();
+            rowMap[incomingId] = newRowIndex;
+            data.push(newRow);
+          }
+        }
+      }
+      
+      return jsonResponse({ status: "success" });
+    }
+    
+    return jsonResponse({ status: "error", message: "Unknown action: " + action });
+    
+  } catch (error) {
+    return jsonResponse({ status: "error", message: error.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ============================================
+// ৩. ইউজার ভেরিফিকেশন হ্যান্ডলার
+// ============================================
+function handleUserVerification(ss, params) {
+  var username = params.username;
+  var pin = params.pin;
+  
+  var userData = getSheetDataGeneric(ss, "Users");
+  if (userData.length === 0) {
+    if (username === "admin" && pin === "1234") {
+      return jsonResponse({ status: "success", role: "muhtamim", fullname: "মাস্টার এডমিন" });
+    } else {
+      return jsonResponse({ status: "error", message: "ডাটাবেজে কোনো ইউজার সেট করা নেই!" });
+    }
+  }
+  
+  var matchedUser = null;
+  for (var i = 0; i < userData.length; i++) {
+    var u = userData[i];
+    if (u.username.toString().trim().toLowerCase() === username.toString().trim().toLowerCase() && 
+        u.pin.toString().trim() === pin.toString().trim() && 
+        parseInt(u.is_deleted) !== 1) {
+      matchedUser = u;
+      break;
+    }
+  }
+  
+  if (matchedUser) {
+    return jsonResponse({
+      status: "success",
+      role: matchedUser.role,
+      fullname: matchedUser.fullname || matchedUser.username
+    });
+  } else {
+    return jsonResponse({ status: "error", message: "ভুল ইউজারনেম অথবা পিন কোড!" });
+  }
+}
+
+// ============================================
+// ৪. অভিভাবক পোর্টাল ডাটা হ্যান্ডলার (Parent Portal API)
+// ============================================
+function handleParentPortalFetch(ss, params) {
+  var studentId = params.student_id;
+  var parentPin = params.parent_pin; // মোবাইল নম্বরের শেষ ৪ ডিজিট
+  
+  if (!studentId || !parentPin) {
+    return jsonResponse({ status: "error", message: "ছাত্র আইডি ও পিন প্রদান করুন।" });
+  }
+  
+var sheets = ss.getSheets();
+var studentsData = [];
+sheets.forEach(function(sh) {
+  var sName = sh.getName();
+  if (/^S\d{4}$/i.test(sName) || sName.toLowerCase() === "students") {
+    studentsData = studentsData.concat(getSheetDataGeneric(ss, sName));
+  }
+});
+var targetStudent = null;
+  
+  for (var i = 0; i < studentsData.length; i++) {
+    var s = studentsData[i];
+    if (s.id.toString().trim() === studentId.toString().trim() && parseInt(s.is_deleted) !== 1) {
+      var phone = (s.parent_phone || "").toString().replace(/\D/g, '');
+      var last4Digits = phone.length >= 4 ? phone.substring(phone.length - 4) : "";
+      
+      // অভিভাবকের ৪ ডিজিট পিন অথবা মোবাইলের শেষ ৪ ডিজিট মিলিয়ে দেখা
+      if (last4Digits === parentPin.toString().trim() || s.parent_pin === parentPin.toString().trim()) {
+        targetStudent = s;
+        break;
+      }
+    }
+  }
+  
+  if (!targetStudent) {
+    return jsonResponse({ status: "error", message: "ভুল আইডি অথবা পিন কোড প্রদান করা হয়েছে।" });
+  }
+  
+  // অভিভাবকের জন্য নির্দিষ্ট ডাটা ফিল্টার করে সংগ্রহ
+  var feesData = getSheetDataGeneric(ss, "Fees").filter(function(f) {
+    return f.student_id === studentId && parseInt(f.is_deleted) !== 1;
+  });
+  
+  var attendanceData = getSheetDataGeneric(ss, "Attendance").filter(function(a) {
+    return a.student_id === studentId && parseInt(a.is_deleted) !== 1;
+  });
+  
+  var marksData = getSheetDataGeneric(ss, "Marks").filter(function(m) {
+    return m.student_id === studentId && parseInt(m.is_deleted) !== 1;
+  });
+  
+  var settingsData = getSheetDataGeneric(ss, "Settings");
+  var madrasahInfo = settingsData.length > 0 ? settingsData[0] : {};
+  
+  return jsonResponse({
+    status: "success",
+    student: targetStudent,
+    fees: feesData,
+    attendance: attendanceData,
+    marks: marksData,
+    madrasah: {
+      name: madrasahInfo.madrasah_name || "",
+      address: madrasahInfo.madrasah_address || "",
+      phone: madrasahInfo.madrasah_phone || "",
+      logo: madrasahInfo.madrasah_logo || ""
+    },
+    last_updated: new Date().toLocaleString('bn-BD')
+  });
+}
+
+// URL-encoded ডাটা পার্সিং হেল্পার
+function parseUrlEncoded(data) {
+  var result = {};
+  if (!data) return result;
+  var pairs = data.split('&');
+  for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i].split('=');
+    var key = decodeURIComponent(pair[0].replace(/\+/g, ' '));
+    var value = decodeURIComponent((pair[1] || '').replace(/\+/g, ' '));
+    result[key] = value;
+  }
+  return result;
+}
+
+// JSON রেসপন্স পাঠানোর স্ট্যান্ডার্ড হেল্পার
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}

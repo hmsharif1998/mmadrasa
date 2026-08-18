@@ -1,11 +1,22 @@
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    #attendance-container {
-        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+<!-- Google Fonts & html2pdf.js CDN (পিডিএফ ও ফন্ট অপ্টিমাইজেশন) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    #attendance-container, .bangla-font {
+        font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
     .font-en {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif !important;
+    }
+    .font-mono-receipt {
+        font-family: 'JetBrains Mono', monospace !important;
     }
     .custom-scroll::-webkit-scrollbar {
         width: 4px;
@@ -17,161 +28,220 @@
     }
 </style>
 
-<div id="attendance-container" class="space-y-6">
+<div id="attendance-container" class="space-y-6 bangla-font pb-12">
 
-    <!-- ট্যাব বাটনসমূহ (দৈনিক বনাম মাসিক) -->
-    <div class="flex border-b border-gray-200 mb-5 no-print">
-        <button type="button" onclick="window.switchAttendanceTab('daily')" id="tab-btn-daily" class="py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition">
-            <i class="fa-solid fa-calendar-day mr-1"></i> দৈনিক হাজিরা খাতা
+    <!-- প্রধান ট্যাব নেভিগেশন -->
+    <div class="flex flex-wrap border-b border-gray-200 bg-white p-2 rounded-2xl shadow-sm gap-1">
+        <button type="button" onclick="window.switchAttendanceTab('daily')" id="tab-btn-daily" class="py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl bg-emerald-50/50">
+            <i class="fa-solid fa-calendar-day text-sm"></i> দৈনিক হাজিরা খাতা ও সবক ট্র্যাকার
         </button>
-        <button type="button" onclick="window.switchAttendanceTab('monthly')" id="tab-btn-monthly" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition">
-            <i class="fa-solid fa-calendar-days mr-1"></i> মাসিক রেজিস্টার ও নোট
+        <button type="button" onclick="window.switchAttendanceTab('monthly')" id="tab-btn-monthly" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-calendar-days text-sm"></i> মাসিক রেজিস্টার ও লেজার শিট
+        </button>
+        <button type="button" onclick="window.switchAttendanceTab('analytics')" id="tab-btn-analytics" class="py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition flex items-center gap-1.5 cursor-pointer rounded-t-xl">
+            <i class="fa-solid fa-chart-pie text-sm"></i> অ্যানালিটিক্স ও সেরা শিক্ষার্থী
         </button>
     </div>
 
     <!-- ============================================ -->
-    <!-- ১. দৈনিক হাজিরা ট্যাব প্যানেল -->
+    <!-- ১. দৈনিক হাজিরা খাতা ও সবক ট্র্যাকার ট্যাব -->
     <!-- ============================================ -->
-    <div id="attendance-daily-pane" class="space-y-6">
-        <!-- হাজিরার রিয়্যাল-টাইম পরিসংখ্যান কার্ডসমূহ -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 no-print">
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-5 rounded-2xl shadow-sm border border-emerald-100 flex items-center justify-between">
+    <div id="attendance-daily-pane" class="space-y-5">
+        
+        <!-- হাজিরার লাইভ পরিসংখ্যান কার্ডসমূহ -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="bg-blue-50/80 p-3.5 rounded-2xl border border-blue-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-emerald-800 font-bold uppercase tracking-wider">আজকের মোট উপস্থিত</p>
-                    <h4 class="text-3xl font-extrabold text-emerald-950 mt-1 font-en" id="stat-present">0</h4>
+                    <p class="text-[11px] text-blue-800 font-bold uppercase">ফিল্টারকৃত ছাত্র</p>
+                    <h4 class="text-2xl font-extrabold text-blue-950 mt-0.5 font-en" id="stat-total">0</h4>
                 </div>
-                <div class="bg-emerald-600 text-white p-3.5 rounded-full shadow-md shadow-emerald-500/10">
-                    <i class="fa-solid fa-circle-check text-xl"></i>
+                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-users text-sm"></i>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-5 rounded-2xl shadow-sm border border-rose-100 flex items-center justify-between">
+            <div class="bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-rose-800 font-bold uppercase tracking-wider">আজকের অনুপস্থিত</p>
-                    <h4 class="text-3xl font-extrabold text-rose-950 mt-1 font-en" id="stat-absent">0</h4>
+                    <p class="text-[11px] text-emerald-800 font-bold uppercase">আজকের উপস্থিত</p>
+                    <h4 class="text-2xl font-extrabold text-emerald-950 mt-0.5 font-en" id="stat-present">0</h4>
                 </div>
-                <div class="bg-rose-600 text-white p-3.5 rounded-full shadow-md shadow-rose-500/10">
-                    <i class="fa-solid fa-circle-xmark text-xl"></i>
+                <div class="bg-emerald-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-circle-check text-sm"></i>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 p-5 rounded-2xl shadow-sm border border-amber-100 flex items-center justify-between">
+            <div class="bg-rose-50/80 p-3.5 rounded-2xl border border-rose-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-amber-800 font-bold uppercase tracking-wider">আজকের বিলম্ব (Late)</p>
-                    <h4 class="text-3xl font-extrabold text-amber-950 mt-1 font-en" id="stat-late">0</h4>
+                    <p class="text-[11px] text-rose-800 font-bold uppercase">অনুপস্থিত</p>
+                    <h4 class="text-2xl font-extrabold text-rose-950 mt-0.5 font-en" id="stat-absent">0</h4>
                 </div>
-                <div class="bg-amber-500 text-white p-3.5 rounded-full shadow-md shadow-amber-500/10">
-                    <i class="fa-solid fa-clock text-xl"></i>
+                <div class="bg-rose-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-circle-xmark text-sm"></i>
                 </div>
             </div>
 
-            <!-- গড় উপস্থিতির হার -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col justify-center">
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">উপস্থিতির গড় হার</p>
-                    <span id="stat-ratio" class="text-sm font-extrabold text-emerald-700 font-en">0%</span>
+            <div class="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-amber-800 font-bold uppercase">বিলম্ব (Late)</p>
+                    <h4 class="text-2xl font-extrabold text-amber-950 mt-0.5 font-en" id="stat-late">0</h4>
                 </div>
-                <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
+                <div class="bg-amber-500 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-clock text-sm"></i>
+                </div>
+            </div>
+
+            <div class="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-purple-800 font-bold uppercase">ছুটি (Leave)</p>
+                    <h4 class="text-2xl font-extrabold text-purple-950 mt-0.5 font-en" id="stat-leave">0</h4>
+                </div>
+                <div class="bg-purple-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-envelope-open-text text-sm"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-gray-150 flex flex-col justify-center">
+                <div class="flex justify-between items-center mb-1">
+                    <p class="text-[11px] text-gray-500 font-bold">উপস্থিতির হার</p>
+                    <span id="stat-ratio" class="text-xs font-extrabold text-emerald-700 font-en">0%</span>
+                </div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
                     <div id="stat-progress-bar" class="bg-emerald-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ফিল্টারিং প্যানেল -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4 no-print">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <!-- ফিল্টারিং ও স্মার্ট অ্যাকশন টুলবার -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
                 <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-filter text-emerald-600 text-lg"></i> শাখা ও শ্রেণী ফিল্টার করুন
+                    <i class="fa-solid fa-filter text-emerald-600 text-lg"></i> ডাইনামিক ফিল্টারিং ও দ্রুত অ্যাকশন
                 </h3>
-                <button type="button" onclick="window.markAllAsPresent()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 border border-emerald-200">
-                    <i class="fa-solid fa-check-double"></i> সবাইকে উপস্থিত করুন
-                </button>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <button type="button" onclick="window.markAllAsPresent()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 border border-emerald-200 shadow-sm" title="বর্তমান তালিকার সবাইকে উপস্থিত করুন">
+                        <i class="fa-solid fa-check-double"></i> সবাইকে উপস্থিত
+                    </button>
+                    <button type="button" onclick="window.markRemainingAsPresent()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 border border-teal-200 shadow-sm" title="চিহ্নিত না করা বাকিদের উপস্থিত করুন">
+                        <i class="fa-solid fa-user-check"></i> বাকিদের উপস্থিত
+                    </button>
+                    <button type="button" onclick="window.downloadDailyAttendancePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> দৈনিক রিপোর্ট (A4)
+                    </button>
+                    <button type="button" onclick="window.downloadBlankRegisterPDF()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 border border-blue-200 shadow-sm" title="কাগজে লিখে হাজিরা নেওয়ার জন্য খালি ছক">
+                        <i class="fa-solid fa-table-list"></i> খালি রেজিস্টার (A4)
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- ফিল্টার ইনপুট গ্রিড -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">হাজিরার তারিখ *</label>
-                    <input type="date" id="attendance-date" onchange="window.onDateOrFilterChange()"
-                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs font-bold font-en bg-white">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">হাজিরার তারিখ *</label>
+                    <input type="date" id="attendance-date" onchange="window.onDailyFilterChange()"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold font-en bg-white cursor-pointer">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শাখা (Branch) *</label>
-                    <div id="daily-branch-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">শাখা (Branch)</label>
+                    <select id="daily-branch-filter" onchange="window.onDailyBranchFilterChange()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল শাখা</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শ্রেণী/জামাত *</label>
-                    <div id="daily-class-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">জামাত/শ্রেণী</label>
+                    <select id="daily-class-filter" onchange="window.onDailyClassFilterChange()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল জামাত</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">গ্রুপ/সেকশন</label>
-                    <div id="daily-group-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">গ্রুপ/সেকশন</label>
+                    <select id="daily-group-filter" onchange="window.onDailyFilterChange()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল গ্রুপ</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">হাজিরা স্ট্যাটাস ফিল্টার</label>
+                    <select id="daily-status-filter" onchange="window.onDailyFilterChange()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল স্ট্যাটাস</option>
+                        <option value="Present">শুধুমাত্র উপস্থিত</option>
+                        <option value="Absent">শুধুমাত্র অনুপস্থিত</option>
+                        <option value="Late">শুধুমাত্র বিলম্ব</option>
+                        <option value="Leave">ছুটিপ্রাপ্ত (Leave)</option>
+                        <option value="Unmarked">চিহ্নিত না করা (বাকি)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">দ্রুত খুঁজুন</label>
+                    <input type="text" id="daily-search-input" oninput="window.onDailyFilterChange()" placeholder="নাম, রোল, আইডি..."
+                           class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold bg-white focus:border-emerald-500">
                 </div>
             </div>
         </div>
 
-        <!-- দৈনিক হাজিরার তালিকা কন্টেইনার -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
-            
-            <!-- কাস্টম সেভ বাটন প্যানেল (Sticky Header) -->
-            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-150 no-print">
-                <span id="unsaved-warning" class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 hidden animate-pulse">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> অসংরক্ষিত হাজিরা পরিবর্তন বিদ্যমান!
+        <!-- দৈনিক হাজিরার ডাটা টেবিল -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col relative">
+            <div class="flex justify-between items-center pb-3 mb-3 border-b border-gray-150">
+                <span id="unsaved-warning" class="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200 hidden animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> অসংরক্ষিত হাজিরা পরিবর্তন রয়েছে!
                 </span>
-                <button type="button" id="btn-save-attendance" onclick="window.saveCurrentAttendance()" class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-emerald-750/15">
-                    <i class="fa-solid fa-floppy-disk"></i> হাজিরা সেভ করুন
+                <button type="button" id="btn-save-attendance" onclick="window.saveCurrentAttendance()" class="ml-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-6 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-floppy-disk"></i> হাজিরা ও সবক সংরক্ষণ করুন
                 </button>
             </div>
 
-            <!-- ডেস্কটপ টেবিল ভিউ -->
-            <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-150 max-h-[500px] overflow-y-auto custom-scroll">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50 sticky top-0 z-10">
+            <!-- ডেক্সটপ টেবিল ভিউ -->
+            <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-150 max-h-[550px] overflow-y-auto custom-scroll">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 sticky top-0 z-10 font-bold text-gray-500 border-b">
                     <tr>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">রোল ও আইডি</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">শিক্ষার্থীর পরিচিতি</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider">হাজিরা হিস্ট্রি (আজীবন)</th>
-                        <th class="px-4 py-3 text-center font-bold text-gray-400 uppercase tracking-wider w-64">হাজিরা স্ট্যাটাস</th>
-                        <th class="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-wider w-48">হাজিরা মন্তব্য/নোট</th>
-                        <th class="px-4 py-3 text-right font-bold text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+                        <th class="px-3 py-3 text-left w-20">রোল ও আইডি</th>
+                        <th class="px-3 py-3 text-left">তালিবে ইলম</th>
+                        <th class="px-3 py-3 text-left w-36">হাজিরা ইতিহাস ও স্টার</th>
+                        <th class="px-3 py-3 text-center w-64">হাজিরা স্ট্যাটাস</th>
+                        <th class="px-3 py-3 text-left min-w-[220px]">সবক ট্র্যাকার ও শিক্ষকের নোট</th>
+                        <th class="px-3 py-3 text-right w-24">অ্যাকশন</th>
                     </tr>
                     </thead>
-                    <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-100 text-xs">
-                        <tr>
-                            <td colspan="6" class="px-4 py-12 text-center text-gray-400 font-bold">অনুগ্রহ করে উপর থেকে শাখা ও শ্রেণী সিলেক্ট করুন</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-100"></tbody>
                 </table>
             </div>
 
-            <!-- মোবাইলের জন্য টাচ-ফ্রেন্ডলি কার্ড ভিউ -->
-            <div id="attendance-mobile-cards" class="block md:hidden space-y-3.5 max-h-[600px] overflow-y-auto pr-1 custom-scroll">
-                <p class="text-center text-gray-400 py-10 font-bold">হাজিরা লোড করতে প্রথমে শাখা ও শ্রেণী সিলেক্ট করুন</p>
-            </div>
+            <!-- মোবাইল কার্ড ভিউ -->
+            <div id="attendance-mobile-cards" class="block md:hidden space-y-3 max-h-[550px] overflow-y-auto pr-1 custom-scroll"></div>
         </div>
     </div>
 
     <!-- ============================================ -->
-    <!-- ২. মাসিক রেজিস্টার ও নোট ট্যাব প্যানেল -->
+    <!-- ২. মাসিক রেজিস্টার ও লেজার ট্যাব -->
     <!-- ============================================ -->
     <div id="attendance-monthly-pane" class="space-y-6 hidden">
-        <!-- মাসিক ফিল্টার গ্রিড -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4 no-print">
-            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                <i class="fa-solid fa-calendar-week text-emerald-600"></i> রেজিস্টার মাস ও শ্রেণী ফিল্টার করুন
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-week text-emerald-600"></i> রেজিস্টার মাস, বছর ও জামাত নির্বাচন
+                </h3>
+                <button type="button" onclick="window.downloadMonthlyRegisterPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-file-pdf text-sm"></i> মাসিক রেজিস্টার পিডিএফ (A4 Landscape)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">বছর (Year)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">বছর (Year)</label>
                     <select id="monthly-year-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold font-en">
-                        <option value="2026" selected>2026</option>
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold font-en cursor-pointer">
+                        <option value="2026">2026</option>
                         <option value="2027">2027</option>
+                        <option value="2028">2028</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">মাস (Month)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">মাস (Month)</label>
                     <select id="monthly-month-filter" onchange="window.generateMonthlyRegister()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none text-xs bg-white text-gray-700 font-bold">
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
                         <option value="01">জানুয়ারি (01)</option>
                         <option value="02">ফেব্রুয়ারি (02)</option>
                         <option value="03">মার্চ (03)</option>
@@ -187,586 +257,525 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শাখা *</label>
-                    <div id="monthly-branch-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">শাখা *</label>
+                    <select id="monthly-branch-filter" onchange="window.onMonthlyBranchFilterChange()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল শাখা</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">শ্রেণী *</label>
-                    <div id="monthly-class-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">জামাত *</label>
+                    <select id="monthly-class-filter" onchange="window.generateMonthlyRegister()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল জামাত</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">গ্রুপ</label>
-                    <div id="monthly-group-container" class="flex flex-wrap gap-1.5"></div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">গ্রুপ</label>
+                    <select id="monthly-group-filter" onchange="window.generateMonthlyRegister()"
+                            class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white text-gray-700 font-bold cursor-pointer">
+                        <option value="">সকল গ্রুপ</option>
+                    </select>
                 </div>
             </div>
         </div>
 
-        <!-- রেজিস্টার লেজার গ্রিড কন্টেইনার -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-            <div id="monthly-register-wrapper" class="overflow-x-auto rounded-xl border border-gray-150 max-h-[500px] overflow-y-auto custom-scroll">
-                <p class="text-center text-gray-400 py-12 font-bold">মাসিক লেজার গ্রিড দেখতে প্রথমে শাখা ও জামাত সিলেক্ট করুন।</p>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex flex-col">
+            <div id="monthly-register-wrapper" class="overflow-x-auto rounded-xl border border-gray-150 max-h-[550px] overflow-y-auto custom-scroll">
+                <p class="text-center text-gray-400 py-12 font-bold">মাসিক লেজার গ্রিড দেখতে শাখা বা জামাত নির্বাচন করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ৩. অ্যানালিটিক্স ও সেরা শিক্ষার্থী ট্যাব -->
+    <!-- ============================================ -->
+    <div id="attendance-analytics-pane" class="space-y-6 hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-150 space-y-6">
+            <div class="border-b pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-award text-amber-500 text-lg"></i> শতভাগ ও সেরা উপস্থিতির স্বীকৃতি (Punctuality Stars ⭐)
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">চলতি মাসে যেসব তালিবে ইলম ৯৫% বা ততোধিক উপস্থিত রয়েছে তাদের তালিকা</p>
+            </div>
+
+            <div id="star-students-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- ডায়নামিক স্টার কার্ড লোড হবে -->
             </div>
         </div>
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- মডাল ১: হেফজ গত ৭ দিনের সবক হিস্ট্রি পপআপ -->
+<!-- ============================================ -->
+<div id="hifz-history-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-5 max-w-lg w-full shadow-2xl relative border border-gray-150 flex flex-col max-h-[92vh]">
+        <div class="flex justify-between items-center border-b pb-2.5 mb-3">
+            <div>
+                <h4 class="text-sm font-bold text-emerald-900" id="hifz-modal-student-name">ছাত্রের নাম</h4>
+                <p class="text-[10px] text-gray-400 font-en font-bold" id="hifz-modal-student-id">S-1001</p>
+            </div>
+            <span class="bg-emerald-100 text-emerald-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold">গত ৭ দিনের সবক খতিয়ান</span>
+        </div>
+
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <table class="w-full text-left text-xs border border-gray-200">
+                <thead class="bg-gray-50 text-gray-600 font-bold border-b">
+                    <tr>
+                        <th class="p-2">তারিখ</th>
+                        <th class="p-2">সবক</th>
+                        <th class="p-2">৭ সবক</th>
+                        <th class="p-2">আমুখতা</th>
+                        <th class="p-2 text-center">মান</th>
+                    </tr>
+                </thead>
+                <tbody id="hifz-history-tbody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 border-t pt-2.5 text-right">
+            <button onclick="document.getElementById('hifz-history-modal').classList.add('hidden')" class="px-5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition border">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- মডাল ২: একক ছাত্রের A5 হাজিরা রিপোর্ট কার্ড -->
+<!-- ============================================ -->
+<div id="student-report-card-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 max-w-lg w-full shadow-2xl relative border border-gray-150 flex flex-col justify-between max-h-[96vh]">
+        <div class="overflow-y-auto flex-1 custom-scroll pr-1">
+            <div id="student-report-card-print" class="bg-white p-4 space-y-3 text-gray-800 leading-normal bangla-font border border-gray-200 rounded-xl max-w-[140mm] mx-auto text-xs">
+                <!-- ডাইনামিক A5 একক রিপোর্ট লোড হবে -->
+            </div>
+        </div>
+        
+        <div class="mt-3 flex justify-end gap-2 border-t pt-2.5 bg-white">
+            <button onclick="window.downloadSingleStudentAttendanceCardPDF()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-pdf"></i> রিপোর্ট কার্ড পিডিএফ (A5)
+            </button>
+            <button onclick="document.getElementById('student-report-card-modal').classList.add('hidden')" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- হিডেন কনটেইনারসমূহ: PDF রেন্ডারিংয়ের জন্য -->
+<div id="hidden-daily-pdf-area" class="hidden"></div>
+<div id="hidden-monthly-pdf-area" class="hidden"></div>
+<div id="hidden-blank-pdf-area" class="hidden"></div>
+<div id="hidden-single-card-pdf-area" class="hidden"></div>
+
 <script>
 (function() {
+    let allMasterStudents = [];
     let academicStructure = [];
-    let studentsInClass = []; 
-    let tempAttendanceMap = {}; // অসংরক্ষিত বাফার স্টেট ট্র্যাকার (মেমরি অবজেক্ট)   
-    let syncTimeout = null; 
+    let tempAttendanceMap = {}; 
+    let tempHifzMap = {}; 
+    let statsLifetimeMap = {};
     let hasUnsavedChanges = false;
+    let madrasahConfig = {};
+    let activeCardStudent = null;
 
-    // ডিপেন্ডেন্ট ফিল্টারের জন্য স্টেট ট্র্যাকার
-    let selectedDaily = { branch: '', class: '', group: '' };
-    let selectedMonthly = { branch: '', class: '', group: '' };
-
-    // ১. মডিউল প্রধান ইনিশিয়ালাইজার বাইন্ডিং
-    window.initAttendance = async function() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        document.getElementById('attendance-date').value = `${year}-${month}-${day}`;
-
-        document.getElementById('monthly-year-filter').value = year;
-        document.getElementById('monthly-month-filter').value = month;
-
-        const config = await db.settings.get('madrasah_config_block') || {};
-        academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
-        
-        window.populateAttendanceFilters();
-        await window.onDateOrFilterChange();
-    };
-
-    // ডিপেন্ডেন্ট রেডিও বাটন তৈরির জেনারেটর
-    window.populateAttendanceFilters = function() {
-        renderRadioFilters('daily');
-        renderRadioFilters('monthly');
-    };
-
-    function renderRadioFilters(type) {
-        const state = type === 'daily' ? selectedDaily : selectedMonthly;
-        const branchContainer = document.getElementById(`${type}-branch-container`);
-        const classContainer = document.getElementById(`${type}-class-container`);
-        const groupContainer = document.getElementById(`${type}-group-container`);
-
-        if (!branchContainer || !classContainer || !groupContainer) return;
-
-        // ১. শাখা (Branch) রেডিও বাটন
-        let branchHTML = '';
-        academicStructure.forEach(branch => {
-            const isChecked = state.branch === branch.name ? 'checked' : '';
-            const activeClass = state.branch === branch.name 
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
-            branchHTML += `
-                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
-                    <input type="radio" name="${type}-branch" value="${branch.name}" ${isChecked} 
-                        onchange="window.handleRadioChange('${type}', 'branch', '${branch.name}')" class="hidden">
-                    ${branch.name}
-                </label>
-            `;
-        });
-        branchContainer.innerHTML = branchHTML || '<span class="text-xs text-gray-400 font-bold py-1.5">কোনো শাখা পাওয়া যায়নি</span>';
-
-        // ২. শ্রেণী (Class) রেডিও বাটন - শাখার ওপর নির্ভরশীল
-        let classHTML = '';
-        const activeBranchObj = academicStructure.find(b => b.name === state.branch);
-        const classesSet = new Set();
-        const groupsSet = new Set();
-
-        if (activeBranchObj) {
-            activeBranchObj.departments.forEach(dept => {
-                dept.classes.forEach(cls => {
-                    classesSet.add(cls.name);
-                    if (state.class === cls.name) {
-                        cls.groups.forEach(g => groupsSet.add(g));
-                    }
-                });
-            });
+    async function fetchMadrasahConfig() {
+        try {
+            let config = await db.settings.get('madrasah_config_block');
+            if (!config) {
+                const allSettings = await db.settings.toArray();
+                if (allSettings && allSettings.length > 0) config = allSettings[0];
+            }
+            madrasahConfig = config || {};
+        } catch(e) {
+            madrasahConfig = {};
         }
-
-        classesSet.forEach(clsName => {
-            const isChecked = state.class === clsName ? 'checked' : '';
-            const activeClass = state.class === clsName 
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
-            classHTML += `
-                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
-                    <input type="radio" name="${type}-class" value="${clsName}" ${isChecked} 
-                        onchange="window.handleRadioChange('${type}', 'class', '${clsName}')" class="hidden">
-                    ${clsName}
-                </label>
-            `;
-        });
-        classContainer.innerHTML = classHTML || `<span class="text-xs text-gray-400 font-bold py-1.5">${state.branch ? 'এই শাখায় কোনো শ্রেণী নেই' : 'প্রথমে শাখা সিলেক্ট করুন'}</span>`;
-
-        // ৩. গ্রুপ (Group) রেডিও বাটন - শ্রেণীর ওপর নির্ভরশীল
-        let groupHTML = '';
-        const isAllChecked = state.group === '' ? 'checked' : '';
-        const allGroupActive = state.group === '' 
-            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-            : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
-        
-        if (state.class) {
-            groupHTML += `
-                <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${allGroupActive}">
-                    <input type="radio" name="${type}-group" value="" ${isAllChecked} 
-                        onchange="window.handleRadioChange('${type}', 'group', '')" class="hidden">
-                    সকল গ্রুপ
-                </label>
-            `;
-            groupsSet.forEach(gName => {
-                if (gName) {
-                    const isChecked = state.group === gName ? 'checked' : '';
-                    const activeClass = state.group === gName 
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200';
-                    groupHTML += `
-                        <label class="cursor-pointer text-xs font-bold px-3 py-2 rounded-xl border transition-all flex items-center select-none ${activeClass}">
-                            <input type="radio" name="${type}-group" value="${gName}" ${isChecked} 
-                                onchange="window.handleRadioChange('${type}', 'group', '${gName}')" class="hidden">
-                            ${gName}
-                        </label>
-                    `;
-                }
-            });
-        }
-        groupContainer.innerHTML = groupHTML || `<span class="text-xs text-gray-400 font-bold py-1.5">${state.class ? 'এই শ্রেণীতে কোনো গ্রুপ নেই' : 'প্রথমে শ্রেণী সিলেক্ট করুন'}</span>`;
+        return madrasahConfig;
     }
 
-    // ফিল্টার পরিবর্তনের হ্যান্ডলার
-    window.handleRadioChange = async function(type, field, value) {
-        const state = type === 'daily' ? selectedDaily : selectedMonthly;
+    window.initAttendance = async function() {
+        const today = window.getLocalDateString();
+        const attDateInput = document.getElementById('attendance-date');
+        if (attDateInput) attDateInput.value = today;
+
+        const dateParts = today.split('-');
+        const yFilter = document.getElementById('monthly-year-filter');
+        const mFilter = document.getElementById('monthly-month-filter');
+        if (yFilter) yFilter.value = dateParts[0] || '2026';
+        if (mFilter) mFilter.value = dateParts[1] || '01';
+
+        const config = await fetchMadrasahConfig();
+        academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
         
-        state[field] = value;
+        populateDynamicDropdowns();
 
-        // ডিপেন্ডেন্সি রিসেট চেইন লজিক
-        if (field === 'branch') {
-            state.class = ''; 
-            state.group = ''; 
-        } else if (field === 'class') {
-            state.group = ''; 
-        }
+        try {
+            const rawStudents = await db.students.toArray();
+            allMasterStudents = rawStudents.filter(s => s.is_deleted !== 1);
+            allMasterStudents.sort((a, b) => (parseInt(a.roll, 10) || 0) - (parseInt(b.roll, 10) || 0));
+        } catch(e){}
 
-        renderRadioFilters(type);
-
-        if (type === 'daily') {
-            await window.onDateOrFilterChange();
-        } else {
-            await window.generateMonthlyRegister();
-        }
+        await window.loadAttendanceDataForDate(today);
+        await window.onDailyFilterChange();
     };
 
-    // ট্যাব সুইচার মেথড
+    function populateDynamicDropdowns() {
+        const dBranch = document.getElementById('daily-branch-filter');
+        const mBranch = document.getElementById('monthly-branch-filter');
+        const dClass = document.getElementById('daily-class-filter');
+        const mClass = document.getElementById('monthly-class-filter');
+
+        let bHtml = `<option value="">সকল শাখা</option>`;
+        academicStructure.forEach(b => bHtml += `<option value="${b.name}">${b.name}</option>`);
+        if (dBranch) dBranch.innerHTML = bHtml;
+        if (mBranch) mBranch.innerHTML = bHtml;
+
+        let cHtml = `<option value="">সকল জামাত</option>`;
+        const classesSet = new Set();
+        academicStructure.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name))));
+        classesSet.forEach(c => cHtml += `<option value="${c}">${c}</option>`);
+        if (dClass) dClass.innerHTML = cHtml;
+        if (mClass) mClass.innerHTML = cHtml;
+    }
+
+    window.onDailyBranchFilterChange = function() {
+        const bVal = document.getElementById('daily-branch-filter')?.value || '';
+        const dClass = document.getElementById('daily-class-filter');
+        const dGroup = document.getElementById('daily-group-filter');
+        if (!dClass) return;
+
+        dClass.innerHTML = `<option value="">সকল জামাত</option>`;
+        const classesSet = new Set();
+
+        const branchesToSearch = bVal ? academicStructure.filter(b => b.name === bVal) : academicStructure;
+        branchesToSearch.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name))));
+        classesSet.forEach(c => dClass.innerHTML += `<option value="${c}">${c}</option>`);
+
+        if (dGroup) dGroup.innerHTML = `<option value="">সকল গ্রুপ</option>`;
+        window.onDailyFilterChange();
+    };
+
+    window.onDailyClassFilterChange = function() {
+        const bVal = document.getElementById('daily-branch-filter')?.value || '';
+        const cVal = document.getElementById('daily-class-filter')?.value || '';
+        const dGroup = document.getElementById('daily-group-filter');
+        if (!dGroup) return;
+
+        dGroup.innerHTML = `<option value="">সকল গ্রুপ</option>`;
+        if (cVal) {
+            const groupsSet = new Set();
+            const branchesToSearch = bVal ? academicStructure.filter(b => b.name === bVal) : academicStructure;
+            branchesToSearch.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => {
+                if (c.name === cVal) (c.groups || []).forEach(g => groupsSet.add(g));
+            })));
+            groupsSet.forEach(g => { if (g) dGroup.innerHTML += `<option value="${g}">${g}</option>`; });
+        }
+        window.onDailyFilterChange();
+    };
+
+    window.onMonthlyBranchFilterChange = function() {
+        const bVal = document.getElementById('monthly-branch-filter')?.value || '';
+        const mClass = document.getElementById('monthly-class-filter');
+        if (!mClass) return;
+
+        mClass.innerHTML = `<option value="">সকল জামাত</option>`;
+        const classesSet = new Set();
+        const branchesToSearch = bVal ? academicStructure.filter(b => b.name === bVal) : academicStructure;
+        branchesToSearch.forEach(b => (b.departments || []).forEach(d => (d.classes || []).forEach(c => classesSet.add(c.name))));
+        classesSet.forEach(c => mClass.innerHTML += `<option value="${c}">${c}</option>`);
+
+        window.generateMonthlyRegister();
+    };
+
     window.switchAttendanceTab = async function(tab) {
         if (hasUnsavedChanges) {
-            if (!confirm("আপনার কাছে অসংরক্ষিত হাজিরা পরিবর্তন রয়েছে! সেভ না করে কি অন্য ট্যাবে যেতে চান?")) {
-                return;
-            }
+            if (!confirm("আপনার কাছে অসংরক্ষিত হাজিরা রয়েছে! সেভ না করে কি অন্য ট্যাবে যেতে চান?")) return;
         }
 
         const dPane = document.getElementById('attendance-daily-pane');
         const mPane = document.getElementById('attendance-monthly-pane');
+        const aPane = document.getElementById('attendance-analytics-pane');
         const dBtn = document.getElementById('tab-btn-daily');
         const mBtn = document.getElementById('tab-btn-monthly');
+        const aBtn = document.getElementById('tab-btn-analytics');
+
+        [dPane, mPane, aPane].forEach(p => p?.classList.add('hidden'));
+        [dBtn, mBtn, aBtn].forEach(b => b?.classList.remove('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50'));
+        [dBtn, mBtn, aBtn].forEach(b => b?.classList.add('border-transparent', 'text-gray-500'));
 
         if (tab === 'daily') {
             dPane.classList.remove('hidden');
-            mPane.classList.add('hidden');
-            dBtn.className = "py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition";
-            mBtn.className = "py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition";
-            await window.onDateOrFilterChange();
-        } else {
-            dPane.classList.add('hidden');
+            dBtn.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            await window.onDailyFilterChange();
+        } else if (tab === 'monthly') {
             mPane.classList.remove('hidden');
-            mBtn.className = "py-2.5 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 transition";
-            dBtn.className = "py-2.5 px-4 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition";
+            mBtn.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
             await window.generateMonthlyRegister();
+        } else {
+            aPane.classList.remove('hidden');
+            aBtn.classList.add('border-emerald-600', 'text-emerald-700', 'bg-emerald-50/50');
+            await window.renderAttendanceAnalytics();
         }
     };
 
-    // ২. ফিল্টার বা ডেট চেঞ্জ হলে ডেক্সি থেকে কাস্টম রিড
-    window.onDateOrFilterChange = async function() {
-        const date = document.getElementById('attendance-date').value;
-        const branch = selectedDaily.branch;
-        const className = selectedDaily.class;
-        const group = selectedDaily.group;
-
-        const tableBody = document.getElementById('attendance-table-body');
-        const mobileContainer = document.getElementById('attendance-mobile-cards');
-        if (!tableBody || !mobileContainer) return;
-
-        if (!branch || !className) {
-            const emptyMsg = `
-                <tr>
-                    <td colspan="6" class="px-4 py-12 text-center text-gray-400 font-bold">হাজিরা খাতা লোড করতে প্রথমে শাখা ও শ্রেণী সিলেক্ট করুন</td>
-                </tr>`;
-            tableBody.innerHTML = emptyMsg;
-            mobileContainer.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">হাজিরা লোড করতে প্রথমে শাখা ও শ্রেণী সিলেক্ট করুন</p>`;
-            resetStats();
-            return;
-        }
-
+    window.loadAttendanceDataForDate = async function(date) {
         try {
-            let students = await db.students.reverse().toArray();
-            students = students.filter(s => s.is_deleted !== 1 && s.branch === branch && s.class === className);
-            if (group) {
-                students = students.filter(s => s.group === group);
-            }
-
-            students.sort((a, b) => (a.roll || 0) - (b.roll || 0));
-            studentsInClass = students;
-
-            const allAttendance = await db.attendance.toArray();
-            const savedAttendance = allAttendance.filter(a => {
-                if (!a.date) return false;
-                const cleanDate = a.date.split('T')[0].trim(); // ISO Timezone Handler
-                return cleanDate === date;
-            });            
+            const allAttendance = await db.attendance.where('date').equals(date).toArray();
             tempAttendanceMap = {};
-            savedAttendance.forEach(att => {
+            allAttendance.forEach(att => {
                 if (att.is_deleted !== 1) {
-                    tempAttendanceMap[att.student_id] = {
-                        status: att.status,
-                        note: att.note || "",
-                        attendance_id: att.attendance_id
-                    };
+                    tempAttendanceMap[att.student_id] = { status: att.status, note: att.note || "", attendance_id: att.attendance_id };
+                }
+            });
+
+            const allHifz = await db.hifz_tracker.where('date').equals(date).toArray();
+            tempHifzMap = {};
+            allHifz.forEach(h => {
+                if (h.is_deleted !== 1) {
+                    tempHifzMap[h.student_id] = { sabaq: h.sabaq || "", sabqi: h.sabqi || "", ampara: h.ampara || "", quality: h.quality || "মুমতাজ" };
+                }
+            });
+
+            // লাইফটাইম হিস্ট্রি অপ্টিমাইজড ক্যাশ
+            const allAtt = await db.attendance.toArray();
+            statsLifetimeMap = {};
+            allAtt.forEach(a => {
+                if (a.is_deleted !== 1) {
+                    if (!statsLifetimeMap[a.student_id]) statsLifetimeMap[a.student_id] = { present: 0, absent: 0, late: 0, leave: 0, total: 0 };
+                    if (a.status === 'Present') statsLifetimeMap[a.student_id].present++;
+                    else if (a.status === 'Absent') statsLifetimeMap[a.student_id].absent++;
+                    else if (a.status === 'Late') statsLifetimeMap[a.student_id].late++;
+                    else if (a.status === 'Leave') statsLifetimeMap[a.student_id].leave++;
+                    statsLifetimeMap[a.student_id].total++;
                 }
             });
 
             hasUnsavedChanges = false;
-            await window.renderAttendanceTable();
-
         } catch (err) {
-            console.error("হাজিরা ডাটা লোডে সমস্যা:", err);
+            console.error(err);
         }
     };
 
-    // ৩. দৈনিক হাজিরার ডাটা টেবিল ও মোবাইল কার্ড রেন্ডারার (O(1) Memory Cache Read)
-    window.renderAttendanceTable = async function() {
+    window.onDailyFilterChange = async function() {
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        const branchVal = document.getElementById('daily-branch-filter')?.value || '';
+        const classVal = document.getElementById('daily-class-filter')?.value || '';
+        const groupVal = document.getElementById('daily-group-filter')?.value || '';
+        const statusVal = document.getElementById('daily-status-filter')?.value || '';
+        const searchVal = document.getElementById('daily-search-input')?.value.toLowerCase().trim() || '';
+
         const tableBody = document.getElementById('attendance-table-body');
         const mobileContainer = document.getElementById('attendance-mobile-cards');
         if (!tableBody || !mobileContainer) return;
 
-        // অসংরক্ষিত পরিবর্তনের ওয়ার্নিং শো/হাইড লজিক
+        let filtered = allMasterStudents;
+
+        if (branchVal) filtered = filtered.filter(s => s.branch === branchVal);
+        if (classVal) filtered = filtered.filter(s => s.class === classVal);
+        if (groupVal) filtered = filtered.filter(s => s.group === groupVal);
+
+        if (searchVal) {
+            filtered = filtered.filter(s => 
+                (s.name || '').toLowerCase().includes(searchVal) ||
+                (s.id || '').toLowerCase().includes(searchVal) ||
+                String(s.roll || '').includes(searchVal) ||
+                (s.parent_phone || '').includes(searchVal)
+            );
+        }
+
+        if (statusVal) {
+            if (statusVal === 'Unmarked') {
+                filtered = filtered.filter(s => !tempAttendanceMap[s.id] || !tempAttendanceMap[s.id].status);
+            } else {
+                filtered = filtered.filter(s => tempAttendanceMap[s.id] && tempAttendanceMap[s.id].status === statusVal);
+            }
+        }
+
         const warnEl = document.getElementById('unsaved-warning');
         if (warnEl) {
             if (hasUnsavedChanges) warnEl.classList.remove('hidden');
             else warnEl.classList.add('hidden');
         }
 
-        if (studentsInClass.length === 0) {
-            const emptyMsg = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500 font-medium">এই জামাতে কোনো তালিবে ইলমের তথ্য পাওয়া যায়নি।</td></tr>`;
-            tableBody.innerHTML = emptyMsg;
-            mobileContainer.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">তালিবে ইলম পাওয়া যায়নি</p>`;
-            resetStats();
-            return;
-        }
-
-        // ১. গতকালের তারিখ নির্ধারণ
-        const selectedDate = document.getElementById('attendance-date').value;
-        const targetDate = new Date(selectedDate);
-        const yesterdayDate = new Date(targetDate);
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
-
-        // ২. গতকালের হাজিরার ডাটাবেজ থেকে সংগ্রহ (Performance এর জন্য লুপের বাইরে একবারই করা হয়েছে)
-        const yestAttendance = await db.attendance.where('date').equals(yesterdayStr).toArray();
-        const yestMap = {};
-        yestAttendance.forEach(a => { 
-            if(a.is_deleted !== 1) yestMap[a.student_id] = a.status; 
+        // গ্লোবাল পরিসংখ্যান
+        let pCount = 0, aCount = 0, lCount = 0, leaveCount = 0;
+        filtered.forEach(s => {
+            const st = tempAttendanceMap[s.id]?.status;
+            if (st === 'Present') pCount++;
+            else if (st === 'Absent') aCount++;
+            else if (st === 'Late') lCount++;
+            else if (st === 'Leave') leaveCount++;
         });
 
-        const yestStatusBN = { 'Present': 'হাজির', 'Absent': 'গাইর হাজির', 'Late': 'বিলম্ব' };
+        updateGlobalStats(filtered.length, pCount, aCount, lCount, leaveCount);
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-gray-400 font-bold">কোনো তালিবে ইলম পাওয়া যায়নি</td></tr>`;
+            mobileContainer.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">কোনো তালিবে ইলম পাওয়া যায়নি</p>`;
+            return;
+        }
 
         let tableHtml = '';
         let mobileHtml = '';
-        
-        let presentCount = 0;
-        let absentCount = 0;
-        let lateCount = 0;
 
-        // ৩. তালিবে ইলমদের লুপ শুরু
-        for (let i = 0; i < studentsInClass.length; i++) {
-            const s = studentsInClass[i];
+        filtered.forEach(s => {
             const att = tempAttendanceMap[s.id] || { status: "", note: "" };
+            const hifz = tempHifzMap[s.id] || { sabaq: "", sabqi: "", ampara: "", quality: "মুমতাজ" };
 
-            if (att.status === 'Present') presentCount++;
-            else if (att.status === 'Absent') absentCount++;
-            else if (att.status === 'Late') lateCount++;
+            const history = statsLifetimeMap[s.id] || { present: 0, absent: 0, late: 0, leave: 0, total: 0 };
+            const historyRate = history.total > 0 ? Math.round((history.present / history.total) * 100) : 100;
+            const isStarStudent = historyRate >= 95 && history.total >= 5;
 
-            // আজীবন হাজিরা পরিসংখ্যান
-            const history = await getStudentAttendanceStats(s.id);
+            const isHifzDept = (s.department || '').includes('হেফজ') || (s.department || '').includes('নাজেরা') || (s.class || '').includes('হিফজ') || (s.class || '').includes('নাজেরা');
 
-            // গতকালের অবস্থা বের করা
-            const yestStatus = yestMap[s.id] || "রেকর্ড নেই";
-            const yestColor = yestStatus === 'Absent' ? 'text-rose-600' : (yestStatus === 'Present' ? 'text-emerald-600' : (yestStatus === 'Late' ? 'text-amber-600' : 'text-gray-400'));
-
-            // --- ডেস্কটপ টেবিল ভিউ ---
             tableHtml += `
-                <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
-                    <td class="px-4 py-3 text-xs font-bold font-en text-gray-700">
-                        <div>রোল: ${s.roll || '-'}</div>
-                        <div class="text-[10px] text-gray-400 font-en">${s.id}</div>
+                <tr class="hover:bg-gray-50 border-b border-gray-100 transition text-gray-700">
+                    <td class="px-3 py-2.5 text-xs font-bold font-en">
+                        <div class="text-emerald-950">রোল: ${s.roll || '-'}</div>
+                        <div class="text-[10px] text-gray-400">${s.id}</div>
                     </td>
-                    <td class="px-4 py-3 text-xs">
+                    <td class="px-3 py-2.5 text-xs">
                         <div class="flex items-center gap-2">
-                            ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-[10px]">St</div>'}
+                            ${s.photo_url ? `<img class="w-8 h-8 rounded-full object-cover border border-emerald-200" src="${s.photo_url}">` : '<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-[10px]">St</div>'}
                             <div>
-                                <div class="font-bold text-gray-800 text-sm">${s.name || 'অজানা'}</div>
-                                <div class="text-[9px] text-gray-400 font-bold">Sl: ${s.serial_no || '-'}</div>
+                                <div class="font-bold text-gray-900 text-xs flex items-center gap-1">
+                                    ${s.name || 'অজানা'}
+                                    ${isStarStudent ? '<span title="সেরা উপস্থিতির স্টার" class="text-amber-500 text-xs">⭐</span>' : ''}
+                                </div>
+                                <div class="text-[9px] text-gray-400 font-bold">${s.class} (${s.branch})</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-[10px] text-gray-500">
-                        <div class="flex gap-2">
-                            <span class="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded-full font-bold">P: ${history.present} দিন</span>
-                            <span class="bg-rose-50 text-rose-800 px-1.5 py-0.5 rounded-full font-bold">A: ${history.absent} দিন</span>
-                            <span class="bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">L: ${history.late} দিন</span>
+                    <td class="px-3 py-2.5 text-[10px] text-gray-500">
+                        <div class="flex gap-1 font-bold">
+                            <span class="bg-emerald-50 text-emerald-800 px-1 py-0.5 rounded">P: ${history.present}</span>
+                            <span class="bg-rose-50 text-rose-800 px-1 py-0.5 rounded">A: ${history.absent}</span>
+                            <span class="bg-amber-50 text-amber-800 px-1 py-0.5 rounded">L: ${history.late}</span>
                         </div>
                         <div class="mt-1 flex items-center gap-1">
-                            <span class="text-gray-400 font-bold">গতকাল:</span>
-                            <strong class="${yestColor}">${yestStatusBN[yestStatus] || yestStatus}</strong>
-                            <span class="ml-1 text-gray-300">| হার: <strong class="text-emerald-700 font-en">${history.rate}%</strong></span>
+                            <span>গড় উপস্থিতি: <strong class="text-emerald-700 font-en font-bold">${historyRate}%</strong></span>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-center">
+                    <td class="px-3 py-2.5 text-center">
                         <div class="inline-flex rounded-xl p-1 bg-gray-100 border gap-1">
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
-                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">উপস্থিত</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">অনুপস্থিত</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="px-2 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">বিলম্ব</button>
+                            <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Leave')" class="px-2 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${att.status === 'Leave' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-600 hover:bg-white'}">ছুটি</button>
                         </div>
                     </td>
-                    <td class="px-4 py-3">
-                        <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="মন্তব্য..."
-                               class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:border-emerald-500 bg-white">
+                    <td class="px-3 py-2.5 space-y-1">
+                        ${isHifzDept ? `
+                            <div class="grid grid-cols-4 gap-1">
+                                <input type="text" value="${hifz.sabaq}" onchange="window.setHifzTracker('${s.id}', 'sabaq', this.value)" placeholder="সবক" class="px-1.5 py-1 border rounded-lg text-[10px] bg-white">
+                                <input type="text" value="${hifz.sabqi}" onchange="window.setHifzTracker('${s.id}', 'sabqi', this.value)" placeholder="৭ সবক" class="px-1.5 py-1 border rounded-lg text-[10px] bg-white">
+                                <input type="text" value="${hifz.ampara}" onchange="window.setHifzTracker('${s.id}', 'ampara', this.value)" placeholder="আমুখতা" class="px-1.5 py-1 border rounded-lg text-[10px] bg-white">
+                                <select onchange="window.setHifzTracker('${s.id}', 'quality', this.value)" class="px-1 py-1 border rounded-lg text-[9px] bg-white font-bold text-gray-700">
+                                    <option value="মুমতাজ" ${hifz.quality === 'মুমতাজ' ? 'selected' : ''}>মুমতাজ</option>
+                                    <option value="ভালো" ${hifz.quality === 'ভালো' ? 'selected' : ''}>ভালো</option>
+                                    <option value="চলতি" ${hifz.quality === 'চলতি' ? 'selected' : ''}>চলতি</option>
+                                    <option value="কাঁচা" ${hifz.quality === 'কাঁচা' ? 'selected' : ''}>কাঁচা</option>
+                                </select>
+                            </div>` : ''}
+                        <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="বিশেষ নোট বা শিক্ষকের মন্তব্য..." class="w-full px-2 py-1 border rounded-lg text-[10px] bg-white">
                     </td>
-                    <td class="px-4 py-3 text-right">
-                        ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-50 text-green-600 border border-green-200 font-bold px-2.5 py-1.5 rounded-xl text-[10px] flex items-center gap-1 transition shadow-sm"><i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ</button>` : '-'}
+                    <td class="px-3 py-2.5 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 p-1.5 rounded-lg text-xs" title="হোয়াটসঅ্যাপ নোটিশ"><i class="fa-brands fa-whatsapp"></i></button>` : ''}
+                            ${isHifzDept ? `<button type="button" onclick="window.showHifzHistoryModal('${s.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 p-1.5 rounded-lg text-xs" title="গত ৭ দিনের সবক ইতিহাস"><i class="fa-solid fa-clock-rotate-left"></i></button>` : ''}
+                            <button type="button" onclick="window.showStudentReportCardModal('${s.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-1.5 rounded-lg text-xs" title="একক হাজিরা রিপোর্ট কার্ড (A5)"><i class="fa-solid fa-file-lines"></i></button>
+                        </div>
                     </td>
                 </tr>`;
 
-            // --- মোবাইলের জন্য কার্ড ভিউ ---
-            let borderClass = 'border-gray-150 bg-white';
-            if (att.status === 'Present') borderClass = 'border-emerald-200 bg-emerald-50/10';
-            else if (att.status === 'Absent') borderClass = 'border-rose-200 bg-rose-50/10';
-            else if (att.status === 'Late') borderClass = 'border-amber-200 bg-amber-50/10';
-
             mobileHtml += `
-                <div class="p-4 rounded-xl border ${borderClass} shadow-sm space-y-3 text-gray-700">
+                <div class="p-3.5 rounded-xl border border-gray-200 bg-white shadow-sm space-y-2.5 text-xs text-gray-700">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            ${s.photo_url ? `<img class="w-10 h-10 rounded-full object-cover border" src="${s.photo_url}">` : '<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">St</div>'}
+                        <div class="flex items-center gap-2">
+                            ${s.photo_url ? `<img class="w-9 h-9 rounded-full object-cover border border-emerald-200" src="${s.photo_url}">` : '<div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">St</div>'}
                             <div>
-                                <h5 class="font-bold text-gray-800 text-sm">${s.name || 'অজানা'}</h5>
-                                <p class="text-[10px] text-gray-400 font-bold">রোল: ${s.roll || '-'} | ID: ${s.id}</p>
+                                <h5 class="font-bold text-gray-900 text-xs flex items-center gap-1">${s.name} ${isStarStudent ? '⭐' : ''}</h5>
+                                <p class="text-[10px] text-gray-400 font-en font-bold">রোল: ${s.roll} | ${s.class}</p>
                             </div>
                         </div>
-                        ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-[9px] flex items-center gap-1.5 shadow-sm"><i class="fa-brands fa-whatsapp text-xs"></i> নোটিশ</button>` : ''}
+                        <div class="flex items-center gap-1">
+                            ${att.status === 'Absent' ? `<button type="button" onclick="window.sendAbsentAlertToWhatsApp('${s.id}')" class="bg-green-600 text-white p-1 rounded-lg text-[10px]"><i class="fa-brands fa-whatsapp"></i></button>` : ''}
+                            <button type="button" onclick="window.showStudentReportCardModal('${s.id}')" class="bg-emerald-50 text-emerald-800 p-1 rounded-lg text-[10px]"><i class="fa-solid fa-file-lines"></i></button>
+                        </div>
                     </div>
 
-                    <div class="text-[9px] text-gray-400 flex flex-wrap gap-x-2 gap-y-1 pt-0.5 border-t border-dashed">
-                        <span>উপস্থিতি হার: <strong class="text-emerald-700 font-en">${history.rate}%</strong></span>
-                        <span>P: ${history.present} | A: ${history.absent} | L: ${history.late}</span>
-                        <span class="w-full font-bold">গতকাল: <strong class="${yestColor}">${yestStatusBN[yestStatus] || yestStatus}</strong></span>
+                    <div class="grid grid-cols-4 gap-1">
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="py-1 rounded-lg text-[10px] font-bold transition ${att.status === 'Present' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}">উপস্থিত</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="py-1 rounded-lg text-[10px] font-bold transition ${att.status === 'Absent' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-600'}">অনুপস্থিত</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="py-1 rounded-lg text-[10px] font-bold transition ${att.status === 'Late' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}">বিলম্ব</button>
+                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Leave')" class="py-1 rounded-lg text-[10px] font-bold transition ${att.status === 'Leave' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600'}">ছুটি</button>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Present')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Present' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">উপস্থিত</button>
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Absent')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Absent' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">অনুপস্থিত</button>
-                        <button type="button" onclick="window.setAttendanceStatus('${s.id}', 'Late')" class="py-2 rounded-xl text-xs font-bold transition-all ${att.status === 'Late' ? 'bg-amber-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600'}">বিলম্ব</button>
-                    </div>
+                    ${isHifzDept ? `
+                        <div class="grid grid-cols-3 gap-1">
+                            <input type="text" value="${hifz.sabaq}" onchange="window.setHifzTracker('${s.id}', 'sabaq', this.value)" placeholder="সবক" class="px-2 py-1 border rounded-lg text-[10px]">
+                            <input type="text" value="${hifz.sabqi}" onchange="window.setHifzTracker('${s.id}', 'sabqi', this.value)" placeholder="৭ সবক" class="px-2 py-1 border rounded-lg text-[10px]">
+                            <input type="text" value="${hifz.ampara}" onchange="window.setHifzTracker('${s.id}', 'ampara', this.value)" placeholder="আমুখতা" class="px-2 py-1 border rounded-lg text-[10px]">
+                        </div>` : ''}
 
-                    <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="মন্তব্য লিখুন..."
-                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-[11px] focus:border-emerald-500 bg-white">
+                    <input type="text" value="${att.note}" onchange="window.setAttendanceNote('${s.id}', this.value)" placeholder="নোট লিখুন..." class="w-full px-2.5 py-1 border rounded-lg text-[10px]">
                 </div>`;
-        }
+        });
 
         tableBody.innerHTML = tableHtml;
         mobileContainer.innerHTML = mobileHtml;
-        updateGlobalStats(presentCount, absentCount, lateCount);
-    };
-
-    // ২.৩ ডায়নামিক মাসিক লেজার রেজিস্টার জেনারেটর
-    window.generateMonthlyRegister = async function() {
-        const container = document.getElementById('monthly-register-wrapper');
-        if (!container) return;
-
-        const year = document.getElementById('monthly-year-filter').value;
-        const month = document.getElementById('monthly-month-filter').value;
-        const branch = selectedMonthly.branch;
-        const className = selectedMonthly.class;
-        const group = selectedMonthly.group;
-
-        if (!branch || !className) {
-            container.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">মাসিক লেজার গ্রিড দেখতে প্রথমে শাখা ও জামাত সিলেক্ট করুন।</p>`;
-            return;
-        }
-
-        try {
-            let students = await db.students.reverse().toArray();
-            students = students.filter(s => s.is_deleted !== 1 && s.branch === branch && s.class === className);
-            if (group) {
-                students = students.filter(s => s.group === group);
-            }
-            students.sort((a, b) => (a.roll || 0) - (b.roll || 0));
-
-            if (students.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-500 py-12 font-bold">এই শ্রেণীতে কোনো শিক্ষার্থী পাওয়া যায়নি।</p>`;
-                return;
-            }
-
-            const daysInMonth = new Date(year, parseInt(month), 0).getDate();
-
-            const allAttendance = await db.attendance.toArray();
-            const monthPrefix = `${year}-${month}`;
-
-            const monthlyAttendance = allAttendance.filter(a => {
-                if (!a.date || a.is_deleted === 1) return false;
-                const cleanDate = a.date.split('T')[0].trim();
-                return cleanDate.startsWith(monthPrefix);
-            });
-
-            const lookup = {};
-            monthlyAttendance.forEach(a => {
-                lookup[`${a.student_id}_${a.date}`] = {
-                    status: a.status,
-                    note: a.note || ""
-                };
-            });
-
-            let html = `
-                <table class="min-w-full border-collapse border border-gray-200 text-left text-[10px] font-sans">
-                    <thead class="bg-gray-100 font-bold sticky top-0 z-10 text-gray-700">
-                        <tr>
-                            <th class="border border-gray-200 px-3 py-2 text-left sticky left-0 bg-gray-100 z-20 min-w-[120px]">রোল ও ছাত্রের নাম</th>`;
-            
-            for (let d = 1; d <= daysInMonth; d++) {
-                html += `<th class="border border-gray-200 px-1 py-2 text-center min-w-[28px] font-en">${String(d).padStart(2, '0')}</th>`;
-            }
-
-            html += `
-                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[40px] text-emerald-800">P</th>
-                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[40px] text-red-800">A</th>
-                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[40px] text-amber-800">L</th>
-                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[50px] font-bold">হার (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">`;
-
-            students.forEach(s => {
-                html += `
-                    <tr class="hover:bg-gray-50 transition duration-150">
-                        <td class="border border-gray-200 px-3 py-1.5 text-left font-bold text-gray-800 sticky left-0 bg-white z-10 truncate max-w-[140px]" title="${s.name} (ID: ${s.id})">
-                            <span class="text-[9px] text-emerald-700 font-en mr-1">${String(s.roll).padStart(2, '0')}</span> ${s.name}
-                        </td>`;
-
-                let pCount = 0;
-                let aCount = 0;
-                let lCount = 0;
-
-                for (let d = 1; d <= daysInMonth; d++) {
-                    const dateStr = `${year}-${month}-${String(d).padStart(2, '0')}`;
-                    const att = lookup[`${s.id}_${dateStr}`];
-
-                    let cellVal = '-';
-                    let cellClass = 'text-gray-300';
-                    let noteTooltip = '';
-
-                    if (att) {
-                        if (att.status === 'Present') {
-                            pCount++;
-                            cellVal = 'P';
-                            cellClass = 'text-emerald-600 bg-emerald-50/50 font-bold';
-                        } else if (att.status === 'Absent') {
-                            aCount++;
-                            cellVal = 'A';
-                            cellClass = 'text-red-600 bg-red-50/50 font-bold';
-                        } else if (att.status === 'Late') {
-                            lCount++;
-                            cellVal = 'L';
-                            cellClass = 'text-amber-600 bg-amber-50/50 font-bold';
-                        }
-
-                        if (att.note) {
-                            cellVal += '*';
-                            noteTooltip = `মন্তব্য: ${att.note}`;
-                        }
-                    }
-
-                    html += `<td class="border border-gray-200 px-1 py-1.5 text-center font-en font-bold ${cellClass}" title="${noteTooltip}">${cellVal}</td>`;
-                }
-
-                const totalMarked = pCount + aCount + lCount;
-                const attendanceRate = totalMarked > 0 ? Math.round((pCount / totalMarked) * 100) : 0;
-
-                html += `
-                        <td class="border border-gray-200 px-2 py-1.5 text-center font-bold font-en text-emerald-700 bg-emerald-50/20">${pCount}</td>
-                        <td class="border border-gray-200 px-2 py-1.5 text-center font-bold font-en text-red-700 bg-red-50/20">${aCount}</td>
-                        <td class="border border-gray-200 px-2 py-1.5 text-center font-bold font-en text-amber-700 bg-amber-50/20">${lCount}</td>
-                        <td class="border border-gray-200 px-2 py-1.5 text-center font-bold font-en text-gray-800 bg-gray-50">${attendanceRate}%</td>
-                    </tr>`;
-            });
-
-            html += `</tbody></table>`;
-            container.innerHTML = html;
-
-        } catch (err) {
-            console.error("মাসিক লেজার তৈরিতে ব্যর্থ:", err);
-            container.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">লেজার লোড করা যায়নি!</p>`;
-        }
     };
 
     window.setAttendanceStatus = function(studentId, status) {
-        const date = document.getElementById('attendance-date').value;
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
         const compoundKey = `${studentId}_${date}`;
         
         if (!tempAttendanceMap[studentId]) {
             tempAttendanceMap[studentId] = { status: "", note: "", attendance_id: compoundKey };
         }
-        
         tempAttendanceMap[studentId].status = status;
         hasUnsavedChanges = true;
-        window.renderAttendanceTable(); // ইনস্ট্যান্ট ফ্রন্টেন্ড রি-রেন্ডার ও বাটন রি-কালার
+        window.onDailyFilterChange();
     };
 
     window.setAttendanceNote = function(studentId, noteVal) {
-        const date = document.getElementById('attendance-date').value;
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
         const compoundKey = `${studentId}_${date}`;
         
         if (!tempAttendanceMap[studentId]) {
             tempAttendanceMap[studentId] = { status: "Present", note: "", attendance_id: compoundKey };
         }
-        
         tempAttendanceMap[studentId].note = noteVal;
         hasUnsavedChanges = true;
-        window.renderAttendanceTable();
     };
 
-    // ম্যানুয়াল সেভ ফ্লো
+    window.setHifzTracker = function(studentId, field, val) {
+        if (!tempHifzMap[studentId]) {
+            tempHifzMap[studentId] = { sabaq: "", sabqi: "", ampara: "", quality: "মুমতাজ" };
+        }
+        tempHifzMap[studentId][field] = val;
+        hasUnsavedChanges = true;
+    };
+
     window.saveCurrentAttendance = async function() {
-        const date = document.getElementById('attendance-date').value;
-        const bulkData = [];
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        const bulkAtt = [];
+        const bulkHifz = [];
         const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
         const curUser = user ? user.username : "system";
 
         for (let studentId in tempAttendanceMap) {
             const att = tempAttendanceMap[studentId];
             if (att.status) {
-                // অডিট লগের জন্য পূর্ববর্তী রেকর্ডের created_by রক্ষা করা
-                const existing = await db.attendance.get(att.attendance_id);
-                const createdBy = existing ? existing.created_by : curUser;
-
-                bulkData.push({
-                    attendance_id: att.attendance_id,
+                bulkAtt.push({
+                    attendance_id: att.attendance_id || `${studentId}_${date}`,
                     student_id: studentId,
                     date: date,
                     status: att.status,
                     note: att.note || "",
-                    created_by: createdBy,
+                    created_by: curUser,
                     updated_by: curUser,
                     is_synced: 0,
                     is_deleted: 0
@@ -774,138 +783,583 @@
             }
         }
 
-        if (bulkData.length > 0) {
+        for (let studentId in tempHifzMap) {
+            const h = tempHifzMap[studentId];
+            if (h.sabaq || h.sabqi || h.ampara) {
+                bulkHifz.push({
+                    id: `HIFZ_${date}_${studentId}`,
+                    student_id: studentId,
+                    date: date,
+                    sabaq: h.sabaq || "",
+                    sabqi: h.sabqi || "",
+                    ampara: h.ampara || "",
+                    quality: h.quality || "মুমতাজ",
+                    is_synced: 0,
+                    is_deleted: 0
+                });
+            }
+        }
+
+        if (bulkAtt.length > 0 || bulkHifz.length > 0) {
             try {
-                await db.attendance.bulkPut(bulkData);
-                showToast("হাজিরা সফলভাবে সংরক্ষিত হয়েছে!", "success");
+                if (bulkAtt.length > 0) await db.attendance.bulkPut(bulkAtt);
+                if (bulkHifz.length > 0) await db.hifz_tracker.bulkPut(bulkHifz);
+
+                showToast("হাজিরা ও সবক সফলভাবে সংরক্ষিত হয়েছে!", "success");
                 hasUnsavedChanges = false;
 
-                if (typeof updatePendingCount === 'function') {
-                    await updatePendingCount();
-                }
+                if (typeof updatePendingCount === 'function') await updatePendingCount();
+                await window.loadAttendanceDataForDate(date);
+                await window.onDailyFilterChange();
 
-                await window.onDateOrFilterChange();
-                triggerDebouncedSync();
+                if (navigator.onLine && typeof triggerAutoSync === 'function') triggerAutoSync();
+
             } catch (err) {
-                console.error("হাজিরা সেভ করতে সমস্যা:", err);
-                showToast("ডাটাবেজে হাজিরা সেভ করা সম্ভব হয়নি।", "error");
+                console.error("সেভ ত্রুটি:", err);
+                showToast("হাজিরা সেভ করা সম্ভব হয়নি!", "error");
             }
         } else {
             showToast("কোনো হাজিরার তথ্য পরিবর্তন করা হয়নি।", "info");
         }
     };
 
-    function updateGlobalStats(p, a, l) {
-        const presentEl = document.getElementById('stat-present');
-        const absentEl = document.getElementById('stat-absent');
-        const lateEl = document.getElementById('stat-late');
-        const ratioEl = document.getElementById('stat-ratio');
-        const barEl = document.getElementById('stat-progress-bar');
+    window.markAllAsPresent = function() {
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        allMasterStudents.forEach(s => {
+            const compoundKey = `${s.id}_${date}`;
+            const att = tempAttendanceMap[s.id] || { status: "", note: "" };
+            tempAttendanceMap[s.id] = { status: 'Present', note: att.note || "", attendance_id: compoundKey };
+        });
 
-        if (presentEl) presentEl.textContent = p;
-        if (absentEl) absentEl.textContent = a;
-        if (lateEl) lateEl.textContent = l;
+        hasUnsavedChanges = true;
+        window.onDailyFilterChange();
+        showToast("সবাইকে উপস্থিত করা হয়েছে। সংরক্ষণ বাটনে চাপুন।", "info");
+    };
 
-        const total = p + a + l;
-        const rate = total > 0 ? Math.round((p / total) * 100) : 0;
-        if (ratioEl) ratioEl.textContent = rate + "%";
-        if (barEl) barEl.style.width = rate + "%";
-    }
-
-    function resetStats() {
-        updateGlobalStats(0, 0, 0);
-    }
-
-    async function triggerDebouncedSync() {
-        if (syncTimeout) {
-            clearTimeout(syncTimeout);
-        }
-
-        syncTimeout = setTimeout(async () => {
-            if (navigator.onLine && typeof triggerAutoSync === 'function') {
-                await triggerAutoSync();
+    window.markRemainingAsPresent = function() {
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        let markedCount = 0;
+        allMasterStudents.forEach(s => {
+            if (!tempAttendanceMap[s.id] || !tempAttendanceMap[s.id].status) {
+                const compoundKey = `${s.id}_${date}`;
+                tempAttendanceMap[s.id] = { status: 'Present', note: "", attendance_id: compoundKey };
+                markedCount++;
             }
-        }, 10000); 
+        });
+
+        hasUnsavedChanges = true;
+        window.onDailyFilterChange();
+        showToast(`বাকি ${markedCount} জনকে উপস্থিত করা হয়েছে। সংরক্ষণ বাটনে চাপুন।`, "info");
+    };
+
+    function updateGlobalStats(total, p, a, l, leave) {
+        document.getElementById('stat-total').textContent = total.toLocaleString('bn-BD');
+        document.getElementById('stat-present').textContent = p.toLocaleString('bn-BD');
+        document.getElementById('stat-absent').textContent = a.toLocaleString('bn-BD');
+        document.getElementById('stat-late').textContent = l.toLocaleString('bn-BD');
+        document.getElementById('stat-leave').textContent = leave.toLocaleString('bn-BD');
+
+        const rate = total > 0 ? Math.round((p / total) * 100) : 0;
+        document.getElementById('stat-ratio').textContent = rate + "%";
+        document.getElementById('stat-progress-bar').style.width = rate + "%";
     }
 
-    window.markAllAsPresent = async function() {
-        const date = document.getElementById('attendance-date').value;
-        if (studentsInClass.length === 0) {
-            showToast("প্রথমে একটি ক্লাসের তালিকা ফিল্টার করুন!", "error");
+    // হেফজ ৭ দিনের হিস্ট্রি মডাল
+    window.showHifzHistoryModal = async function(studentId) {
+        const student = allMasterStudents.find(s => s.id === studentId);
+        if (!student) return;
+
+        document.getElementById('hifz-modal-student-name').textContent = student.name;
+        document.getElementById('hifz-modal-student-id').textContent = `আইডি: ${student.id} | রোল: ${student.roll || '-'}`;
+
+        try {
+            const hifzRecords = await db.hifz_tracker.where('student_id').equals(studentId).toArray();
+            const valid = hifzRecords.filter(h => h.is_deleted !== 1);
+            valid.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+            const tbody = document.getElementById('hifz-history-tbody');
+            if (valid.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">কোনো অতীত সবকের রেকর্ড পাওয়া যায়নি</td></tr>`;
+            } else {
+                tbody.innerHTML = valid.slice(0, 7).map(h => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-2 font-en font-bold text-gray-700">${h.date}</td>
+                        <td class="p-2">${h.sabaq || '-'}</td>
+                        <td class="p-2">${h.sabqi || '-'}</td>
+                        <td class="p-2">${h.ampara || '-'}</td>
+                        <td class="p-2 text-center font-bold text-emerald-800">${h.quality || 'মুমতাজ'}</td>
+                    </tr>`).join('');
+            }
+
+            document.getElementById('hifz-history-modal').classList.remove('hidden');
+        } catch(e){}
+    };
+
+    // একক ছাত্রের A5 হাজিরা রিপোর্ট কার্ড
+    window.showStudentReportCardModal = async function(studentId) {
+        const student = allMasterStudents.find(s => s.id === studentId);
+        if (!student) return;
+
+        activeCardStudent = student;
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const logoUrl = config.madrasah_logo || '';
+
+        const history = statsLifetimeMap[student.id] || { present: 0, absent: 0, late: 0, leave: 0, total: 0 };
+        const rate = history.total > 0 ? Math.round((history.present / history.total) * 100) : 100;
+
+        const printArea = document.getElementById('student-report-card-print');
+        printArea.innerHTML = `
+            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-2">
+                <div class="flex items-center gap-2">
+                    ${logoUrl ? `<img class="w-11 h-11 rounded-xl object-cover border" crossorigin="anonymous" src="${logoUrl}">` : '<div class="w-11 h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-base"><i class="fa-solid fa-mosque"></i></div>'}
+                    <div>
+                        <h2 class="text-sm font-bold text-emerald-950">${mName}</h2>
+                        <p class="text-[9px] text-gray-500">${mAddr}</p>
+                        <span class="inline-block bg-emerald-100 text-emerald-900 text-[8.5px] px-2 py-0.5 rounded font-bold mt-0.5">একক হাজিরা রিপোর্ট কার্ড</span>
+                    </div>
+                </div>
+                <div class="text-right font-en text-[9px] text-gray-500">
+                    <p>তারিখ: ${window.getLocalDateString()}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 py-1.5 bg-emerald-50/50 p-2 rounded-lg text-[10px] border border-emerald-100 my-2">
+                <div><span class="text-gray-400 block text-[8px]">আইডি:</span><strong class="font-en text-emerald-900">${student.id}</strong></div>
+                <div><span class="text-gray-400 block text-[8px]">রোল:</span><strong class="font-en">${student.roll || '-'}</strong></div>
+                <div><span class="text-gray-400 block text-[8px]">নাম:</span><strong class="truncate block">${student.name}</strong></div>
+                <div><span class="text-gray-400 block text-[8px]">জামাত:</span><strong>${student.class} (${student.branch})</strong></div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1.5 text-center text-[10px] my-2">
+                <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                    <span class="text-gray-500 block text-[8.5px]">মোট উপস্থিত</span>
+                    <strong class="text-emerald-800 text-sm font-en">${history.present} দিন</strong>
+                </div>
+                <div class="bg-rose-50 p-2 rounded-lg border border-rose-200">
+                    <span class="text-gray-500 block text-[8.5px]">অনুপস্থিত</span>
+                    <strong class="text-rose-800 text-sm font-en">${history.absent} দিন</strong>
+                </div>
+                <div class="bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    <span class="text-gray-500 block text-[8.5px]">বিলম্ব</span>
+                    <strong class="text-amber-800 text-sm font-en">${history.late} দিন</strong>
+                </div>
+                <div class="bg-purple-50 p-2 rounded-lg border border-purple-200">
+                    <span class="text-gray-500 block text-[8.5px]">ছুটিপ্রাপ্ত</span>
+                    <strong class="text-purple-800 text-sm font-en">${history.leave} দিন</strong>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-[10.5px] flex justify-between items-center my-2">
+                <span class="font-bold text-gray-700">সার্বিক উপস্থিতির হার:</span>
+                <span class="font-en font-extrabold text-sm text-emerald-850">${rate}%</span>
+            </div>
+
+            <div class="flex justify-between items-center text-[8.5px] text-gray-400 pt-8 mt-4 border-t">
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">শ্রেণী শিক্ষক</div>
+                <div class="text-center w-24 border-t pt-0.5 border-gray-300">নাযিমে তালিমাত</div>
+                <div class="text-center w-24 border-t pt-0.5 border-emerald-800 text-emerald-800 font-bold">মুহতামিম</div>
+            </div>`;
+
+        document.getElementById('student-report-card-modal').classList.remove('hidden');
+    };
+
+    window.downloadSingleStudentAttendanceCardPDF = function() {
+        if (!activeCardStudent) return;
+        const element = document.getElementById('student-report-card-print');
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `${activeCardStudent.id}_Attendance_Card.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        showToast("A5 রিপোর্ট কার্ড পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast("রিপোর্ট কার্ড ডাউনলোড সম্পন্ন!", "success");
+        });
+    };
+
+    // মার্জিত হোয়াটসঅ্যাপ নোটিশ
+    window.sendAbsentAlertToWhatsApp = function(studentId) {
+        const student = allMasterStudents.find(s => s.id === studentId);
+        if (!student) return;
+
+        let phone = (student.whatsapp_number || student.parent_phone || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '88' + phone;
+
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const mPhone = madrasahConfig.madrasah_phone || '';
+
+        const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ।
+সম্মানিত অভিভাবক,
+আজ (${date}) তারিখে আপনার সন্তান ${student.name} (রোল: ${student.roll || '-'}, জামাত: ${student.class}) ${mName}-এ উপস্থিত হয়নি।
+
+অনুপস্থিতির সুনির্দিষ্ট কারণ জানাতে অথবা ছুটির আবেদনের জন্য মাদরাসা অফিসে যোগাযোগ করার অনুরোধ করা হলো।
+${mPhone ? `হেল্পলাইন: ${mPhone}` : ''}
+ধন্যবাদ,
+${mName}`;
+
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // ★ দৈনিক রিপোর্ট A4 PDF ডাউনলোড ★
+    window.downloadDailyAttendancePDF = async function() {
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
+        const branchVal = document.getElementById('daily-branch-filter')?.value || 'সকল শাখা';
+        const classVal = document.getElementById('daily-class-filter')?.value || 'সকল জামাত';
+        const statusVal = document.getElementById('daily-status-filter')?.value || 'সকল স্ট্যাটাস';
+
+        let pCount = 0, aCount = 0, lCount = 0, leaveCount = 0;
+        const rowsHtml = allMasterStudents.map((s, i) => {
+            const att = tempAttendanceMap[s.id] || { status: "Present", note: "" };
+            const hifz = tempHifzMap[s.id] || { sabaq: "", sabqi: "", ampara: "", quality: "মুমতাজ" };
+
+            let statusLabel = 'উপস্থিত';
+            let statusColor = '#065f46';
+            if (att.status === 'Absent') { statusLabel = 'অনুপস্থিত'; statusColor = '#b91c1c'; aCount++; }
+            else if (att.status === 'Late') { statusLabel = 'বিলম্ব'; statusColor = '#d97706'; lCount++; }
+            else if (att.status === 'Leave') { statusLabel = 'ছুটি'; statusColor = '#7e22ce'; leaveCount++; }
+            else { pCount++; }
+
+            let trackerText = [];
+            if (hifz.sabaq) trackerText.push(`সবক: ${hifz.sabaq} (${hifz.quality})`);
+            if (hifz.sabqi) trackerText.push(`৭ সবক: ${hifz.sabqi}`);
+            if (hifz.ampara) trackerText.push(`আমুখতা: ${hifz.ampara}`);
+            if (att.note) trackerText.push(`নোট: ${att.note}`);
+
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 6px; text-align: center;">${i + 1}</td>
+                    <td style="padding: 5px 6px; font-family: 'Inter', sans-serif; font-weight: bold; color: #064e3b;">${s.roll || '-'}<br><small style="color: #64748b;">${s.id}</small></td>
+                    <td style="padding: 5px 6px;"><strong>${s.name}</strong><br><small style="color: #64748b;">${s.class} (${s.branch})</small></td>
+                    <td style="padding: 5px 6px; text-align: center; font-weight: bold; color: ${statusColor};">${statusLabel}</td>
+                    <td style="padding: 5px 6px; font-size: 9.5px; color: #334155;">${trackerText.join(' | ') || '-'}</td>
+                </tr>`;
+        }).join('');
+
+        const container = document.getElementById('hidden-daily-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 16px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 10px;">
+                    <h2 style="font-size: 19px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10.5px; color: #4b5563; margin: 2px 0;">${mAddr}</p>
+                    <h3 style="font-size: 13px; font-weight: bold; color: #1f2937; margin: 6px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        দৈনিক হাজিরা ও সবক ট্র্যাকার রিপোর্ট
+                    </h3>
+                </div>
+
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 10px; line-height: 1.6;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        <div><strong style="color: #64748b;">তারিখ:</strong> <span style="font-weight: bold; color: #0f172a; font-family: 'Inter', sans-serif;">${date}</span></div>
+                        <div><strong style="color: #64748b;">শাখা:</strong> <span style="font-weight: bold; color: #0f172a;">${branchVal}</span></div>
+                        <div><strong style="color: #64748b;">জামাত:</strong> <span style="font-weight: bold; color: #0f172a;">${classVal}</span></div>
+                        <div><strong style="color: #64748b;">স্ট্যাটাস:</strong> <span style="font-weight: bold; color: #0f172a;">${statusVal}</span></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                        <div><strong style="color: #64748b;">মোট শিক্ষার্থী:</strong> <span style="font-weight: bold; color: #0f172a;">${allMasterStudents.length} জন</span></div>
+                        <div><strong style="color: #64748b;">উপস্থিত:</strong> <span style="font-weight: bold; color: #059669;">${pCount} জন</span></div>
+                        <div><strong style="color: #64748b;">অনুপস্থিত:</strong> <span style="font-weight: bold; color: #dc2626;">${aCount} জন</span></div>
+                        <div><strong style="color: #64748b;">বিলম্ব/ছুটি:</strong> <span style="font-weight: bold; color: #d97706;">${lCount + leaveCount} জন</span></div>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 6px; width: 30px; text-align: center;">#</th>
+                            <th style="padding: 6px; width: 80px;">রোল ও আইডি</th>
+                            <th style="padding: 6px;">তালিবে ইলম ও জামাত</th>
+                            <th style="padding: 6px; width: 80px; text-align: center;">স্ট্যাটাস</th>
+                            <th style="padding: 6px;">সবক ট্র্যাকার / শিক্ষকের মন্তব্য</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 9.5px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">শ্রেণী শিক্ষকের স্বাক্ষর</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 3px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 3px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `Daily_Attendance_${date}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        showToast("দৈনিক রিপোর্ট পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("দৈনিক রিপোর্ট ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // ★ খালি হাজিরা খাতা (Blank Monthly Register) A4 Landscape PDF ডাউনলোড ★
+    window.downloadBlankRegisterPDF = async function() {
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
+        const classVal = document.getElementById('daily-class-filter')?.value || 'সকল জামাত';
+        const branchVal = document.getElementById('daily-branch-filter')?.value || 'সকল শাখা';
+
+        let rowsHtml = '';
+        const studentsToUse = allMasterStudents.slice(0, 35);
+        studentsToUse.forEach((s, i) => {
+            rowsHtml += `
+                <tr style="border-bottom: 1px solid #cbd5e1;">
+                    <td style="padding: 4px 6px; font-family: 'Inter', sans-serif; font-weight: bold; border-right: 1px solid #cbd5e1;">${s.roll || i+1}</td>
+                    <td style="padding: 4px 6px; border-right: 1px solid #cbd5e1; font-weight: bold; max-width: 130px; overflow: hidden; white-space: nowrap;">${s.name}</td>`;
+            for (let d = 1; d <= 31; d++) {
+                rowsHtml += `<td style="border-right: 1px solid #e2e8f0; width: 22px;"></td>`;
+            }
+            rowsHtml += `<td style="border-right: 1px solid #cbd5e1;"></td><td></td></tr>`;
+        });
+
+        const container = document.getElementById('hidden-blank-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 12px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 6px; margin-bottom: 8px;">
+                    <h2 style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10px; color: #4b5563; margin: 1px 0;">${mAddr}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 4px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        মাসিক হাজিরা রেজিস্টার শিট (খালি ছক) — জামাত: ${classVal} (${branchVal})
+                    </h3>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: center; border: 1px solid #cbd5e1;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 4px; width: 28px; border-right: 1px solid #cbd5e1;">রোল</th>
+                            <th style="padding: 4px; width: 120px; text-align: left; border-right: 1px solid #cbd5e1;">ছাত্রের নাম</th>`;
+        for (let d = 1; d <= 31; d++) {
+            container.firstElementChild.querySelector('tr').innerHTML += `<th style="border-right: 1px solid #cbd5e1; width: 20px; font-family: 'Inter', sans-serif;">${d}</th>`;
+        }
+        container.firstElementChild.querySelector('tr').innerHTML += `<th style="border-right: 1px solid #cbd5e1; width: 30px;">মোট P</th><th style="width: 30px;">মোট A</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Blank_Attendance_Register_${classVal}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        showToast("খালি রেজিস্টার পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("খালি রেজিস্টার ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // ★ মাসিক রেজিস্টার লেজার A4 Landscape PDF ডাউনলোড ★
+    window.generateMonthlyRegister = async function() {
+        const container = document.getElementById('monthly-register-wrapper');
+        if (!container) return;
+
+        const year = document.getElementById('monthly-year-filter')?.value || '2026';
+        const month = document.getElementById('monthly-month-filter')?.value || '01';
+        const branchVal = document.getElementById('monthly-branch-filter')?.value || '';
+        const classVal = document.getElementById('monthly-class-filter')?.value || '';
+        const groupVal = document.getElementById('monthly-group-filter')?.value || '';
+
+        let filtered = allMasterStudents;
+        if (branchVal) filtered = filtered.filter(s => s.branch === branchVal);
+        if (classVal) filtered = filtered.filter(s => s.class === classVal);
+        if (groupVal) filtered = filtered.filter(s => s.group === groupVal);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">কোনো তালিবে ইলম পাওয়া যায়নি</p>`;
             return;
         }
 
-        const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
-        const curUser = user ? user.username : "system";
+        try {
+            const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+            const monthPrefix = `${year}-${month}`;
 
-        for (let s of studentsInClass) {
-            const compoundKey = `${s.id}_${date}`;
-            const att = tempAttendanceMap[s.id] || { status: "", note: "" };
+            const allAttendance = await db.attendance.toArray();
+            const monthlyAttendance = allAttendance.filter(a => a.date && a.is_deleted !== 1 && a.date.startsWith(monthPrefix));
+
+            const lookup = {};
+            monthlyAttendance.forEach(a => {
+                lookup[`${a.student_id}_${a.date}`] = { status: a.status, note: a.note || "" };
+            });
+
+            let html = `
+                <table class="min-w-full border-collapse border border-gray-200 text-xs font-sans">
+                    <thead class="bg-gray-100 font-bold sticky top-0 z-10 text-gray-700">
+                        <tr>
+                            <th class="border border-gray-200 px-3 py-2 text-left sticky left-0 bg-gray-100 z-20 min-w-[130px]">রোল ও ছাত্রের নাম</th>`;
             
-            if (att.status !== 'Present') {
-                tempAttendanceMap[s.id] = { 
-                    status: 'Present', 
-                    note: att.note || "", 
-                    attendance_id: compoundKey 
-                };
+            for (let d = 1; d <= daysInMonth; d++) {
+                html += `<th class="border border-gray-200 px-1 py-2 text-center min-w-[24px] font-en">${String(d).padStart(2, '0')}</th>`;
             }
-        }
 
-        hasUnsavedChanges = true;
-        await window.renderAttendanceTable();
-        showToast("সবাইকে সাময়িকভাবে উপস্থিত করা হয়েছে। সেভ করতে নিচে ক্লিক করুন!", "info");
+            html += `
+                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[32px] text-emerald-800">P</th>
+                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[32px] text-rose-800">A</th>
+                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[32px] text-amber-800">L</th>
+                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[32px] text-purple-800">Lve</th>
+                            <th class="border border-gray-200 px-2 py-2 text-center min-w-[42px] font-bold">হার (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">`;
+
+            filtered.forEach(s => {
+                html += `
+                    <tr class="hover:bg-gray-50 transition text-gray-700">
+                        <td class="border border-gray-200 px-2.5 py-1 text-left font-bold sticky left-0 bg-white z-10 truncate max-w-[130px]">
+                            <span class="text-[10px] text-emerald-700 font-en mr-1 font-bold">${String(s.roll || 0).padStart(2, '0')}</span> ${s.name}
+                        </td>`;
+
+                let pCount = 0, aCount = 0, lCount = 0, leaveCount = 0;
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${month}-${String(d).padStart(2, '0')}`;
+                    const att = lookup[`${s.id}_${dateStr}`];
+
+                    let cellVal = '-';
+                    let cellClass = 'text-gray-300';
+
+                    if (att) {
+                        if (att.status === 'Present') {
+                            pCount++; cellVal = 'P'; cellClass = 'text-emerald-700 bg-emerald-50/60 font-bold';
+                        } else if (att.status === 'Absent') {
+                            aCount++; cellVal = 'A'; cellClass = 'text-rose-700 bg-rose-50/60 font-bold';
+                        } else if (att.status === 'Late') {
+                            lCount++; cellVal = 'L'; cellClass = 'text-amber-700 bg-amber-50/60 font-bold';
+                        } else if (att.status === 'Leave') {
+                            leaveCount++; cellVal = 'V'; cellClass = 'text-purple-700 bg-purple-50/60 font-bold';
+                        }
+                    }
+
+                    html += `<td class="border border-gray-200 px-0.5 py-1 text-center font-en font-bold ${cellClass}">${cellVal}</td>`;
+                }
+
+                const totalMarked = pCount + aCount + lCount + leaveCount;
+                const rate = totalMarked > 0 ? Math.round((pCount / totalMarked) * 100) : 0;
+
+                html += `
+                        <td class="border border-gray-200 px-1 py-1 text-center font-bold font-en text-emerald-700 bg-emerald-50/30">${pCount}</td>
+                        <td class="border border-gray-200 px-1 py-1 text-center font-bold font-en text-rose-700 bg-rose-50/30">${aCount}</td>
+                        <td class="border border-gray-200 px-1 py-1 text-center font-bold font-en text-amber-700 bg-amber-50/30">${lCount}</td>
+                        <td class="border border-gray-200 px-1 py-1 text-center font-bold font-en text-purple-700 bg-purple-50/30">${leaveCount}</td>
+                        <td class="border border-gray-200 px-1 py-1 text-center font-bold font-en text-gray-800 bg-gray-50">${rate}%</td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    async function getStudentAttendanceStats(studentId) {
-        try {
-            const list = await db.attendance.where('student_id').equals(studentId).toArray();
-            const activeList = list.filter(a => a.is_deleted !== 1);
+    window.downloadMonthlyRegisterPDF = async function() {
+        const year = document.getElementById('monthly-year-filter')?.value || '2026';
+        const month = document.getElementById('monthly-month-filter')?.value || '01';
+        const branchVal = document.getElementById('monthly-branch-filter')?.value || 'সকল শাখা';
+        const classVal = document.getElementById('monthly-class-filter')?.value || 'সকল জামাত';
 
-            const p = activeList.filter(a => a.status === 'Present').length;
-            const a = activeList.filter(a => a.status === 'Absent').length;
-            const l = activeList.filter(a => a.status === 'Late').length;
+        const config = await fetchMadrasahConfig();
+        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
 
-            const total = p + a + l;
-            const rate = total > 0 ? Math.round((p / total) * 100) : 100;
+        const monthNames = { "01":"জানুয়ারি","02":"ফেব্রুয়ারি","03":"মার্চ","04":"এপ্রিল","05":"মে","06":"জুন","07":"জুলাই","08":"আগস্ট","09":"সেপ্টেম্বর","10":"অক্টোবর","11":"নভেম্বর","12":"ডিসেম্বর" };
+        const monthName = monthNames[month] || month;
 
-            return { present: p, absent: a, late: l, rate: rate };
-        } catch (err) {
-            return { present: 0, absent: 0, late: 0, rate: 100 };
-        }
-    }
-
-    function refinePhoneNumber(phone) {
-        if (!phone) return "";
-        let clean = phone.toString().replace(/\D/g, ''); 
-        if (clean.startsWith('8801')) {
-            clean = clean.substring(2);
-        }
-        if (!clean.startsWith('01') && clean.length === 10) {
-            clean = '0' + clean;
-        }
-        return clean; 
-    }
-
-    window.sendAbsentAlertToWhatsApp = async function(studentId) {
-        const student = studentsInClass.find(s => s.id === studentId);
-        if (!student) return;
-
-        const rawPhone = student.parent_phone;
-        const refinedPhone = refinePhoneNumber(rawPhone);
-
-        let waNumber = refinedPhone;
-        if (refinedPhone.startsWith('0')) {
-            waNumber = '88' + refinedPhone;
+        const registerContent = document.getElementById('monthly-register-wrapper')?.innerHTML;
+        if (!registerContent || registerContent.includes('পাওয়া যায়নি')) {
+            showToast("কোনো ডাটা পাওয়া যায়নি!", "error");
+            return;
         }
 
-        const date = document.getElementById('attendance-date').value;
-        const madrasahName = localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const container = document.getElementById('hidden-monthly-pdf-area');
+        container.innerHTML = `
+            <div style="padding: 12px; font-family: 'Hind Siliguri', sans-serif; color: #1f2937; background: #fff;">
+                <div style="text-align: center; border-bottom: 2px solid #065f46; padding-bottom: 6px; margin-bottom: 8px;">
+                    <h2 style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">${mName}</h2>
+                    <p style="font-size: 10px; color: #4b5563; margin: 1px 0;">${mAddr}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 4px 0 0 0; background: #ecfdf5; display: inline-block; padding: 2px 14px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                        মাসিক হাজিরা রেজিস্টার ও লেজার শিট — ${monthName} ${year}
+                    </h3>
+                    <p style="font-size: 9.5px; color: #64748b; margin: 3px 0 0 0;">শাখা: ${branchVal} | জামাত: ${classVal} | তৈরির তারিখ: ${window.getLocalDateString()}</p>
+                </div>
 
-        const wpMessage = `প্রিয় অভিভাবক,
-আজ ${date} তারিখে আপনার সন্তান ${student.name} ${madrasahName}-এ অনুপস্থিত রয়েছে। অনুপস্থিতির সুনির্দিষ্ট কারণ জানাতে অনুগ্রহ করে মাদরাসা হেল্পলাইনে দ্রুত যোগাযোগ করুন। ধন্যবাদ।`;
+                <div style="font-size: 8.5px;">
+                    ${registerContent}
+                </div>
 
-        const wpUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(wpMessage)}`;
-        window.open(wpUrl, '_blank');
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 9px; color: #475569;">
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">শ্রেণী শিক্ষকের স্বাক্ষর</div>
+                    <div style="border-top: 1px solid #94a3b8; width: 110px; text-align: center; padding-top: 2px;">নাযিমে তালিমাত</div>
+                    <div style="border-top: 1px solid #065f46; width: 110px; text-align: center; padding-top: 2px; color: #064e3b; font-weight: bold;">মুহতামিম</div>
+                </div>
+            </div>`;
+
+        const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Monthly_Register_${classVal}_${monthName}_${year}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        showToast("মাসিক রেজিস্টার পিডিএফ প্রস্তুত হচ্ছে...", "info");
+        html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+            showToast("মাসিক রেজিস্টার ডাউনলোড সম্পন্ন!", "success");
+            container.innerHTML = '';
+        });
+    };
+
+    // ★ অ্যানালিটিক্স ও সেরা শিক্ষার্থী রেন্ডারার ★
+    window.renderAttendanceAnalytics = async function() {
+        const grid = document.getElementById('star-students-grid');
+        if (!grid) return;
+
+        const starStudents = allMasterStudents.filter(s => {
+            const h = statsLifetimeMap[s.id];
+            if (!h || h.total < 3) return false;
+            const rate = Math.round((h.present / h.total) * 100);
+            return rate >= 95;
+        });
+
+        if (starStudents.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 font-bold">এখনও পর্যন্ত ৯৫%+ উপস্থিতি অর্জনকারী শিক্ষার্থী পাওয়া যায়নি।</div>`;
+            return;
+        }
+
+        grid.innerHTML = starStudents.map(s => {
+            const h = statsLifetimeMap[s.id];
+            const rate = Math.round((h.present / h.total) * 100);
+            return `
+                <div class="bg-gradient-to-br from-amber-50/60 to-orange-50/40 p-4 rounded-2xl border border-amber-200 shadow-sm flex items-center gap-3">
+                    ${s.photo_url ? `<img class="w-12 h-12 rounded-full object-cover border-2 border-amber-400" src="${s.photo_url}">` : '<div class="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-base">⭐</div>'}
+                    <div>
+                        <h5 class="font-bold text-gray-900 text-xs">${s.name}</h5>
+                        <p class="text-[10px] text-gray-500 font-en">রোল: ${s.roll || '-'} | ${s.class}</p>
+                        <div class="mt-1 flex items-center gap-1.5">
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full text-[9.5px] font-bold font-en">${rate}% উপস্থিতি</span>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
     };
 })();
 </script>
