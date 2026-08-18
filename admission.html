@@ -1601,7 +1601,8 @@
 
         const msg = `আসসালামু আলাইকুম। আপনার সন্তান ${activePrintedStudent.name}-কে ${madrasahConfig.madrasah_name || 'মাদরাসায়'} ভর্তি সম্পন্ন করা হয়েছে।
 আইডি: ${activePrintedStudent.id} (রোল: ${activePrintedStudent.roll})
-প্রোফাইল লিংক: ${window.location.origin}${window.location.pathname}?p=${activePrintedStudent.id}`;
+প্রোফাইল লিংক: const madrasahId = localStorage.getItem('active_madrasah_id') || '';
+const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${activePrintedStudent.id}`;
 
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     };

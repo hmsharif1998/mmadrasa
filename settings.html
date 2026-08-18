@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">মাদরাসার নাম *</label>
-                        <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসাতুল মদিনা"
+                        <input type="text" id="set-madrasah-name" required placeholder="যেমন: মাদরাসা ম্যানেজমেন্ট বাই শরীফ"
                                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-bold bg-white">
                     </div>
                     <div>
@@ -552,7 +552,7 @@
             }
             config = config || {};
 
-            document.getElementById('set-madrasah-name').value = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            document.getElementById('set-madrasah-name').value = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
             document.getElementById('set-madrasah-address').value = config.madrasah_address || localStorage.getItem('madrasah_address') || '';
             document.getElementById('set-madrasah-phone').value = config.madrasah_phone || localStorage.getItem('madrasah_phone') || '';
             document.getElementById('set-madrasah-principal').value = config.principal_name || '';

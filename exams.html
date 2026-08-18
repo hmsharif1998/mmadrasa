@@ -1251,7 +1251,7 @@
         }
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const tableContent = document.getElementById('ledger-table-wrapper')?.innerHTML;
 
@@ -1359,7 +1359,7 @@
         const evalResult = evaluateStudentGradeAndDarajat(avg, hasFailed, scale);
 
         const config = await fetchMadrasahConfig();
-        const madrasahName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const madrasahName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const madrasahAddress = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const logoUrl = config.madrasah_logo || '';
 
@@ -1454,9 +1454,9 @@
         let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
-        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
-
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
+const madrasahId = localStorage.getItem('active_madrasah_id') || '';
+const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${s.id}`;
         const msg = `আসসালামু আলাইকুম।
 ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর ${activeMarksheetData.exam.exam_name}-এর ফলাফল প্রকাশিত হয়েছে।
 
@@ -1477,9 +1477,9 @@ ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে 
         let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
-        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
-
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
+const madrasahId = localStorage.getItem('active_madrasah_id') || '';
+const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${s.id}`;
         const msg = `আসসালামু আলাইকুম।
 ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর ${examObj.exam_name}-এর ফলাফল প্রকাশিত হয়েছে।
 
@@ -1523,7 +1523,7 @@ ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে 
         let eligibleStudents = [...classStudents, ...customStudentsList].filter(s => !excluded.includes(s.id));
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
 
         if (eligibleStudents.length === 0) {
             wrapper.innerHTML = `<p class="col-span-full text-center text-rose-500 py-10 font-bold">কোনো পরীক্ষার্থী পাওয়া যায়নি!</p>`;
@@ -1565,7 +1565,7 @@ ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে 
         }
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
 
         let excluded = [];
@@ -1662,7 +1662,7 @@ ${mName}-এর পক্ষ থেকে জানানো যাচ্ছে 
         }
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
 
         let classStudents = allStudentsCache.filter(s => s.class === examObj.class_name && (s.session_year == examObj.session_year || !s.session_year));
 

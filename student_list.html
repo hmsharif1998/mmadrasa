@@ -594,9 +594,9 @@
         let phone = (s.whatsapp_number || s.parent_phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
-        const portalUrl = `${window.location.origin}${window.location.pathname}?p=${s.id}`;
-
+        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
+const madrasahId = localStorage.getItem('active_madrasah_id') || '';
+const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${s.id}`;
         const msg = `আসসালামু আলাইকুম।
 ${mName} থেকে জানানো যাচ্ছে যে, আপনার সন্তান ${s.name}-এর প্রোফাইল ও রেজাল্ট লিঙ্ক: ${portalUrl}
 
@@ -614,7 +614,7 @@ ${mName} থেকে জানানো যাচ্ছে যে, আপনা
             activeProfileStudent = s;
             const config = await fetchMadrasahConfig();
 
-            const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+            const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
             const mAddr = config.madrasah_address || localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
             const logoUrl = config.madrasah_logo || localStorage.getItem('madrasah_logo') || '';
 
@@ -724,7 +724,7 @@ ${mName} থেকে জানানো যাচ্ছে যে, আপনা
         }
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mAddr = config.madrasah_address || localStorage.getItem('madrasah_address') || 'ঢাকা, বাংলাদেশ';
         
         // সকল সক্রিয় ফিল্টার ডাটা সংগ্রহ

@@ -818,7 +818,7 @@
 
         activeBiodataTeacher = t;
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const logoUrl = config.madrasah_logo || '';
 
@@ -896,7 +896,7 @@
         }
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
 
         let totalSalary = 0;
@@ -1117,7 +1117,7 @@
     // শিক্ষক দৈনিক হাজিরা A4 PDF
     window.downloadTeacherDailyAttendancePDF = async function() {
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const date = sanitizeDateString(document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString());
 
@@ -1196,7 +1196,7 @@
     // শিক্ষক মাসিক রেজিস্টার A4 Landscape PDF
     window.downloadTeacherMonthlyRegisterPDF = async function() {
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const monthVal = document.getElementById('teacher-register-month')?.value || '01';
         const yearVal = new Date().getFullYear().toString();
@@ -1457,7 +1457,7 @@
     window.showTeacherPaySlipModal = async function(data) {
         activePaySlipData = data;
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const logoUrl = config.madrasah_logo || '';
 
@@ -1560,7 +1560,7 @@
     window.downloadMonthlyPayrollReportPDF = async function() {
         const month = document.getElementById('payroll-month-select')?.value || 'জানুয়ারি';
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
 
         const allExpenses = await db.expenses.toArray();
@@ -1658,7 +1658,7 @@
         let phone = (t.phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ, ${t.name} হুজুর।\n${mName}-এর পক্ষ থেকে সালাম ও শুভেচ্ছা।`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     };
@@ -1670,7 +1670,7 @@
         if (phone.startsWith('0')) phone = '88' + phone;
 
         const date = sanitizeDateString(document.getElementById('teacher-attendance-date')?.value || window.getLocalDateString());
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ, ${t.name} হুজুর।\nআজ (${date}) তারিখে মাদরাসায় আপনার উপস্থিতি পাওয়া যায়নি। কোনো জরুরি কারণ বা ছুটি থাকলে অফিসকে অবহিত করার অনুরোধ করা হলো।\n-${mName}`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     };
@@ -1687,7 +1687,7 @@
         const m = month || (activePaySlipData ? activePaySlipData.month : 'চলতি');
         const amt = netSalary || (activePaySlipData ? activePaySlipData.net : t.basic_salary);
         const vId = voucherId || (activePaySlipData ? activePaySlipData.voucher_id : 'EXP');
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
 
         const msg = `মুহতারাম ${t.name} হুজুর,\nআপনার ${m} মাসের বেতন বাবদ সর্বমোট ৳${amt} সফলভাবে পরিশোধ করা হয়েছে।\nভাউচার নম্বর: ${vId}\nজাজাকুমুল্লাহু খাইরান,\n${mName}`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');

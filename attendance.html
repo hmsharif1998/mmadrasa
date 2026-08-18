@@ -902,7 +902,7 @@
 
         activeCardStudent = student;
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const logoUrl = config.madrasah_logo || '';
 
@@ -993,7 +993,7 @@
         if (phone.startsWith('0')) phone = '88' + phone;
 
         const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
-        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা';
+        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mPhone = madrasahConfig.madrasah_phone || '';
 
         const msg = `আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ।
@@ -1011,7 +1011,7 @@ ${mName}`;
     // ★ দৈনিক রিপোর্ট A4 PDF ডাউনলোড ★
     window.downloadDailyAttendancePDF = async function() {
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const date = document.getElementById('attendance-date')?.value || window.getLocalDateString();
         const branchVal = document.getElementById('daily-branch-filter')?.value || 'সকল শাখা';
@@ -1113,7 +1113,7 @@ ${mName}`;
     // ★ খালি হাজিরা খাতা (Blank Monthly Register) A4 Landscape PDF ডাউনলোড ★
     window.downloadBlankRegisterPDF = async function() {
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const classVal = document.getElementById('daily-class-filter')?.value || 'সকল জামাত';
         const branchVal = document.getElementById('daily-branch-filter')?.value || 'সকল শাখা';
@@ -1278,7 +1278,7 @@ ${mName}`;
         const classVal = document.getElementById('monthly-class-filter')?.value || 'সকল জামাত';
 
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
 
         const monthNames = { "01":"জানুয়ারি","02":"ফেব্রুয়ারি","03":"মার্চ","04":"এপ্রিল","05":"মে","06":"জুন","07":"জুলাই","08":"আগস্ট","09":"সেপ্টেম্বর","10":"অক্টোবর","11":"নভেম্বর","12":"ডিসেম্বর" };

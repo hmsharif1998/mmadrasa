@@ -676,7 +676,7 @@
 
     // ১-ক্লিকে বকেয়া তাগাদা নোটিশ পাঠানোর ব্রডকাস্ট লিঙ্ক
     window.sendDueReminderBroadcast = function() {
-        const mName = madrasahConfig.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = madrasahConfig.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const msg = `আসসালামু আলাইকুম। ${mName}-এর পক্ষ থেকে বিনীতভাবে জানানো যাচ্ছে যে, চলতি মাসের নির্ধারিত মাসিক বেতন পরিশোধের অনুরোধ করা হলো। বিস্তারিত জানতে মাদরাসা অফিসে যোগাযোগ করুন। ধন্যবাদ।`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     };
@@ -854,7 +854,7 @@
     // ★ প্রাতিষ্ঠানিক এক্সিকিউটিভ ড্যাশবোর্ড রিপোর্ট A4 PDF ডাউনলোড ★
     window.downloadDashboardReportPDF = async function() {
         const config = await fetchMadrasahConfig();
-        const mName = config.madrasah_name || 'মাদরাসাতুল মদিনা';
+        const mName = config.madrasah_name || 'মাদরাসা ম্যানেজমেন্ট বাই শরীফ';
         const mAddr = config.madrasah_address || 'ঢাকা, বাংলাদেশ';
         const sessionYear = document.getElementById('dash-session-year-select')?.value || '২০২৬';
 
