@@ -135,7 +135,7 @@
             <h3 id="status-message" class="text-base font-bold text-white"></h3>
             <p id="status-sub-message" class="text-xs text-emerald-200"></p>
         </div>
-		        <div class="mt-4 pt-3 border-t border-white/10">
+        <div class="mt-4 pt-3 border-t border-white/10">
             <a href="https://www.hmsharif.com/p/m-app-support.html" target="_blank" rel="noopener noreferrer" 
                class="text-[11px] font-semibold text-emerald-200 hover:text-yellow-300 transition flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-circle-question text-yellow-300"></i> সাহায্য প্রয়োজন? ক্লিক করুন
@@ -278,7 +278,7 @@ function checkParentPortalUrl() {
 }
 
     // ==========================================================
-    // ২. অনলাইন পিন ও টেন্যান্ট ভেরিফিকেশন ইঞ্জিন (Admin Auth)
+    // ২. অনলাইন পিন ও টেন্যান্ট ভেরিফিকেশন ইঞ্জিন (Ultra-Fast Local-First Auth)
     // ==========================================================
 window.checkPinSubmit = async function() {
     const madrasahIdInput = document.getElementById('lock-madrasah-id');
@@ -307,83 +307,118 @@ window.checkPinSubmit = async function() {
         statusIconBox.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-white/10 text-yellow-300 animate-spin";
         statusIconBox.innerHTML = `<i class="fa-solid fa-spinner"></i>`;
         statusMessage.textContent = "যাচাই করা হচ্ছে...";
-        statusSubMessage.textContent = "সার্ভারের সাথে যোগাযোগ করা হচ্ছে...";
+        statusSubMessage.textContent = "লগইন সম্পন্ন হচ্ছে...";
     }
 
-    // মাস্টার শিটে লগইন / ওয়ান-টাইম সেটআপ চেক
- if (navigator.onLine && App.masterUrl) {
-        try {
-            const payload = JSON.stringify({
-                action: 'verify_login_or_setup',
-                madrasah_id: madrasahId,
-                username: username,
-                password: pin
-            });
+    // ==========================================================
+    // ধাপ ১: ফাস্ট-ট্র্যাক লোকাল ভেরিফিকেশন (Instant <10ms Login)
+    // ==========================================================
+    try {
+        const cachedMadrasahId = localStorage.getItem('active_madrasah_id');
+        if (cachedMadrasahId === madrasahId) {
+            const localUser = await db.users.get(username);
+            const hashedInputPin = await window.hashPIN(pin);
 
-            const res = await fetch(App.masterUrl, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: payload
-            });
-
-            const data = await res.json();
-
-            if (data.status !== 'success') {
-                handleFailedLogin(data.message || "ভুল ইউজারনেম বা পাসওয়ার্ড!");
+            if (localUser && localUser.is_deleted !== 1 && (localUser.pin === hashedInputPin || localUser.pin === pin)) {
+                await handleSuccessfulLogin(localUser.username, localUser.role, localUser.fullname || localUser.username);
+                
+                // ব্যাকগ্রাউন্ডে ক্লাউড সিঙ্ক চালু হবে
+                if (navigator.onLine && typeof triggerAutoSync === 'function') {
+                    setTimeout(() => triggerAutoSync(), 1000);
+                }
                 return;
             }
+        }
+    } catch(e){}
 
-            // তথ্য ক্যাশ করা
-            localStorage.setItem('active_madrasah_id', madrasahId);
-            localStorage.setItem('active_tenant_script_id', data.script_id);
-            if (data.madrasah_name) localStorage.setItem('madrasah_name', data.madrasah_name);
+    // ==========================================================
+    // ধাপ ২: ক্লাউড ভেরিফিকেশন (মাস্টার বা সরাসরি টেন্যান্ট কল)
+    // ==========================================================
+    if (navigator.onLine) {
+        try {
+            let tenantScriptId = localStorage.getItem('active_tenant_script_id');
+            const cachedMadrasahId = localStorage.getItem('active_madrasah_id');
 
-// যদি প্রথমবার হয়, সরাসরি ইনস্টলার উইজার্ডে নিয়ে যাবে
-if (data.is_first_time === true) {
-    const overlay = document.getElementById('pin-lock-overlay');
-    if (overlay) overlay.style.display = 'none';
-    resetLockOverlayState();
-    
-    // ইনস্টলার চালানোর জন্য সাইডবার আপডেট
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.add('hidden', 'md:hidden'); // ইনস্টল চলাকালীন সাইডবার বন্ধ থাকবে
-    
-    showToast("মাস্টার ভেরিফিকেশন সফল! সেটআপ উইজার্ডে স্বাগতম।", "success");
-    loadModule('installer');
-    return;
-}
-            // নিয়মিত লগইন (টেন্যান্ট শিটে ভেরিফিকেশন)
-            const tenantUrl = App.getTenantUrl();
-            const userPayload = JSON.stringify({
-                action: 'verify_user',
-                username: username,
-                pin: pin
-            });
+            // যদি এই মাদরাসার স্ক্রিপ্ট আইডি পূর্বে না জানা থাকে, তবেই মাস্টার শিটে যাবে
+            if (!tenantScriptId || cachedMadrasahId !== madrasahId) {
+                if (App.masterUrl) {
+                    const payload = JSON.stringify({
+                        action: 'verify_login_or_setup',
+                        madrasah_id: madrasahId,
+                        username: username,
+                        password: pin
+                    });
 
-            const userRes = await fetch(tenantUrl, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: userPayload
-            });
+                    const res = await fetch(App.masterUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: payload
+                    });
 
-            const userData = await userRes.json();
-            if (userData.status === 'success') {
-                const hashedPin = await window.hashPIN(pin);
-                await db.users.put({
+                    const data = await res.json();
+
+                    if (data.status !== 'success') {
+                        handleFailedLogin(data.message || "ভুল ইউজারনেম বা পাসওয়ার্ড!");
+                        return;
+                    }
+
+                    // তথ্য ক্যাশ করা
+                    localStorage.setItem('active_madrasah_id', madrasahId);
+                    localStorage.setItem('active_tenant_script_id', data.script_id);
+                    if (data.madrasah_name) localStorage.setItem('madrasah_name', data.madrasah_name);
+                    tenantScriptId = data.script_id;
+
+                    // যদি প্রথমবার হয়, সরাসরি ইনস্টলার উইজার্ডে নিয়ে যাবে
+                    if (data.is_first_time === true) {
+                        const overlay = document.getElementById('pin-lock-overlay');
+                        if (overlay) overlay.style.display = 'none';
+                        resetLockOverlayState();
+                        
+                        const sidebar = document.getElementById('sidebar');
+                        if (sidebar) sidebar.classList.add('hidden', 'md:hidden');
+                        
+                        showToast("মাস্টার ভেরিফিকেশন সফল! সেটআপ উইজার্ডে স্বাগতম।", "success");
+                        loadModule('installer');
+                        return;
+                    }
+                }
+            }
+
+            // নিয়মিত লগইন (সরাসরি টেন্যান্ট শিটে ভেরিফিকেশন - Fast Hop)
+            if (tenantScriptId) {
+                const tenantUrl = `https://script.google.com/macros/s/${tenantScriptId}/exec`;
+                const userPayload = JSON.stringify({
+                    action: 'verify_user',
                     username: username,
-                    pin: hashedPin,
-                    role: userData.role || 'teacher',
-                    fullname: userData.fullname || username,
-                    is_synced: 1,
-                    is_deleted: 0
+                    pin: pin
                 });
-                await handleSuccessfulLogin(username, userData.role, userData.fullname || username);
-                return;
-            } else {
-                handleFailedLogin(userData.message || "ভুল পিন কোড!");
-                return;
+
+                const userRes = await fetch(tenantUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: userPayload
+                });
+
+                const userData = await userRes.json();
+                if (userData.status === 'success') {
+                    localStorage.setItem('active_madrasah_id', madrasahId);
+                    const hashedPin = await window.hashPIN(pin);
+                    await db.users.put({
+                        username: username,
+                        pin: hashedPin,
+                        role: userData.role || 'teacher',
+                        fullname: userData.fullname || username,
+                        is_synced: 1,
+                        is_deleted: 0
+                    });
+                    await handleSuccessfulLogin(username, userData.role, userData.fullname || username);
+                    return;
+                } else {
+                    handleFailedLogin(userData.message || "ভুল পিন কোড!");
+                    return;
+                }
             }
 
         } catch (err) {
@@ -391,7 +426,9 @@ if (data.is_first_time === true) {
         }
     }
 
-    // অফলাইন ফালব্যাক লগইন
+    // ==========================================================
+    // ধাপ ৩: অফলাইন ফালব্যাক
+    // ==========================================================
     try {
         const localUser = await db.users.get(username);
         const hashedInputPin = await window.hashPIN(pin);
@@ -448,7 +485,7 @@ if (data.is_first_time === true) {
             resetLockOverlayState();
             window.updateSidebarNavigation();
             window.checkActiveSession();
-        }, 800);
+        }, 500);
     }
 
     function handleFailedLogin(errorText) {
@@ -509,9 +546,17 @@ if (data.is_first_time === true) {
 
     document.addEventListener('DOMContentLoaded', () => {
         const activeMadrasah = localStorage.getItem('active_madrasah_id');
+        const savedMadrasahName = localStorage.getItem('madrasah_name');
+
         if (activeMadrasah) {
             const mInput = document.getElementById('lock-madrasah-id');
             if (mInput) mInput.value = activeMadrasah;
+        }
+
+        // ইনস্ট্যান্ট ব্র্যান্ডিং (০.০১ সেকেন্ডে মাদরাসার নাম দেখানো)
+        if (savedMadrasahName) {
+            const lockNameEl = document.getElementById('lock-madrasah-name');
+            if (lockNameEl) lockNameEl.textContent = savedMadrasahName;
         }
 
         // অভিভাবক লিংক চেক: যদি অভিভাবক হন তবে সাধারণ অ্যাডমিন সেটিংস লোড করা বাদ দেবে
@@ -523,4 +568,3 @@ if (data.is_first_time === true) {
 </script>
 </body>
 </html>
-

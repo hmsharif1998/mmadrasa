@@ -321,12 +321,12 @@
         }
     };
 
-    // মাস্টার সার্ভার থেকে মাদরাসার ব্র্যান্ডিং ও টেন্যান্ট স্ক্রিপ্ট আইডি প্রি-ফেচিং
+    // মাস্টার সার্ভার থেকে মাদরাসার ব্র্যান্ডিং ও টেন্যান্ট স্ক্রিপ্ট আইডি প্রি-ফেচিং (ক্যাশ-ফার্স্ট)
     async function fetchInitialMadrasahBranding(madrasahId) {
         const titleEl = document.getElementById('portal-madrasah-title');
         const logoBox = document.getElementById('portal-auth-logo-box');
 
-        // লোকাল মেমোরি চেক
+        // ১. ইনস্ট্যান্ট লোকাল মেমোরি চেক (০ সেকেন্ডে নাম ও লোগো দেখানো)
         const localName = localStorage.getItem('madrasah_name');
         const localLogo = localStorage.getItem('madrasah_logo');
         if (localName && titleEl) titleEl.textContent = localName;
@@ -334,7 +334,7 @@
             logoBox.innerHTML = `<img src="${localLogo}" crossorigin="anonymous" class="w-16 h-16 rounded-2xl object-cover">`;
         }
 
-        // ক্লাউড মাস্টার স্ক্রিপ্ট থেকে ডায়নামিক ডিসকভারি
+        // ২. ক্লাউড মাস্টার স্ক্রিপ্ট থেকে মেমোরি ক্যাশ ফেচিং
         if (navigator.onLine && App.masterUrl && madrasahId) {
             try {
                 const payload = JSON.stringify({
@@ -370,7 +370,7 @@
         }
     }
 
-    // পিন ভেরিফিকেশন ও সরাসরি টেন্যান্ট থেকে ডাটা লোড (Direct Client Fetch)
+    // পিন ভেরিফিকেশন ও সরাসরি টেন্যান্ট থেকে দ্রুত ডাটা লোড (Direct Client Fetch)
     window.verifyParentAccess = async function() {
         if (Date.now() < lockUntilTimestamp) {
             showToast("কিছুক্ষণ পর আবার চেষ্টা করুন!", "error");
@@ -391,12 +391,12 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> যাচাই হচ্ছে...`;
         }
 
-        // যদি কোনো কারণে script_id না পাওয়া যায়, তবে আবার মাস্টার থেকে নেওয়ার চেষ্টা করবে
+        // যদি কোনো কারণে script_id পূর্বে ক্যাশ না হয়ে থাকে, তবে দ্রুত ডিসকভারি করবে
         if (!resolvedTenantScriptId && navigator.onLine && App.masterUrl && madrasahId) {
             await fetchInitialMadrasahBranding(madrasahId);
         }
 
-        // ১. সরাসরি টেন্যান্ট গুগল শিট এপিআই কল (Direct Client-to-Tenant Call)
+        // ১. সরাসরি টেন্যান্ট গুগল শিট এপিআই কল (Direct Single-Hop Call)
         const tenantUrl = resolvedTenantScriptId 
             ? `https://script.google.com/macros/s/${resolvedTenantScriptId}/exec` 
             : (window.getTenantScriptUrl ? window.getTenantScriptUrl() : '');
