@@ -525,7 +525,7 @@
         if (pinInp) pinInp.value = '';
     };
 
-    // ড্যাশবোর্ড রেন্ডারার
+    // ড্যাশবোর্ড রেন্ডারার (ভর্তির মাস ও নিখুঁত লেজার হিসাব সহ)
     async function renderParentDashboard() {
         if (!portalStudentData || !portalStudentData.student) return;
 
@@ -573,26 +573,47 @@
         const attRate = totalAtt > 0 ? Math.round((presentCount / totalAtt) * 100) : 100;
         document.getElementById('overview-att-rate').textContent = attRate + "%";
 
-        // সঠিক বকেয়া হিসাব
+        // ==========================================================
+        // ডায়নামিক লেজার ও ভর্তির মাস ভিত্তিক নিখুঁত বকেয়া হিসাব
+        // ==========================================================
         const feesList = portalStudentData.fees || [];
         const monthlyFee = parseFloat(s.monthly_fee) || 0;
-        const prevDue = parseFloat(s.previous_due) || 0;
+        const prevDue = parseFloat(s.previous_due) || 0; // বিগত বকেয়া / ওপেনিং ব্যালেন্স
 
-        let totalPaidSum = 0;
-        const paidMonthsSet = new Set();
-        feesList.forEach(f => {
-            totalPaidSum += (parseFloat(f.total || f.amount) || 0);
-            if (f.month) paidMonthsSet.add(f.month);
-        });
-
-        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
-        const currentMonthIdx = new Date().getMonth();
-        let unpaidMonthsCount = 0;
-        for (let i = 0; i <= currentMonthIdx; i++) {
-            if (!paidMonthsSet.has(bnMonths[i])) unpaidMonthsCount++;
+        // ভর্তির মাস নির্ণয় (Admission Month Index)
+        let admissionMonthIdx = 0; // ডিফল্ট জানুয়ারি (0)
+        if (s.admission_date) {
+            const admDateParts = s.admission_date.split('-');
+            if (admDateParts.length >= 2) {
+                const parsedMonth = parseInt(admDateParts[1], 10);
+                if (!isNaN(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12) {
+                    admissionMonthIdx = parsedMonth - 1;
+                }
+            }
         }
 
-        const calculatedDue = (unpaidMonthsCount * monthlyFee) + prevDue;
+        const currentMonthIdx = new Date().getMonth();
+        // ভর্তির মাস থেকে চলতি মাস পর্যন্ত সক্রিয় মাসের সংখ্যা (ভর্তির আগের মাসের ফি ধার্য হবে না)
+        let activeBilledMonths = 0;
+        if (currentMonthIdx >= admissionMonthIdx) {
+            activeBilledMonths = (currentMonthIdx - admissionMonthIdx) + 1;
+        }
+
+        // মোট প্রদেয় পাওনা (ভর্তির মাস থেকে চলতি মাস পর্যন্ত ধার্যকৃত ফি + বিগত বকেয়া)
+        const totalBilledFee = (activeBilledMonths * monthlyFee) + prevDue;
+
+        let totalPaidSum = 0;
+        let totalDiscountSum = 0;
+
+        feesList.forEach(f => {
+            const paidAmt = parseFloat(f.total || f.amount || 0);
+            const discAmt = parseFloat(f.discount || 0);
+            totalPaidSum += paidAmt;
+            totalDiscountSum += discAmt;
+        });
+
+        // প্রকৃত সার্বিক বকেয়া = (মোট পাওনা) - (মোট ডিসকাউন্ট + মোট আদায়কৃত টাকা)
+        const calculatedDue = Math.max(0, totalBilledFee - totalDiscountSum - totalPaidSum);
 
         document.getElementById('overview-due-amount').textContent = "৳ " + calculatedDue.toLocaleString('bn-BD');
         document.getElementById('fee-card-monthly').textContent = "৳ " + monthlyFee.toLocaleString('bn-BD');
@@ -609,7 +630,7 @@
         await populateParentExamDropdown();
     }
 
-    // ফি তালিকা ও A5 রসিদ ডাউনলোড
+    // ফি তালিকা ও A5 রসিদ ডাউনলোড (ছাড় ও বিশদ বিবরণীসহ)
     function renderParentFees(fees) {
         const container = document.getElementById('portal-fees-list');
         if (!container) return;
@@ -619,31 +640,38 @@
             return;
         }
 
-        container.innerHTML = fees.map(f => `
-            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 flex justify-between items-center text-xs">
-                <div>
-                    <strong class="text-gray-900 block">${f.month} মাসের বেতন</strong>
-                    <span class="text-[10px] text-gray-400 font-en">তারিখ: ${f.payment_date} | রসিদ নং: ${f.receipt_id}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="text-right">
-                        <strong class="text-emerald-800 font-en text-sm font-bold">৳ ${parseFloat(f.total || f.amount).toLocaleString('bn-BD')}</strong>
-                        <span class="block text-[9px] text-emerald-600 font-bold">${f.method || 'ক্যাশ'}</span>
+        container.innerHTML = fees.map(f => {
+            const disc = parseFloat(f.discount || 0);
+            return `
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 flex justify-between items-center text-xs">
+                    <div>
+                        <strong class="text-gray-900 block">${f.month} মাসের বেতন</strong>
+                        <span class="text-[10px] text-gray-400 font-en">তারিখ: ${f.payment_date} | রসিদ নং: ${f.receipt_id}</span>
+                        ${disc > 0 ? `<span class="block text-[9.5px] text-amber-700 font-bold">বিশেষ ছাড়: ৳ ${disc.toLocaleString('bn-BD')}</span>` : ''}
                     </div>
-                    <button type="button" onclick="window.downloadParentFeeReceiptPDF('${f.receipt_id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-1.5 rounded-lg text-xs transition cursor-pointer" title="রসিদ পিডিএফ ডাউনলোড">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </button>
-                </div>
-            </div>`).join('');
+                    <div class="flex items-center gap-2">
+                        <div class="text-right">
+                            <strong class="text-emerald-800 font-en text-sm font-bold">৳ ${parseFloat(f.total || f.amount).toLocaleString('bn-BD')}</strong>
+                            <span class="block text-[9px] text-emerald-600 font-bold">${f.method || 'ক্যাশ'}</span>
+                        </div>
+                        <button type="button" onclick="window.downloadParentFeeReceiptPDF('${f.receipt_id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-1.5 rounded-lg text-xs transition cursor-pointer" title="রসিদ পিডিএফ ডাউনলোড">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </button>
+                    </div>
+                </div>`;
+        }).join('');
     }
 
-    // A5 ফি রসিদ পিডিএফ ডাউনলোড
+    // A5 ফি রসিদ পিডিএফ ডাউনলোড (বিগত বকেয়া ও ছাড়ের হিসাবসহ)
     window.downloadParentFeeReceiptPDF = function(receiptId) {
         const fee = (portalStudentData.fees || []).find(f => f.receipt_id === receiptId);
         if (!fee) return;
 
         const s = portalStudentData.student;
         const madrasah = portalStudentData.madrasah || {};
+        const disc = parseFloat(fee.discount || 0);
+        const fine = parseFloat(fee.fine || 0);
+        const prevDuePaid = parseFloat(fee.previous_due_paid || 0);
 
         const renderArea = document.getElementById('portal-receipt-render-area');
         renderArea.innerHTML = `
@@ -668,12 +696,27 @@
 
                 <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin: 8px 0; border-top: 1px dashed #cbd5e1; border-bottom: 1px dashed #cbd5e1;">
                     <tr>
-                        <td style="padding: 4px 0;">মাসিক বেতন বাবদ পরিশোধ:</td>
-                        <td style="padding: 4px 0; text-align: right; font-family: 'Inter', sans-serif; font-weight: bold; color: #065f46;">৳ ${fee.total || fee.amount}</td>
+                        <td style="padding: 3px 0;">মাসিক নির্ধারিত ফি:</td>
+                        <td style="padding: 3px 0; text-align: right; font-family: 'Inter', sans-serif; font-weight: bold;">৳ ${fee.amount || fee.total}</td>
                     </tr>
+                    ${fine > 0 ? `
+                    <tr>
+                        <td style="padding: 3px 0;">জরিমানা (+):</td>
+                        <td style="padding: 3px 0; text-align: right; font-family: 'Inter', sans-serif; font-weight: bold; color: #dc2626;">+ ৳ ${fine}</td>
+                    </tr>` : ''}
+                    ${prevDuePaid > 0 ? `
+                    <tr>
+                        <td style="padding: 3px 0;">বিগত বকেয়া বাবদ পরিশোধ (+):</td>
+                        <td style="padding: 3px 0; text-align: right; font-family: 'Inter', sans-serif; font-weight: bold; color: #9a3412;">+ ৳ ${prevDuePaid}</td>
+                    </tr>` : ''}
+                    ${disc > 0 ? `
+                    <tr>
+                        <td style="padding: 3px 0;">বিশেষ ছাড় / মওকুফ (-):</td>
+                        <td style="padding: 3px 0; text-align: right; font-family: 'Inter', sans-serif; font-weight: bold; color: #059669;">- ৳ ${disc}</td>
+                    </tr>` : ''}
                 </table>
 
-                <div style="display: flex; justify-content: space-between; font-size: 10.5px; font-weight: bold; color: #064e3b;">
+                <div style="display: flex; justify-content: space-between; font-size: 10.5px; font-weight: bold; color: #064e3b; margin-top: 4px;">
                     <span>সর্বমোট গৃহীত টাকা (${fee.method || 'ক্যাশ'}):</span>
                     <span style="font-family: 'Inter', sans-serif;">৳ ${fee.total || fee.amount}</span>
                 </div>
