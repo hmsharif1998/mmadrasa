@@ -7,7 +7,7 @@
 // ১. গ্লোবাল অ্যাপ স্টেট ও ইভেন্ট বাস (Event Bus)
 // ============================================
 window.App = {
-    masterUrl: 'https://script.google.com/macros/s/AKfycbxkVnAN8xvC3pjSlvM_D-jxfTEYHxEyl-lV6BEHNsON_ONFU_eTxjdlofzNVJGj2P4n/exec',
+    masterUrl: 'https://script.google.com/macros/s/AKfycbxdaZKwWX4XkvbHz5mTtnhQ-KuQRyWpsRlUjL15U1Di5atZgDEowbYPo8eNKSOcECJV/exec',
     currentUser: JSON.parse(sessionStorage.getItem('currentUser')) || null,
     currentModule: 'dashboard',
     isSyncing: false,

@@ -1,5 +1,3 @@
---- START OF FILE parent_portal.html ---
-
 <!-- Google Fonts & html2pdf.js CDN (পিডিএফ ও ফন্ট অপ্টিমাইজেশন) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,6 +273,7 @@
     let currentSelectedExam = null;
     let resolvedMadrasahId = "";
     let resolvedStudentId = "";
+    let resolvedTenantScriptId = "";
 
     // URL থেকে মাদরাসা আইডি ও ছাত্র আইডি নিখুঁতভাবে রিড করা
     function parsePortalUrlParams() {
@@ -300,6 +299,7 @@
 
         resolvedMadrasahId = (mId || localStorage.getItem('active_madrasah_id') || '').toUpperCase();
         resolvedStudentId = sId;
+        resolvedTenantScriptId = localStorage.getItem('active_tenant_script_id') || '';
 
         return { madrasahId: resolvedMadrasahId, studentId: resolvedStudentId };
     }
@@ -312,7 +312,7 @@
             return;
         }
 
-        // পেজ লোড হওয়ামাত্র মাস্টার সার্ভার বা লোকাল সেটিংস থেকে সঠিক মাদরাসার নাম ও লোগো আনা
+        // পেজ লোড হওয়ামাত্র মাস্টার সার্ভার থেকে মাদরাসার নাম, লোগো এবং টেন্যান্ট স্ক্রিপ্ট আইডি সংগ্রহ
         await fetchInitialMadrasahBranding(madrasahId);
 
         const savedLockTime = localStorage.getItem('parent_portal_lock_time');
@@ -321,7 +321,7 @@
         }
     };
 
-    // মাস্টার সার্ভার থেকে মাদরাসার নাম প্রি-ফেচিং
+    // মাস্টার সার্ভার থেকে মাদরাসার ব্র্যান্ডিং ও টেন্যান্ট স্ক্রিপ্ট আইডি প্রি-ফেচিং
     async function fetchInitialMadrasahBranding(madrasahId) {
         const titleEl = document.getElementById('portal-madrasah-title');
         const logoBox = document.getElementById('portal-auth-logo-box');
@@ -334,7 +334,7 @@
             logoBox.innerHTML = `<img src="${localLogo}" crossorigin="anonymous" class="w-16 h-16 rounded-2xl object-cover">`;
         }
 
-        // ক্লাউড মাস্টার স্ক্রিপ্ট থেকে লাইভ ফেচিং
+        // ক্লাউড মাস্টার স্ক্রিপ্ট থেকে ডায়নামিক ডিসকভারি
         if (navigator.onLine && App.masterUrl && madrasahId) {
             try {
                 const payload = JSON.stringify({
@@ -350,17 +350,27 @@
                 });
 
                 const data = await res.json();
-                if (data.status === 'success' && data.madrasah_name) {
-                    if (titleEl) titleEl.textContent = data.madrasah_name;
+                if (data.status === 'success') {
+                    if (data.madrasah_name) {
+                        if (titleEl) titleEl.textContent = data.madrasah_name;
+                        localStorage.setItem('madrasah_name', data.madrasah_name);
+                    }
                     if (data.madrasah_logo && logoBox) {
                         logoBox.innerHTML = `<img src="${data.madrasah_logo}" crossorigin="anonymous" class="w-16 h-16 rounded-2xl object-cover">`;
+                        localStorage.setItem('madrasah_logo', data.madrasah_logo);
+                    }
+                    if (data.script_id) {
+                        resolvedTenantScriptId = data.script_id;
+                        localStorage.setItem('active_tenant_script_id', data.script_id);
                     }
                 }
-            } catch(e){}
+            } catch(e) {
+                console.warn("ব্র্যান্ডিং ফেচিং ব্যর্থ:", e);
+            }
         }
     }
 
-    // পিন ভেরিফিকেশন ইঞ্জিন (মাস্টার রাউটিং সহ)
+    // পিন ভেরিফিকেশন ও সরাসরি টেন্যান্ট থেকে ডাটা লোড (Direct Client Fetch)
     window.verifyParentAccess = async function() {
         if (Date.now() < lockUntilTimestamp) {
             showToast("কিছুক্ষণ পর আবার চেষ্টা করুন!", "error");
@@ -381,17 +391,25 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> যাচাই হচ্ছে...`;
         }
 
-        // ১. অনলাইন মাস্টার স্ক্রিপ্টের মাধ্যমে ভেরিফিকেশন (যেকোনো ফোন/ডিভাইসে কাজ করবে)
-        if (navigator.onLine && App.masterUrl) {
+        // যদি কোনো কারণে script_id না পাওয়া যায়, তবে আবার মাস্টার থেকে নেওয়ার চেষ্টা করবে
+        if (!resolvedTenantScriptId && navigator.onLine && App.masterUrl && madrasahId) {
+            await fetchInitialMadrasahBranding(madrasahId);
+        }
+
+        // ১. সরাসরি টেন্যান্ট গুগল শিট এপিআই কল (Direct Client-to-Tenant Call)
+        const tenantUrl = resolvedTenantScriptId 
+            ? `https://script.google.com/macros/s/${resolvedTenantScriptId}/exec` 
+            : (window.getTenantScriptUrl ? window.getTenantScriptUrl() : '');
+
+        if (navigator.onLine && tenantUrl) {
             try {
                 const payload = JSON.stringify({
                     action: 'parent_portal_fetch',
-                    madrasah_id: madrasahId,
                     student_id: studentId,
                     parent_pin: pin
                 });
 
-                const response = await fetch(App.masterUrl, {
+                const response = await fetch(tenantUrl, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -413,38 +431,11 @@
                     return;
                 }
             } catch (err) {
-                console.warn("মাস্টার ফেচ ব্যর্থ, টেন্যান্ট ট্রাই হচ্ছে...", err);
+                console.warn("টেন্যান্ট সার্ভার থেকে ডাটা আনতে সমস্যা:", err);
             }
         }
 
-        // ২. টেন্যান্ট স্ক্রিপ্ট ফালব্যাক
-        const tenantUrl = window.getTenantScriptUrl();
-        if (navigator.onLine && tenantUrl) {
-            try {
-                const payload = new URLSearchParams({
-                    action: 'parent_portal_fetch',
-                    student_id: studentId,
-                    parent_pin: pin
-                }).toString();
-
-                const response = await fetch(tenantUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: payload
-                });
-
-                const res = await response.json();
-                if (res.status === 'success') {
-                    portalStudentData = res;
-                    hideParentAuthOverlay();
-                    await renderParentDashboard();
-                    return;
-                }
-            } catch (err){}
-        }
-
-        // ৩. অফলাইন লোকাল ডাটাবেজ ফালব্যাক
+        // ২. অফলাইন লোকাল ডাটাবেজ ফালব্যাক (যদি এই ডিভাইসে পূর্বে ডাটা থাকে)
         try {
             const student = await db.students.get(studentId);
             if (student && student.is_deleted !== 1) {
@@ -468,7 +459,7 @@
                         hifz: hifz.filter(h => h.is_deleted !== 1),
                         exams: exams.filter(e => e.is_deleted !== 1 && e.is_published === 1),
                         madrasah: {
-                            name: config.madrasah_name || 'মাদরাসাতুল মদিনা',
+                            name: config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা',
                             address: config.madrasah_address || 'ঢাকা, বাংলাদেশ',
                             phone: config.madrasah_phone || '',
                             logo: config.madrasah_logo || ''
