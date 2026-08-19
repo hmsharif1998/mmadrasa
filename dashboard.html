@@ -76,7 +76,7 @@
             </div>
             <div class="mt-2.5 pt-2 border-t border-gray-100 flex justify-between items-center text-[10px]">
                 <span class="text-rose-600 font-bold">বকেয়া: <span id="dash-due-students" class="font-en">0</span> জন (<span id="dash-due-amount" class="font-en">৳ 0</span>)</span>
-                <button type="button" onclick="event.stopPropagation(); window.sendDueReminderBroadcast();" class="text-green-600 hover:text-green-800 font-bold bg-green-50 px-2 py-0.5 rounded border border-green-200" title="হোয়াটসঅ্যাপে বকেয়া তাগাদা নোটিশ পাঠান">
+                <button type="button" onclick="event.stopPropagation(); window.sendDueReminderBroadcast();" class="text-green-600 hover:text-green-800 font-bold bg-green-50 px-2 py-0.5 rounded border border-green-200 cursor-pointer" title="হোয়াটসঅ্যাপে বকেয়া তাগাদা নোটিশ পাঠান">
                     <i class="fa-brands fa-whatsapp"></i> তাগাদা
                 </button>
             </div>
@@ -494,26 +494,63 @@
             filteredFees = filteredFees.filter(f => studentBranchMap[f.student_id] === activeBranchFilter);
         }
 
-        // চলতি মাসের বকেয়া ছাত্র ও বকেয়া টাকার পরিমাণ হিসাব
-        const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
-        const currentMonthName = bnMonths[new Date().getMonth()];
+        // ==========================================================
+        // ডায়নামিক লেজার ও ভর্তির মাস ভিত্তিক বকেয়া ছাত্র ও টাকার হিসাব
+        // ==========================================================
+        const currentMonthIdx = new Date().getMonth();
         const todayPrefix = window.getLocalDateString().substring(0, 7);
 
-        const paidMap = {};
+        const studentPaymentsMap = {};
+        const studentDiscountsMap = {};
         let currentMonthFeesTotal = 0;
+
         filteredFees.forEach(fee => {
-            if (fee.month === currentMonthName) paidMap[fee.student_id] = true;
+            const sid = fee.student_id;
+            const paid = window.safeParseFloat(fee.total || fee.paid_amount || fee.amount || 0);
+            const disc = window.safeParseFloat(fee.discount || 0);
+
+            studentPaymentsMap[sid] = (studentPaymentsMap[sid] || 0) + paid;
+            studentDiscountsMap[sid] = (studentDiscountsMap[sid] || 0) + disc;
+
             if (fee.payment_date && fee.payment_date.startsWith(todayPrefix)) {
-                currentMonthFeesTotal += window.safeParseFloat(fee.total || fee.amount);
+                currentMonthFeesTotal += paid;
             }
         });
 
         let dueStudentsCount = 0;
         let dueAmountTotal = 0;
+
         filteredStudents.forEach(student => {
-            if (!paidMap[student.id]) {
+            const monthlyFee = window.safeParseFloat(student.monthly_fee || 0);
+            const openingDue = window.safeParseFloat(student.previous_due || 0);
+
+            // ভর্তির মাস নির্ণয়
+            let admMonthIdx = 0;
+            if (student.admission_date) {
+                const admParts = student.admission_date.split('-');
+                if (admParts.length >= 2) {
+                    const parsedM = parseInt(admParts[1], 10);
+                    if (!isNaN(parsedM) && parsedM >= 1 && parsedM <= 12) {
+                        admMonthIdx = parsedM - 1;
+                    }
+                }
+            }
+
+            // সক্রিয় মাসের সংখ্যা (ভর্তির মাস থেকে চলতি মাস পর্যন্ত)
+            let activeBilledMonths = 0;
+            if (currentMonthIdx >= admMonthIdx) {
+                activeBilledMonths = (currentMonthIdx - admMonthIdx) + 1;
+            }
+
+            const totalBilled = (activeBilledMonths * monthlyFee) + openingDue;
+            const totalPaid = studentPaymentsMap[student.id] || 0;
+            const totalDiscount = studentDiscountsMap[student.id] || 0;
+
+            const studentDue = Math.max(0, totalBilled - totalDiscount - totalPaid);
+
+            if (studentDue > 0) {
                 dueStudentsCount++;
-                dueAmountTotal += window.safeParseFloat(student.monthly_fee || 0);
+                dueAmountTotal += studentDue;
             }
         });
 
@@ -532,7 +569,7 @@
 
         // মোট ফিস ও খরচ
         let totalFees = 0;
-        filteredFees.forEach(f => { totalFees += window.safeParseFloat(f.total || f.amount); });
+        filteredFees.forEach(f => { totalFees += window.safeParseFloat(f.total || f.paid_amount || f.amount); });
         document.getElementById('dash-total-fees').textContent = totalFees.toLocaleString('bn-BD');
         document.getElementById('dash-month-fees').textContent = currentMonthFeesTotal.toLocaleString('bn-BD');
 
@@ -634,7 +671,7 @@
                 category: 'মাসিক বেতন',
                 name: f.student_name,
                 date: f.payment_date,
-                amount: window.safeParseFloat(f.total || f.amount),
+                amount: window.safeParseFloat(f.total || f.paid_amount || f.amount),
                 isIncome: true
             });
         });
@@ -656,7 +693,7 @@
         const latest5 = transactions.slice(0, 5);
 
         if (latest5.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">কোনো সাম্প্রতিক লেনদেন পাওয়া যায়নি</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400 font-bold">কোনো সাম্প্রতিক লেনদেন পাওয়া যায়নি</td></tr>`;
             return;
         }
 
@@ -761,7 +798,7 @@
                 if (f.payment_date && f.payment_date.startsWith(currentMonthPrefix)) {
                     const day = parseInt(f.payment_date.split('-')[2], 10) - 1;
                     if (day < daysInMonth && day >= 0) {
-                        dailyIncome[day] += window.safeParseFloat(f.total || f.amount);
+                        dailyIncome[day] += window.safeParseFloat(f.total || f.paid_amount || f.amount);
                     }
                 }
             });

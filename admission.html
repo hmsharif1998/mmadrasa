@@ -1,4 +1,3 @@
-
 <!-- Google Fonts & html2pdf.js CDN (পিডিএফ ও ফন্ট অপ্টিমাইজেশন) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,11 +35,17 @@
             <span class="flex items-center gap-2.5">
                 <i class="fa-solid fa-user-plus text-emerald-600 text-2xl"></i> তালিবে ইলম ভর্তি / পুনঃনিবন্ধন ফরম
             </span>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-gray-500">শিক্ষাবর্ষ:</span>
-                <select id="student-session-year" onchange="window.onAdmissionSessionChange()" class="px-3 py-1.5 rounded-xl border border-emerald-300 text-xs font-bold font-en bg-emerald-50 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
-                    <!-- ডাইনামিক সেশন লোড হবে -->
-                </select>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-gray-500">ভর্তির তারিখ:</span>
+                    <input type="date" id="student-admission-date" required class="px-2.5 py-1.5 rounded-xl border border-emerald-300 text-xs font-bold font-en bg-emerald-50 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-gray-500">শিক্ষাবর্ষ:</span>
+                    <select id="student-session-year" onchange="window.onAdmissionSessionChange()" class="px-3 py-1.5 rounded-xl border border-emerald-300 text-xs font-bold font-en bg-emerald-50 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                        <!-- ডাইনামিক সেশন লোড হবে -->
+                    </select>
+                </div>
             </div>
         </h3>
 
@@ -53,10 +58,10 @@
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-bold text-emerald-900">ভর্তির ধরন নির্বাচন করুন:</span>
                     <div class="flex bg-white rounded-xl p-1 border border-emerald-200 shadow-sm">
-                        <button type="button" onclick="window.toggleStudentType('new')" id="btn-type-new" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm">
+                        <button type="button" onclick="window.toggleStudentType('new')" id="btn-type-new" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm cursor-pointer">
                             নতুন ভর্তি
                         </button>
-                        <button type="button" onclick="window.toggleStudentType('old')" id="btn-type-old" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-600 hover:bg-gray-50">
+                        <button type="button" onclick="window.toggleStudentType('old')" id="btn-type-old" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-600 hover:bg-gray-50 cursor-pointer">
                             পুরাতন ছাত্র (পুনঃনিবন্ধন)
                         </button>
                     </div>
@@ -128,11 +133,11 @@
                 </div>
             </div>
 
-            <!-- ২. বেতন ও ফী গ্রুপ -->
+            <!-- ২. বেতন ও ফী গ্রুপ (ডায়নামিক সেটিং অনুযায়ী) -->
             <div class="space-y-3 bg-blue-50/40 p-5 rounded-2xl border border-blue-100">
                 <h4 class="text-xs font-extrabold text-blue-900 uppercase tracking-wider pb-1 flex items-center justify-between border-b border-blue-200/60">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-money-bill-wave text-blue-600"></i> ২. বেতন ও ফিস গ্রুপ নির্বাচন</span>
-                    <span class="text-[10px] text-blue-600 font-bold">অনবোর্ডিং কনফিগারেশন অনুযায়ী</span>
+                    <span class="text-[10px] text-blue-600 font-bold">সেটিংস অনুযায়ী স্বয়ংক্রিয় প্রযোজ্য হবে</span>
                 </h4>
                 <div id="dynamic-fee-groups" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 pt-1"></div>
             </div>
@@ -221,7 +226,7 @@
                                        oninput="window.handlePhoneInput(this); window.syncWhatsAppIfChecked(); window.autoGenerateParentPin();"
                                        class="w-full pl-3 pr-10 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-en font-bold bg-white">
                                 <button type="button" onclick="window.addAdditionalPhoneField()" title="আরও মোবাইল নম্বর যোগ করুন"
-                                        class="absolute right-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 w-7 h-7 rounded-lg flex items-center justify-center text-xs transition">
+                                        class="absolute right-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 w-7 h-7 rounded-lg flex items-center justify-center text-xs transition cursor-pointer">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
                             </div>
@@ -241,7 +246,7 @@
                                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 text-xs font-en font-bold bg-white">
                         </div>
 
-                        <!-- প্যারেন্ট পোর্টাল পিন ও বকেয়া -->
+                        <!-- প্যারেন্ট পোর্টাল পিন ও প্রারম্ভিক বিগত বকেয়া -->
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 mb-1">প্যারেন্ট পিন (Auto)</label>
@@ -249,7 +254,7 @@
                                        class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-gray-100 text-xs font-en font-bold text-center tracking-widest text-emerald-800">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">পূর্বের বকেয়া (৳)</label>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">প্রারম্ভিক বকেয়া (৳)</label>
                                 <input type="text" id="student-previous-due" placeholder="০" value="0"
                                        oninput="this.value = window.convertToEnglishDigits(this.value)"
                                        class="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-xs font-en font-bold text-rose-700 bg-white">
@@ -340,10 +345,10 @@
 
             <!-- সাবমিট বাটন -->
             <div class="flex gap-3 pt-3">
-                <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md">
+                <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-md cursor-pointer">
                     <i class="fa-solid fa-circle-check"></i> ভর্তি নিশ্চিত করুন
                 </button>
-                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition duration-200 text-sm border border-gray-300">
+                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition duration-200 text-sm border border-gray-300 cursor-pointer">
                     বাতিল করুন
                 </button>
             </div>
@@ -361,7 +366,7 @@
             <div class="flex items-center gap-2">
                 <input type="text" id="recent-search-input" oninput="window.filterRecentAdmissionsTable()" placeholder="নাম, আইডি বা রোল দিয়ে খুঁজুন..."
                        class="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-bold bg-gray-50 focus:outline-none focus:border-emerald-500">
-                <button type="button" onclick="window.loadRecentAdmissions()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-bold transition" title="রিফ্রেশ">
+                <button type="button" onclick="window.loadRecentAdmissions()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer" title="রিফ্রেশ">
                     <i class="fa-solid fa-rotate"></i>
                 </button>
             </div>
@@ -400,10 +405,10 @@
         </div>
 
         <div class="flex gap-2 mt-3 border-t pt-2.5 bg-white">
-            <button onclick="window.downloadStudentProfilePDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm">
+            <button onclick="window.downloadStudentProfilePDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer">
                 <i class="fa-solid fa-file-pdf text-sm"></i> প্রোফাইল পিডিএফ (A5)
             </button>
-            <button onclick="window.closeProfileModal()" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border border-gray-200">
+            <button onclick="window.closeProfileModal()" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
                 বন্ধ করুন
             </button>
         </div>
@@ -422,13 +427,13 @@
         </div>
 
         <div class="flex gap-2 mt-3 border-t pt-2.5 bg-white">
-            <button id="btn-wa-send" onclick="window.sendReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition">
+            <button id="btn-wa-send" onclick="window.sendReceiptToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition cursor-pointer">
                 <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ
             </button>
-            <button onclick="window.downloadAdmissionReceiptPDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm">
+            <button onclick="window.downloadAdmissionReceiptPDF()" class="flex-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm cursor-pointer">
                 <i class="fa-solid fa-file-pdf text-sm"></i> রসিদ পিডিএফ (A5)
             </button>
-            <button onclick="window.closeReceiptModal()" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border">
+            <button onclick="window.closeReceiptModal()" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs transition border cursor-pointer">
                 বন্ধ
             </button>
         </div>
@@ -484,6 +489,10 @@
     window.initAdmission = async function() {
         document.getElementById('editing-student-id').value = "";
         document.getElementById('previous-student-id-val').value = "";
+        
+        const admDateInput = document.getElementById('student-admission-date');
+        if (admDateInput) admDateInput.value = window.getLocalDateString();
+
         additionalPhones = [];
         renderAdditionalPhones();
 
@@ -491,6 +500,7 @@
 
         academicStructure = config.academic_structure ? JSON.parse(config.academic_structure) : [];
         
+        // সেটিংস থেকে ডায়নামিক ফি গ্রুপ সংগ্রহ
         const rawFeeGroups = config.fee_groups ? JSON.parse(config.fee_groups) : [];
         feeGroups = rawFeeGroups.map((fg, idx) => ({
             id: fg.id || ('fg-' + idx),
@@ -525,6 +535,7 @@
                 const id = document.getElementById('student-id').value.trim();
                 const serialNo = parseInt(window.convertToEnglishDigits(document.getElementById('student-serial').value), 10) || 1;
                 const sessionYearVal = document.getElementById('student-session-year').value;
+                const admissionDateVal = document.getElementById('student-admission-date').value || window.getLocalDateString();
                 const name = document.getElementById('student-name').value.trim();
                 const fatherName = document.getElementById('student-father-name').value.trim();
                 const motherName = document.getElementById('student-mother-name').value.trim();
@@ -586,7 +597,7 @@
                 const sClass = classObj ? classObj.name : "";
                 const sGroup = window.selectedGroupId || "-"; 
                 const sFeeGroupName = feeGroupObj ? feeGroupObj.name : "সাধারণ ফি";
-                const sMonthlyFee = feeGroupObj ? feeGroupObj.amount : 0;
+                const sMonthlyFee = feeGroupObj ? feeGroupObj.amount : 0; // সেটিংস হতে ডায়নামিক ফি
 
                 const user = window.currentUser || JSON.parse(sessionStorage.getItem('currentUser'));
                 const curUser = user ? user.username : "system";
@@ -596,6 +607,7 @@
                         id: id,
                         serial_no: serialNo,
                         session_year: sessionYearVal,
+                        admission_date: admissionDateVal, // ভর্তি তারিখ সংরক্ষণ
                         name: name,
                         father_name: fatherName + (fatherDeceased ? ' (মৃত)' : ''),
                         mother_name: motherName + (motherDeceased ? ' (মৃত)' : ''),
@@ -617,7 +629,7 @@
                         additional_phones: JSON.stringify(additionalPhones),
                         parent_pin: parentPin,
                         previous_student_id: previousStudentId,
-                        previous_due: previousDue,
+                        previous_due: previousDue, // প্রারম্ভিক বকেয়া
                         docs_submitted: JSON.stringify(docsSubmitted),
                         address: permanentAddress,
                         permanent_address: permanentAddress,
@@ -636,7 +648,7 @@
                         const existing = await db.students.get(editId);
                         studentObj.created_by = existing ? (existing.created_by || curUser) : curUser;
                         studentObj.updated_by = curUser;
-                        studentObj.admission_date = existing ? (existing.admission_date || window.getLocalDateString()) : window.getLocalDateString();
+                        studentObj.admission_date = admissionDateVal;
 
                         await db.students.update(editId, studentObj);
                         showToast("তথ্য সফলভাবে সংশোধন করা হয়েছে।", "success");
@@ -644,7 +656,6 @@
                     } else {
                         studentObj.created_by = curUser;
                         studentObj.updated_by = curUser;
-                        studentObj.admission_date = window.getLocalDateString();
 
                         await db.students.add(studentObj);
                         showToast("তালিবে ইলম সফলভাবে ভর্তি করা হয়েছে।", "success");
@@ -652,6 +663,7 @@
                         additionalPhones = [];
                         renderAdditionalPhones();
                         document.getElementById('same-address-checkbox').checked = true;
+                        document.getElementById('student-admission-date').value = window.getLocalDateString();
                         window.togglePresentAddress();
                     }
 
@@ -775,7 +787,7 @@
         list.innerHTML = additionalPhones.map((ph, idx) => `
             <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 text-xs">
                 <span class="font-en font-bold text-gray-700 truncate">${ph}</span>
-                <button type="button" onclick="window.removeAdditionalPhone(${idx})" class="text-rose-500 hover:text-rose-700 ml-1 p-0.5">
+                <button type="button" onclick="window.removeAdditionalPhone(${idx})" class="text-rose-500 hover:text-rose-700 ml-1 p-0.5 cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>`).join('');
@@ -854,12 +866,12 @@
 
         if (type === 'old') {
             if (oldContainer) oldContainer.classList.remove('hidden');
-            if (btnNew) btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block text-gray-600 hover:bg-gray-50";
-            if (btnOld) btnOld.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block bg-emerald-600 text-white shadow-sm";
+            if (btnNew) btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block text-gray-600 hover:bg-gray-50 cursor-pointer";
+            if (btnOld) btnOld.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block bg-emerald-600 text-white shadow-sm cursor-pointer";
         } else {
             if (oldContainer) oldContainer.classList.add('hidden');
-            if (btnNew) btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block bg-emerald-600 text-white shadow-sm";
-            if (btnOld) btnOld.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block text-gray-600 hover:bg-gray-50";
+            if (btnNew) btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block bg-emerald-600 text-white shadow-sm cursor-pointer";
+            if (btnOld) btnOld.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition inline-block text-gray-600 hover:bg-gray-50 cursor-pointer";
             document.getElementById('previous-student-id-val').value = "";
         }
     };
@@ -931,6 +943,7 @@
         document.getElementById('student-birth-reg').value = oldStudent.birth_reg || '';
         document.getElementById('student-phone').value = oldStudent.parent_phone || '';
         document.getElementById('student-whatsapp').value = oldStudent.whatsapp_number || oldStudent.parent_phone || '';
+        document.getElementById('student-previous-due').value = oldStudent.previous_due || 0;
         
         document.getElementById('student-perm-village').value = oldStudent.village || '';
         document.getElementById('student-perm-post').value = oldStudent.post || '';
@@ -1150,6 +1163,7 @@
         renderDynamicFeeGroups();
     };
 
+    // ফী গ্রুপ ডায়নামিক রেন্ডারার
     function renderDynamicFeeGroups() {
         const container = document.getElementById('dynamic-fee-groups');
         if (!container) return;
@@ -1165,14 +1179,13 @@
             const isActive = window.selectedFeeGroupId === grpId;
 
             container.innerHTML += `
-                <button type="button" onclick="window.selectFeeGroup('${grpId}')" class="w-full text-center py-2.5 px-3 rounded-xl border ${isActive ? 'border-blue-600 bg-blue-600 text-white font-bold shadow-md' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'} text-xs transition">
+                <button type="button" onclick="window.selectFeeGroup('${grpId}')" class="w-full text-center py-2.5 px-3 rounded-xl border ${isActive ? 'border-blue-600 bg-blue-600 text-white font-bold shadow-md' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'} text-xs transition cursor-pointer">
                     <div class="font-bold truncate">${grp.name}</div>
                     <div class="text-[10px] ${isActive ? 'text-blue-100' : 'text-emerald-700'} font-en font-extrabold mt-0.5">৳ ${grp.amount}</div>
                 </button>`;
         });
     }
 
-    // ★ ফিক্সড ও নিখুঁত সিরিয়াল ও আইডি জেনারেটর ★
     async function generateIdAndSerial(deptName = "") {
         try {
             const rawStudents = await db.students.toArray();
@@ -1240,7 +1253,7 @@
             const sorted = [...allStudentsList].reverse().slice(0, 15);
 
             if (sorted.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">কোনো ভর্তি পাওয়া যায়নি</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400 font-bold">কোনো ভর্তি পাওয়া যায়নি</td></tr>`;
                 return;
             }
 
@@ -1262,13 +1275,13 @@
                     </td>
                     <td class="py-2.5 px-3 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button type="button" onclick="window.viewStudentProfile('${s.id}')" title="প্রোফাইল ও A5 পিডিএফ" class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 w-7 h-7 rounded-lg flex items-center justify-center transition">
+                            <button type="button" onclick="window.viewStudentProfile('${s.id}')" title="প্রোফাইল ও A5 পিডিএফ" class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 w-7 h-7 rounded-lg flex items-center justify-center transition cursor-pointer">
                                 <i class="fa-solid fa-file-pdf text-xs"></i>
                             </button>
-                            <button type="button" onclick="window.editAdmittedStudent('${s.id}')" title="এডিট করুন" class="bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-700 w-7 h-7 rounded-lg flex items-center justify-center transition">
+                            <button type="button" onclick="window.editAdmittedStudent('${s.id}')" title="এডিট করুন" class="bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-700 w-7 h-7 rounded-lg flex items-center justify-center transition cursor-pointer">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
-                            <button type="button" onclick="window.reprintStudentReceipt('${s.id}')" title="ভর্তি রসিদ ও A5 পিডিএফ" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 w-7 h-7 rounded-lg flex items-center justify-center transition">
+                            <button type="button" onclick="window.reprintStudentReceipt('${s.id}')" title="ভর্তি রসিদ ও A5 পিডিএফ" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 w-7 h-7 rounded-lg flex items-center justify-center transition cursor-pointer">
                                 <i class="fa-solid fa-receipt text-xs"></i>
                             </button>
                         </div>
@@ -1295,6 +1308,7 @@
         document.getElementById('student-id').value = s.id;
         document.getElementById('student-serial').value = s.serial_no || 1;
         document.getElementById('student-session-year').value = s.session_year || '2026';
+        document.getElementById('student-admission-date').value = s.admission_date || window.getLocalDateString();
         
         document.getElementById('student-name').value = s.name || '';
         
@@ -1383,7 +1397,7 @@
         showToast(`ছাত্র ${s.name}-এর তথ্য এডিট মোডে খোলা হয়েছে`, "info");
     };
 
-    // ★ A5 সাইজ উপযোগী কমপ্যাক্ট পূর্ণাঙ্গ প্রোফাইল ভিউ ★
+    // A5 সাইজ উপযোগী পূর্ণাঙ্গ প্রোফাইল ভিউ
     window.viewStudentProfile = async function(studentId) {
         const student = allStudentsList.find(s => s.id === studentId);
         if (!student) return;
@@ -1430,9 +1444,9 @@
 
                 <div class="space-y-1 border border-gray-200 p-2 rounded-lg bg-white">
                     <h6 class="font-bold text-blue-800 border-b pb-0.5 text-[10px] flex items-center gap-1"><i class="fa-solid fa-phone text-[9px]"></i> যোগাযোগ ও ফিস</h6>
+                    <div><span class="text-gray-500">ভর্তির তারিখ:</span> <strong class="font-en text-gray-800">${student.admission_date || '-'}</strong></div>
                     <div><span class="text-gray-500">মোবাইল:</span> <strong class="font-en text-emerald-850">${student.parent_phone}</strong></div>
                     <div><span class="text-gray-500">হোয়াটসঅ্যাপ:</span> <strong class="font-en text-green-700">${student.whatsapp_number || student.parent_phone}</strong></div>
-                    <div><span class="text-gray-500">প্যারেন্ট পিন:</span> <strong class="font-en">${student.parent_pin || '-'}</strong></div>
                     <div><span class="text-gray-500">ফি গ্রুপ:</span> <strong class="text-gray-900">${student.fee_group_name}</strong></div>
                     <div><span class="text-gray-500">মাসিক ফিস:</span> <strong class="font-en text-emerald-800">৳ ${student.monthly_fee}</strong></div>
                 </div>
@@ -1463,7 +1477,7 @@
         document.getElementById('print-profile-modal')?.classList.add('hidden');
     };
 
-    // সরাসরি A5 সাইজে প্রোফাইল পিডিএফ ডাউনলোড
+    // A5 সাইজে প্রোফাইল পিডিএফ ডাউনলোড
     window.downloadStudentProfilePDF = function() {
         if (!activeProfileStudent) return;
         const element = document.getElementById('student-profile-print');
@@ -1497,6 +1511,7 @@
         
         document.getElementById('editing-student-id').value = "";
         document.getElementById('previous-student-id-val').value = "";
+        document.getElementById('student-admission-date').value = window.getLocalDateString();
         document.getElementById('student-age-display')?.classList.add('hidden');
 
         additionalPhones = [];
@@ -1594,15 +1609,25 @@
         });
     };
 
+    // শতভাগ নিখুঁত ও ডায়নামিক হোয়াটসঅ্যাপ মেসেজ লিঙ্ক
     window.sendReceiptToWhatsApp = function() {
         if (!activePrintedStudent) return;
         let phone = (activePrintedStudent.whatsapp_number || activePrintedStudent.parent_phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const msg = `আসসালামু আলাইকুম। আপনার সন্তান ${activePrintedStudent.name}-কে ${madrasahConfig.madrasah_name || 'মাদরাসায়'} ভর্তি সম্পন্ন করা হয়েছে।
-আইডি: ${activePrintedStudent.id} (রোল: ${activePrintedStudent.roll})
-প্রোফাইল লিংক: const madrasahId = localStorage.getItem('active_madrasah_id') || '';
-const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${activePrintedStudent.id}`;
+        const madrasahId = localStorage.getItem('active_madrasah_id') || '';
+        const portalUrl = `${window.location.origin}${window.location.pathname}?m=${madrasahId}&p=${activePrintedStudent.id}`;
+        const mName = madrasahConfig.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসায়';
+
+        const msg = `আসসালামু আলাইকুম।
+আপনার সন্তান ${activePrintedStudent.name}-কে ${mName} ভর্তি সম্পন্ন করা হয়েছে।
+
+ভর্তি আইডি: ${activePrintedStudent.id} (রোল: ${activePrintedStudent.roll || '-'})
+জামাত ও শাখা: ${activePrintedStudent.class} (${activePrintedStudent.branch})
+ফি গ্রুপ: ${activePrintedStudent.fee_group_name}
+
+অনলাইনে প্রোফাইল ও বিস্তারিত দেখুন: ${portalUrl}
+ধন্যবাদ।`;
 
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     };

@@ -1,12 +1,12 @@
 /* ==========================================================================
-   Master Sheet - Robust JSON-Engine (Fixed Login & Setup)
+   Master Sheet - High-Speed Caching & Discovery Gateway
    ========================================================================== */
 
 function doPost(e) {
   try {
     var params = {};
     
-    // ১. ব্রাউজার থেকে আসা JSON ডাটা নিখুঁতভাবে পড়া
+    // ১. ব্রাউজার থেকে আসা JSON বা Form ডাটা পড়া
     if (e && e.postData && e.postData.contents) {
       try {
         params = JSON.parse(e.postData.contents);
@@ -25,6 +25,21 @@ function doPost(e) {
     }
 
     var action = params.action;
+    var cache = CacheService.getScriptCache();
+
+    // ==========================================================
+    // ৩.১ (ফাস্ট ট্র্যাক) মেমোরি ক্যাশ থেকে পাবলিক ব্র্যান্ডিং চেক
+    // ==========================================================
+    if (action === "get_madrasah_public_info") {
+      var mId = String(params.madrasah_id || "").trim().toUpperCase();
+      if (mId) {
+        var cachedInfo = cache.get("PUB_INFO_" + mId);
+        if (cachedInfo) {
+          return responseJSON(JSON.parse(cachedInfo));
+        }
+      }
+    }
+
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName("Tenants") || ss.getSheets()[0];
     
@@ -32,7 +47,9 @@ function doPost(e) {
     var rows = table.rows;
     var headers = table.headers;
 
-    // ২. লগইন ও ওয়ান-টাইম সেটআপ যাচাই
+    // ==========================================================
+    // ২. লগইন ও ওয়ান-টাইম সেটআপ যাচাই (Admin Auth)
+    // ==========================================================
     if (action === "verify_login_or_setup") {
       var mId = String(params.madrasah_id || "").trim().toUpperCase();
       var inputUser = String(params.username || "").trim().toLowerCase();
@@ -55,7 +72,6 @@ function doPost(e) {
             var setupUser = String(row.setup_username || "").trim().toLowerCase();
             var setupPass = String(row.setup_password || "").trim();
 
-            // ইউজারনেম ও পাসওয়ার্ড মিলিয়ে দেখা
             if (inputUser === setupUser && inputPass === setupPass) {
               return responseJSON({
                 status: "success",
@@ -83,7 +99,41 @@ function doPost(e) {
       return responseJSON({ status: "error", message: "মাদরাসা আইডি (" + mId + ") খুঁজে পাওয়া যায়নি!" });
     }
 
-    // ৩. ইনস্টলেশন শেষে মাস্টার শিট লকডাউন
+    // ==========================================================
+    // ৩. মাদরাসার পাবলিক ব্র্যান্ডিং ও টেন্যান্ট স্ক্রিপ্ট ডিসকভারি
+    // ==========================================================
+    if (action === "get_madrasah_public_info") {
+      var mId = String(params.madrasah_id || "").trim().toUpperCase();
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        if (String(row.madrasah_id || "").trim().toUpperCase() === mId) {
+          var rowStatus = String(row.status || "").trim().toLowerCase();
+          if (rowStatus !== "active") {
+            return responseJSON({ status: "error", message: "মাদরাসার অ্যাকাউন্টটি সক্রিয় (Active) নেই!" });
+          }
+
+          var pubResponse = {
+            status: "success",
+            madrasah_name: String(row.madrasah_name || "").trim(),
+            madrasah_logo: String(row.madrasah_logo || "").trim(),
+            script_id: String(row.script_id || "").trim()
+          };
+
+          // ৬ ঘণ্টার জন্য গুগলের মেমোরি ক্যাশে সংরক্ষণ (পরের বার শিট না খুলেই দ্রুত লোড হবে)
+          try {
+            cache.put("PUB_INFO_" + mId, JSON.stringify(pubResponse), 21600);
+          } catch(cErr){}
+
+          return responseJSON(pubResponse);
+        }
+      }
+      return responseJSON({ status: "error", message: "মাদরাসা খুঁজে পাওয়া যায়নি!" });
+    }
+
+    // ==========================================================
+    // ৪. ইনস্টলেশন শেষে মাস্টার শিট লকডাউন
+    // ==========================================================
     if (action === "lockdown_installation") {
       var mId = String(params.madrasah_id || "").trim().toUpperCase();
 
@@ -94,6 +144,11 @@ function doPost(e) {
           setCellValueByHeader(sheet, headers, rowNumber, "setup_password", "");
           setCellValueByHeader(sheet, headers, rowNumber, "is_installed", true);
           setCellValueByHeader(sheet, headers, rowNumber, "installed_at", new Date());
+
+          // ক্যাশ পরিষ্কার করা যেন সাথে সাথে আপডেট কার্যকর হয়
+          try {
+            cache.remove("PUB_INFO_" + mId);
+          } catch(cErr){}
 
           return responseJSON({ status: "success", message: "মাস্টার লকডাউন সম্পন্ন!" });
         }
@@ -108,7 +163,10 @@ function doPost(e) {
   }
 }
 
-// শিটের ডাটা অবজেক্টে রূপান্তর
+// ==========================================================
+// সহায়ক ফাংশনসমূহ (Helper Functions)
+// ==========================================================
+
 function getSheetDataAsObjects(sheet) {
   var values = sheet.getDataRange().getValues();
   if (values.length < 2) return { headers: [], rows: [] };
