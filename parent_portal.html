@@ -274,14 +274,15 @@
     let resolvedMadrasahId = "";
     let resolvedStudentId = "";
     let resolvedTenantScriptId = "";
+    let resolvedTenantSheetId = "";
+    let prefetchPromise = null;
 
-    // URL থেকে মাদরাসা আইডি ও ছাত্র আইডি নিখুঁতভাবে রিড করা
+    // ১. URL থেকে প্যারামিটার রিড
     function parsePortalUrlParams() {
         const urlParams = new URLSearchParams(window.location.search);
         let mId = urlParams.get('m') || '';
         let sId = urlParams.get('p') || urlParams.get('student_id') || window.parentPortalStudentId || '';
 
-        // কাস্টম লিঙ্ক ফরম্যাট সাপোর্ট (যেমন: ?m101-p=S-1001 বা ?p=M101_S-1001)
         if (!mId && sId && sId.includes('_')) {
             const parts = sId.split('_');
             mId = parts[0];
@@ -300,10 +301,45 @@
         resolvedMadrasahId = (mId || localStorage.getItem('active_madrasah_id') || '').toUpperCase();
         resolvedStudentId = sId;
         resolvedTenantScriptId = localStorage.getItem('active_tenant_script_id') || '';
+        resolvedTenantSheetId = localStorage.getItem('active_tenant_sheet_id') || '';
 
         return { madrasahId: resolvedMadrasahId, studentId: resolvedStudentId };
     }
 
+    // ২. সার্বজনীন দ্রুতগতির GViz টেবিল ফেচার (Google Visualization Engine)
+    async function fetchGVizData(spreadsheetId, sheetName, query = '') {
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}${query ? '&tq=' + encodeURIComponent(query) : ''}`;
+            const res = await fetch(url);
+            const txt = await res.text();
+            const jsonStr = txt.substring(txt.indexOf('{'), txt.lastIndexOf('}') + 1);
+            const data = JSON.parse(jsonStr);
+            if (data.status !== 'ok') return [];
+
+            const cols = (data.table.cols || []).map((c, i) => (c.label || c.id || `col_${i}`).trim());
+            const rows = (data.table.rows || []).map(r => {
+                const obj = {};
+                if (!r || !r.c) return obj;
+                r.c.forEach((cell, idx) => {
+                    const colKey = cols[idx] || `col_${idx}`;
+                    if (cell && cell.v !== null && cell.v !== undefined) {
+                        obj[colKey] = cell.v.toString();
+                    } else if (cell && cell.f) {
+                        obj[colKey] = cell.f.toString();
+                    } else {
+                        obj[colKey] = '';
+                    }
+                });
+                return obj;
+            });
+            return rows;
+        } catch(err) {
+            console.warn(`GViz fetch failed for ${sheetName}:`, err);
+            return [];
+        }
+    }
+
+    // ৩. পোর্টাল ইনিশিয়ালাইজেশন ও ব্যাকগ্রাউন্ড প্রি-ফেচিং
     window.initParentPortal = async function() {
         const { madrasahId, studentId } = parsePortalUrlParams();
         
@@ -312,21 +348,22 @@
             return;
         }
 
-        // পেজ লোড হওয়ামাত্র মাস্টার সার্ভার থেকে মাদরাসার নাম, লোগো এবং টেন্যান্ট স্ক্রিপ্ট আইডি সংগ্রহ
-        await fetchInitialMadrasahBranding(madrasahId);
-
+        // লক টাইম চেক
         const savedLockTime = localStorage.getItem('parent_portal_lock_time');
         if (savedLockTime && Date.now() < parseInt(savedLockTime, 10)) {
             lockParentPortalInput("৩ বার ভুল পিন দেওয়ায় ১০ মিনিটের জন্য সুবিধাটি বন্ধ রাখা হয়েছে।");
         }
+
+        // মাস্টার ডিসকভারি ও ব্যাকগ্রাউন্ড প্রি-ফেচিং শুরু
+        prefetchPromise = discoverAndPrefetchData(madrasahId, studentId);
     };
 
-    // মাস্টার সার্ভার থেকে মাদরাসার ব্র্যান্ডিং ও টেন্যান্ট স্ক্রিপ্ট আইডি প্রি-ফেচিং (ক্যাশ-ফার্স্ট)
-    async function fetchInitialMadrasahBranding(madrasahId) {
+    // মাস্টার থেকে তথ্য এনে সমান্তরালে (Parallel) টেন্যান্ট ডাটা ব্যাকগ্রাউন্ডে রেডি করা
+    async function discoverAndPrefetchData(madrasahId, studentId) {
         const titleEl = document.getElementById('portal-madrasah-title');
         const logoBox = document.getElementById('portal-auth-logo-box');
 
-        // ১. ইনস্ট্যান্ট লোকাল মেমোরি চেক (০ সেকেন্ডে নাম ও লোগো দেখানো)
+        // লোকাল মেমোরি ইনস্ট্যান্ট ব্র্যান্ডিং
         const localName = localStorage.getItem('madrasah_name');
         const localLogo = localStorage.getItem('madrasah_logo');
         if (localName && titleEl) titleEl.textContent = localName;
@@ -334,7 +371,7 @@
             logoBox.innerHTML = `<img src="${localLogo}" crossorigin="anonymous" class="w-16 h-16 rounded-2xl object-cover">`;
         }
 
-        // ২. ক্লাউড মাস্টার স্ক্রিপ্ট থেকে মেমোরি ক্যাশ ফেচিং
+        // মাস্টার স্ক্রিপ্ট থেকে sheet_id ও script_id আনা
         if (navigator.onLine && App.masterUrl && madrasahId) {
             try {
                 const payload = JSON.stringify({
@@ -363,14 +400,59 @@
                         resolvedTenantScriptId = data.script_id;
                         localStorage.setItem('active_tenant_script_id', data.script_id);
                     }
+                    if (data.sheet_id) {
+                        resolvedTenantSheetId = data.sheet_id;
+                        localStorage.setItem('active_tenant_sheet_id', data.sheet_id);
+                    }
                 }
-            } catch(e) {
-                console.warn("ব্র্যান্ডিং ফেচিং ব্যর্থ:", e);
-            }
+            } catch(e){}
         }
+
+        // যদি sheet_id থাকে, তবে ব্যাকগ্রাউন্ডে GViz দিয়ে আগেই ডাটা টেনে আনবে!
+        if (resolvedTenantSheetId) {
+            try {
+                const curYear = new Date().getFullYear();
+                const sessionTabs = [`S${curYear}`, `S${curYear + 1}`, 'Students'];
+
+                // প্যারালাল কুয়েরি
+                const [studentsRes, feesRes, attRes, marksRes, hifzRes, examsRes, settingsRes] = await Promise.all([
+                    // ছাত্র অনুসন্ধান (S2026/Students)
+                    Promise.all(sessionTabs.map(tab => fetchGVizData(resolvedTenantSheetId, tab, `WHERE A = '${studentId}'`))).then(results => results.flat()),
+                    fetchGVizData(resolvedTenantSheetId, 'Fees', `WHERE B = '${studentId}' OR student_id = '${studentId}'`),
+                    fetchGVizData(resolvedTenantSheetId, 'Attendance', `WHERE B = '${studentId}' OR student_id = '${studentId}'`),
+                    fetchGVizData(resolvedTenantSheetId, 'Marks', `WHERE C = '${studentId}' OR student_id = '${studentId}'`),
+                    fetchGVizData(resolvedTenantSheetId, 'Hifz_tracker', `WHERE B = '${studentId}' OR student_id = '${studentId}'`),
+                    fetchGVizData(resolvedTenantSheetId, 'Exams'),
+                    fetchGVizData(resolvedTenantSheetId, 'Settings')
+                ]);
+
+                const studentObj = studentsRes.find(s => s.id === studentId || s.ID === studentId);
+                const madrasahInfo = settingsRes[0] || {};
+
+                if (studentObj) {
+                    return {
+                        status: 'success',
+                        student: studentObj,
+                        fees: feesRes.filter(f => parseInt(f.is_deleted) !== 1),
+                        attendance: attRes.filter(a => parseInt(a.is_deleted) !== 1),
+                        marks: marksRes.filter(m => parseInt(m.is_deleted) !== 1),
+                        hifz: hifzRes.filter(h => parseInt(h.is_deleted) !== 1),
+                        exams: examsRes.filter(e => parseInt(e.is_deleted) !== 1),
+                        madrasah: {
+                            name: madrasahInfo.madrasah_name || localStorage.getItem('madrasah_name') || '',
+                            address: madrasahInfo.madrasah_address || '',
+                            phone: madrasahInfo.madrasah_phone || '',
+                            logo: madrasahInfo.madrasah_logo || localStorage.getItem('madrasah_logo') || ''
+                        },
+                        last_updated: new Date().toISOString()
+                    };
+                }
+            } catch(e){}
+        }
+        return null;
     }
 
-    // পিন ভেরিফিকেশন ও সরাসরি টেন্যান্ট থেকে দ্রুত ডাটা লোড (Direct Client Fetch)
+    // ৪. পিন ভেরিফিকেশন ও ইনস্ট্যান্ট আনলক (০ মিলিসেকেন্ডে ড্যাশবোর্ড লোড)
     window.verifyParentAccess = async function() {
         if (Date.now() < lockUntilTimestamp) {
             showToast("কিছুক্ষণ পর আবার চেষ্টা করুন!", "error");
@@ -391,18 +473,32 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> যাচাই হচ্ছে...`;
         }
 
-        // যদি কোনো কারণে script_id পূর্বে ক্যাশ না হয়ে থাকে, তবে দ্রুত ডিসকভারি করবে
-        if (!resolvedTenantScriptId && navigator.onLine && App.masterUrl && madrasahId) {
-            await fetchInitialMadrasahBranding(madrasahId);
-        }
+        try {
+            // ১. ব্যাকগ্রাউন্ডে রেডি থাকা প্রি-ফেচড GViz ডাটা দিয়ে ইনস্ট্যান্ট যাচাই
+            let preloadedData = await prefetchPromise;
+            
+            if (preloadedData && preloadedData.student) {
+                const s = preloadedData.student;
+                const phone = (s.parent_phone || s.phone || "").toString().replace(/\D/g, '');
+                const last4Digits = phone.length >= 4 ? phone.substring(phone.length - 4) : "";
 
-        // ১. সরাসরি টেন্যান্ট গুগল শিট এপিআই কল (Direct Single-Hop Call)
-        const tenantUrl = resolvedTenantScriptId 
-            ? `https://script.google.com/macros/s/${resolvedTenantScriptId}/exec` 
-            : (window.getTenantScriptUrl ? window.getTenantScriptUrl() : '');
+                if (last4Digits === pin || (s.parent_pin && s.parent_pin.toString().trim() === pin)) {
+                    portalStudentData = preloadedData;
+                    hideParentAuthOverlay();
+                    await renderParentDashboard();
+                    return;
+                } else {
+                    handleFailedParentAttempt("ভুল পিন কোড!");
+                    return;
+                }
+            }
 
-        if (navigator.onLine && tenantUrl) {
-            try {
+            // ২. ফালব্যাক: টেন্যান্ট গুগল স্ক্রিপ্টে ডাইরেক্ট কল
+            const tenantUrl = resolvedTenantScriptId 
+                ? `https://script.google.com/macros/s/${resolvedTenantScriptId}/exec` 
+                : (window.getTenantScriptUrl ? window.getTenantScriptUrl() : '');
+
+            if (navigator.onLine && tenantUrl) {
                 const payload = JSON.stringify({
                     action: 'parent_portal_fetch',
                     student_id: studentId,
@@ -420,9 +516,6 @@
 
                 if (res.status === 'success') {
                     portalStudentData = res;
-                    if (res.madrasah && res.madrasah.name) {
-                        localStorage.setItem('madrasah_name', res.madrasah.name);
-                    }
                     hideParentAuthOverlay();
                     await renderParentDashboard();
                     return;
@@ -430,13 +523,9 @@
                     handleFailedParentAttempt(res.message || "ভুল পিন কোড!");
                     return;
                 }
-            } catch (err) {
-                console.warn("টেন্যান্ট সার্ভার থেকে ডাটা আনতে সমস্যা:", err);
             }
-        }
 
-        // ২. অফলাইন লোকাল ডাটাবেজ ফালব্যাক (যদি এই ডিভাইসে পূর্বে ডাটা থাকে)
-        try {
+            // ৩. অফলাইন লোকাল ডাটাবেজ ফালব্যাক
             const student = await db.students.get(studentId);
             if (student && student.is_deleted !== 1) {
                 const phone = (student.parent_phone || "").toString().replace(/\D/g, '');
@@ -460,7 +549,7 @@
                         exams: exams.filter(e => e.is_deleted !== 1 && e.is_published === 1),
                         madrasah: {
                             name: config.madrasah_name || localStorage.getItem('madrasah_name') || 'মাদরাসাতুল মদিনা',
-                            address: config.madrasah_address || 'ঢাকা, বাংলাদেশ',
+                            address: config.madrasah_address || '',
                             phone: config.madrasah_phone || '',
                             logo: config.madrasah_logo || ''
                         },
@@ -473,6 +562,7 @@
                 }
             }
             handleFailedParentAttempt("ভুল পিন কোড অথবা ছাত্রের তথ্য পাওয়া যায়নি!");
+
         } catch (e) {
             handleFailedParentAttempt("সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি!");
         } finally {
@@ -525,7 +615,7 @@
         if (pinInp) pinInp.value = '';
     };
 
-    // ড্যাশবোর্ড রেন্ডারার (ভর্তির মাস ও নিখুঁত লেজার হিসাব সহ)
+    // ৫. ড্যাশবোর্ড রেন্ডারার (ভর্তির মাস ও লেজার হিসাব সহ)
     async function renderParentDashboard() {
         if (!portalStudentData || !portalStudentData.student) return;
 
@@ -573,15 +663,12 @@
         const attRate = totalAtt > 0 ? Math.round((presentCount / totalAtt) * 100) : 100;
         document.getElementById('overview-att-rate').textContent = attRate + "%";
 
-        // ==========================================================
-        // ডায়নামিক লেজার ও ভর্তির মাস ভিত্তিক নিখুঁত বকেয়া হিসাব
-        // ==========================================================
+        // লেজার ও ভর্তির মাস ভিত্তিক বকেয়া হিসাব
         const feesList = portalStudentData.fees || [];
         const monthlyFee = parseFloat(s.monthly_fee) || 0;
-        const prevDue = parseFloat(s.previous_due) || 0; // বিগত বকেয়া / ওপেনিং ব্যালেন্স
+        const prevDue = parseFloat(s.previous_due) || 0;
 
-        // ভর্তির মাস নির্ণয় (Admission Month Index)
-        let admissionMonthIdx = 0; // ডিফল্ট জানুয়ারি (0)
+        let admissionMonthIdx = 0;
         if (s.admission_date) {
             const admDateParts = s.admission_date.split('-');
             if (admDateParts.length >= 2) {
@@ -593,13 +680,11 @@
         }
 
         const currentMonthIdx = new Date().getMonth();
-        // ভর্তির মাস থেকে চলতি মাস পর্যন্ত সক্রিয় মাসের সংখ্যা (ভর্তির আগের মাসের ফি ধার্য হবে না)
         let activeBilledMonths = 0;
         if (currentMonthIdx >= admissionMonthIdx) {
             activeBilledMonths = (currentMonthIdx - admissionMonthIdx) + 1;
         }
 
-        // মোট প্রদেয় পাওনা (ভর্তির মাস থেকে চলতি মাস পর্যন্ত ধার্যকৃত ফি + বিগত বকেয়া)
         const totalBilledFee = (activeBilledMonths * monthlyFee) + prevDue;
 
         let totalPaidSum = 0;
@@ -612,7 +697,6 @@
             totalDiscountSum += discAmt;
         });
 
-        // প্রকৃত সার্বিক বকেয়া = (মোট পাওনা) - (মোট ডিসকাউন্ট + মোট আদায়কৃত টাকা)
         const calculatedDue = Math.max(0, totalBilledFee - totalDiscountSum - totalPaidSum);
 
         document.getElementById('overview-due-amount').textContent = "৳ " + calculatedDue.toLocaleString('bn-BD');
@@ -630,7 +714,7 @@
         await populateParentExamDropdown();
     }
 
-    // ফি তালিকা ও A5 রসিদ ডাউনলোড (ছাড় ও বিশদ বিবরণীসহ)
+    // ফি তালিকা ও A5 রসিদ ডাউনলোড
     function renderParentFees(fees) {
         const container = document.getElementById('portal-fees-list');
         if (!container) return;
@@ -662,7 +746,7 @@
         }).join('');
     }
 
-    // A5 ফি রসিদ পিডিএফ ডাউনলোড (বিগত বকেয়া ও ছাড়ের হিসাবসহ)
+    // A5 ফি রসিদ পিডিএফ ডাউনলোড
     window.downloadParentFeeReceiptPDF = function(receiptId) {
         const fee = (portalStudentData.fees || []).find(f => f.receipt_id === receiptId);
         if (!fee) return;
@@ -749,7 +833,6 @@
         const hifzHistory = document.getElementById('portal-hifz-history');
         const attContainer = document.getElementById('portal-attendance-list');
 
-        // হেফজ সবক ট্র্যাকার
         const todayStr = window.getLocalDateString();
         const todayHifz = hifzRecords.find(h => (h.date || '').split('T')[0].trim() === todayStr);
 
@@ -784,7 +867,6 @@
             sabaqCard.classList.add('hidden');
         }
 
-        // সাধারণ হাজিরা
         if (attContainer) {
             if (attendance.length === 0) {
                 attContainer.innerHTML = `<p class="text-center text-gray-400 py-6 text-xs">কোনো হাজিরার রেকর্ড পাওয়া যায়নি।</p>`;
@@ -859,7 +941,11 @@
         currentSelectedExam = examObj;
 
         const s = portalStudentData.student;
-        const subjects = examObj.subjects ? JSON.parse(examObj.subjects) : [];
+        let subjects = [];
+        try {
+            subjects = typeof examObj.subjects === 'string' ? JSON.parse(examObj.subjects) : (examObj.subjects || []);
+        } catch(e){}
+
         let marksList = portalStudentData.marks || [];
 
         const marksLookup = {};
@@ -879,9 +965,9 @@
             const isAbs = mark === 'A';
             const numMark = isAbs ? 0 : (parseFloat(mark) || 0);
             totalObtained += numMark;
-            totalFull += sub.total;
+            totalFull += (parseFloat(sub.total) || 100);
 
-            const isFail = isAbs || (numMark < sub.pass);
+            const isFail = isAbs || (numMark < (parseFloat(sub.pass) || 33));
             if (isFail) hasFailed = true;
 
             rowsHtml += `
@@ -895,7 +981,9 @@
 
         const avg = subjects.length > 0 ? (totalObtained / subjects.length) : 0;
         let scale = {};
-        try { scale = JSON.parse(examObj.grading_scale || '{}'); } catch(e){}
+        try { 
+            scale = typeof examObj.grading_scale === 'string' ? JSON.parse(examObj.grading_scale) : (examObj.grading_scale || {});
+        } catch(e){}
 
         let darajatText = "রাসিব (F)";
         let darajatColor = "#dc2626";
